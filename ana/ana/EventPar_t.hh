@@ -1,5 +1,5 @@
-#ifndef __ePlus2024_analysisModules_EventPar_t__
-#define __ePlus2024_analysisModules_EventPar_t__
+#ifndef __ePlus2024_ana_EventPar_t__
+#define __ePlus2024_ana_EventPar_t__
 
 namespace ePlus2024 {
 

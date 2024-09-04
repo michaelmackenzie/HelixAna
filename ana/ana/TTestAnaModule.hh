@@ -1,26 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef ePlus2024_analysisModules_TTestAnaModule_hh
-#define ePlus2024_analysisModules_TTestAnaModule_hh
+#ifndef ePlus2024_ana_TTestAnaModule_hh
+#define ePlus2024_ana_TTestAnaModule_hh
 
-#include "TH1.h"
-#include "TH2.h"
-#include "TProfile.h"
+#include "ePlus2024/ana/ana/EventPar_t.hh"
 
-#include "Stntuple/loop/TStnModule.hh"
-
-#include "Stntuple/obj/TStepPointMCBlock.hh"
-#include "Stntuple/obj/TGenpBlock.hh"
-#include "Stntuple/obj/TSimpBlock.hh"
-#include "Stntuple/obj/TCrvClusterBlock.hh"
-#include "Stntuple/obj/TCrvPulseBlock.hh"
-
-#include "Stntuple/base/TStnArrayI.hh"
-
-#include "ePlus2024/analysisModules/include/EventPar_t.hh"
-
-#include "ePlus2024/analysisModules/include/TAnaModule.hh"
+#include "ePlus2024/ana/ana/TAnaModule.hh"
 
 namespace ePlus2024 {
 class TTestAnaModule: public TAnaModule {

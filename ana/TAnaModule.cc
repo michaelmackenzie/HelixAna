@@ -16,7 +16,7 @@
 //------------------------------------------------------------------------------
 // 
 //-----------------------------------------------------------------------------
-#include "ePlus2024/analysisModules/include/TAnaModule.hh"
+#include "ePlus2024/ana/ana/TAnaModule.hh"
 
 using std::vector;
 
@@ -53,7 +53,7 @@ int TAnaModule::BeginJob() {
 //-----------------------------------------------------------------------------
 int TAnaModule::BeginRun() {
 
-  TStnDataset* ds = GetAna()->GetInputModule()->GetDataset(0);
+  //TStnDataset* ds = GetAna()->GetInputModule()->GetDataset(0);
 
   int rn = GetHeaderBlock()->RunNumber();
   TStntuple::Init(rn);

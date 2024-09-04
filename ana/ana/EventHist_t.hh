@@ -1,8 +1,7 @@
-#ifndef __ePlus2024_analysisModules_EventHist_t_hh
-#define __ePlus2024_analysisModules_EventHist_t_hh
+#ifndef __ePlus2024_ana_EventHist_t_hh
+#define __ePlus2024_ana_EventHist_t_hh
 
 #include "TH1.h"
-#include "TH2.h"
 
 namespace ePlus2024 {
 

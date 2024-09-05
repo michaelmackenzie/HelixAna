@@ -16,7 +16,7 @@
 //------------------------------------------------------------------------------
 // 
 //-----------------------------------------------------------------------------
-#include "ePlus2024/ana/ana/TAnaModule.hh"
+#include "ePlus2024/ana/TAnaModule.hh"
 
 using std::vector;
 
@@ -64,7 +64,15 @@ int TAnaModule::BeginRun() {
 //-----------------------------------------------------------------------------
 void TAnaModule::BookEventHistograms(EventHist_t* Hist, const char* Folder) {
 
-  HBook1F(Hist->fInstLumi,"inst_lumi",Form("%s: POT",Folder), 300,  0.,1.5e8,Folder);
+  HBook1F(Hist->fInstLumi,"inst_lumi",Form("%s: POT",Folder), 300,  0.0, 1.5e8, Folder);
+  HBook1F(Hist->fNTracksDe,"nTracksDe",Form("%s: nTracksDe",Folder), 50, 0.0, 50.0, Folder);
+  
+}
+
+//-----------------------------------------------------------------------------
+void TAnaModule::BookTrackHistograms(TrackHist_t* Hist, const char* Folder) {
+
+  HBook1F(Hist->fP,"p",Form("%s: track momentum",Folder), 300,  0.,300,Folder);
   
 }
 
@@ -72,7 +80,21 @@ void TAnaModule::BookEventHistograms(EventHist_t* Hist, const char* Folder) {
 void TAnaModule::FillEventHistograms(EventHist_t* Hist, EventPar_t* EvtPar) {
 
   Hist->fInstLumi->Fill(EvtPar->fInstLum);
+  Hist->fNTracksDe->Fill(EvtPar->fNTracksDe);
   
+}
+
+//-----------------------------------------------------------------------------
+void TAnaModule::FillTrackHistograms(TrackHist_t* Hist, TrackPar_t* TrkPar) {
+
+  Hist->fP->Fill(TrkPar->fTrack->fP);
+  
+}
+
+void TAnaModule::InitTrackPar(TStnTrack* Trk, ePlus2024::TrackPar_t* TrkPar) {
+
+  TrkPar->fTrack = Trk;
+
 }
 
 }

@@ -7,6 +7,7 @@ namespace ePlus2024 {
 
   struct EventHist_t {
     TH1F*    fInstLumi;
+    TH1F*    fNTracksDe;
   };
 
 }

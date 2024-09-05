@@ -10,9 +10,13 @@
 
 #include "Stntuple/alg/TStntuple.hh"
 
-#include "ePlus2024/ana/ana/EventPar_t.hh"
+#include "Stntuple/obj/TStnTrack.hh"
 
-#include "ePlus2024/ana/ana/EventHist_t.hh"
+#include "ePlus2024/ana/EventPar_t.hh"
+#include "ePlus2024/ana/TrackPar_t.hh"
+
+#include "ePlus2024/ana/EventHist_t.hh"
+#include "ePlus2024/ana/TrackHist_t.hh"
 
 namespace ePlus2024 {
 class TAnaModule: public TStnModule {
@@ -41,8 +45,12 @@ public:
 // other methods
 //-----------------------------------------------------------------------------
   void    BookEventHistograms     (ePlus2024::EventHist_t* Hist, const char* Folder);
+  void    BookTrackHistograms     (ePlus2024::TrackHist_t* Hist, const char* Folder);
 
   void    FillEventHistograms     (ePlus2024::EventHist_t* Hist, ePlus2024::EventPar_t*  EvtPar);
+  void    FillTrackHistograms     (ePlus2024::TrackHist_t* Hist, ePlus2024::TrackPar_t*  TrkPar);
+
+  void    InitTrackPar            (TStnTrack* Trk, ePlus2024::TrackPar_t* TrkPar);
 
 };
 }

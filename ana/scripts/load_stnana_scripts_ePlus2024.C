@@ -11,6 +11,7 @@ int load_stnana_scripts_ePlus2024() {
 
   const char* script[] = { 
     "tst.C"        , "PWD",
+    "trg.C"        , "PWD",
     0 
   };
 

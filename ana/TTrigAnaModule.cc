@@ -9,7 +9,9 @@ namespace ePlus2024 {
 TTrigAnaModule::TTrigAnaModule(const char* name, const char* title):
   TAnaModule(name,title)
 {
-  fTrackBlockNameDe   =  "TrackSeedBlockApr";
+  fAprTrackBlockName  =  "TrackBlockAprHighPStopTarg";
+  fCprTrackBlockName  =  "TrackBlockCprDeHighPStopTarg";
+  fTriggerBlockName   =  "TriggerBlock";
 }
 
 //-----------------------------------------------------------------------------
@@ -22,7 +24,9 @@ int TTrigAnaModule::BeginJob() {
   //-----------------------------------------------------------------------------
   // register data blocks
   //-----------------------------------------------------------------------------
-  RegisterDataBlock(fTrackBlockNameDe, "TStnTrackBlock", &fTrackBlockDe); 
+  RegisterDataBlock(fAprTrackBlockName, "TStnTrackBlock", &fAprTrackBlock);
+  RegisterDataBlock(fCprTrackBlockName, "TStnTrackBlock", &fCprTrackBlock);
+  RegisterDataBlock(fTriggerBlockName, "TStnTriggerBlock", &fTriggerBlock);
 
   //-----------------------------------------------------------------------------
   // book histograms
@@ -68,8 +72,9 @@ void TTrigAnaModule::BookHistograms() {
   TString* track_selection[kNTrackHistSets];
   for (int i=0; i<kNTrackHistSets; i++) track_selection[i] = 0;
 
-  track_selection[0] = new TString("all tracks");
-
+  track_selection[0] = new TString("apr_tracks");
+  track_selection[1] = new TString("cpr_tracks");
+  
   for (int i=0; i<kNTrackHistSets; i++) {
     if (track_selection[i] != 0) {
       sprintf(folder_name,"trk_%i",i);
@@ -99,12 +104,21 @@ void TTrigAnaModule::FillHistograms() {
   FillEventHistograms(fHist.fEvent[0],&fEvtPar);
 
   //-----------------------------------------------------------------------------
-  // 2. fill track histograms
+  // 2. fill apr track histograms
   //-----------------------------------------------------------------------------
-  for (int i=0; i<fEvtPar.fNTracksDe; i++) {
-    fTrack = fTrackBlockDe->Track(i);
-    InitTrackPar(fTrack,fTrkPar);
-    FillTrackHistograms(fHist.fTrack[0],fTrkPar);
+  for (int i=0; i<fEvtPar.fNAprTracks; i++) {
+    fTrack = fAprTrackBlock->Track(i);
+    InitTrackPar(fTrack,&fTrkPar);
+    FillTrackHistograms(fHist.fTrack[0],&fTrkPar);
+  }
+
+  //-----------------------------------------------------------------------------
+  // 2. fill cpr track histograms
+  //-----------------------------------------------------------------------------
+  for (int i=0; i<fEvtPar.fNCprTracks; i++) {
+    fTrack = fCprTrackBlock->Track(i);
+    InitTrackPar(fTrack,&fTrkPar);
+    FillTrackHistograms(fHist.fTrack[1],&fTrkPar);
   }
   
 }
@@ -112,13 +126,20 @@ void TTrigAnaModule::FillHistograms() {
 //-----------------------------------------------------------------------------
 int TTrigAnaModule::Event(int ientry) {
 
-  // get the track block entry for the ith event
-  fTrackBlockDe->GetEntry(ientry);
+  // get entry for the ith event for each data block
+  fAprTrackBlock->GetEntry(ientry);
+  fCprTrackBlock->GetEntry(ientry);
+  fTriggerBlock->GetEntry(ientry);
 
   // get/set event parameters
   fEvtPar.fInstLum  = GetHeaderBlock()->fInstLum;
-  fEvtPar.fNTracksDe = fTrackBlockDe->NTracks();
-
+  fEvtPar.fNAprTracks = fAprTrackBlock->NTracks();
+  fEvtPar.fNCprTracks = fCprTrackBlock->NTracks();
+  fEvtPar.fPassedCprPath = false;
+  fEvtPar.fPassedAprPath = false;
+  if (fTriggerBlock->PathPassed(150)) { fEvtPar.fPassedCprPath = true; }
+  if (fTriggerBlock->PathPassed(180)) { fEvtPar.fPassedAprPath = true; }
+  
   FillHistograms();
 
   return 0;		       

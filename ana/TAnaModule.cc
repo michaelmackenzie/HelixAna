@@ -17,6 +17,7 @@
 // 
 //-----------------------------------------------------------------------------
 #include "ePlus2024/ana/TAnaModule.hh"
+ClassImp(ePlus2024::TAnaModule)
 
 using std::vector;
 
@@ -65,7 +66,11 @@ int TAnaModule::BeginRun() {
 void TAnaModule::BookEventHistograms(EventHist_t* Hist, const char* Folder) {
 
   HBook1F(Hist->fInstLumi,"inst_lumi",Form("%s: POT",Folder), 300,  0.0, 1.5e8, Folder);
-  HBook1F(Hist->fNTracksDe,"nTracksDe",Form("%s: nTracksDe",Folder), 50, 0.0, 50.0, Folder);
+  HBook1F(Hist->fInstLumiApr,"inst_lumi_apr",Form("%s: POT",Folder), 300,  0.0, 1.5e8, Folder);
+  HBook1F(Hist->fInstLumiCpr,"inst_lumi_cpr",Form("%s: POT",Folder), 300,  0.0, 1.5e8, Folder);
+  HBook1F(Hist->fInstLumiAprCpr,"inst_lumi_apr_cpr",Form("%s: POT",Folder), 300,  0.0, 1.5e8, Folder);
+  HBook1F(Hist->fNAprTracks,"nTracksApr",Form("%s: nTracksApr",Folder), 50, 0.0, 50.0, Folder);
+  HBook1F(Hist->fNCprTracks,"nTracksCpr",Form("%s: nTracksCpr",Folder), 50, 0.0, 50.0, Folder);
   
 }
 
@@ -80,7 +85,11 @@ void TAnaModule::BookTrackHistograms(TrackHist_t* Hist, const char* Folder) {
 void TAnaModule::FillEventHistograms(EventHist_t* Hist, EventPar_t* EvtPar) {
 
   Hist->fInstLumi->Fill(EvtPar->fInstLum);
-  Hist->fNTracksDe->Fill(EvtPar->fNTracksDe);
+  if (EvtPar->fPassedAprPath) { Hist->fInstLumiApr->Fill(EvtPar->fInstLum); }
+  if (EvtPar->fPassedCprPath) { Hist->fInstLumiCpr->Fill(EvtPar->fInstLum); }
+  if (EvtPar->fPassedAprPath || EvtPar->fPassedCprPath) { Hist->fInstLumiAprCpr->Fill(EvtPar->fInstLum); }
+  Hist->fNAprTracks->Fill(EvtPar->fNAprTracks);
+  Hist->fNCprTracks->Fill(EvtPar->fNCprTracks);
   
 }
 

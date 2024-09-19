@@ -6,7 +6,11 @@ namespace ePlus2024 {
   struct EventPar_t {
     
     float         fInstLum;
-    int           fNTracksDe;
+    int           fNAprTracks;
+    int           fNCprTracks;
+
+    bool          fPassedAprPath;
+    bool          fPassedCprPath;
 
   };
 }

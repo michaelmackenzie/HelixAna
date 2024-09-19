@@ -10,13 +10,14 @@
 
 #include "Stntuple/obj/TStnHeaderBlock.hh"
 #include "Stntuple/obj/TStnTrackBlock.hh"
+#include "Stntuple/obj/TStnTriggerBlock.hh"
 
 namespace ePlus2024 {
 class TTrigAnaModule: public TAnaModule {
 public:
 
   enum { kNEventHistSets          =   1 };
-  enum { kNTrackHistSets          =   1 };
+  enum { kNTrackHistSets          =   2 };
 
   struct Hist_t {
     ePlus2024::EventHist_t*    fEvent[kNEventHistSets];
@@ -28,12 +29,17 @@ public:
 //-----------------------------------------------------------------------------
 public:
 
-  TStnTrackBlock*          fTrackBlockDe;
+  TStnTriggerBlock*        fTriggerBlock;
+  TString                  fTriggerBlockName;
+  
+  TStnTrackBlock*          fAprTrackBlock;
+  TStnTrackBlock*          fCprTrackBlock;
+  TString                  fAprTrackBlockName;
+  TString                  fCprTrackBlockName;
   TStnTrack*               fTrack;
-  TString                  fTrackBlockNameDe;
 
   ePlus2024::EventPar_t    fEvtPar;
-  ePlus2024::TrackPar_t*   fTrkPar;
+  ePlus2024::TrackPar_t    fTrkPar;
   Hist_t                   fHist;
   
 //-----------------------------------------------------------------------------

@@ -7,7 +7,11 @@ namespace ePlus2024 {
 
   struct EventHist_t {
     TH1F*    fInstLumi;
-    TH1F*    fNTracksDe;
+    TH1F*    fInstLumiApr; // only filled if apr triggered event
+    TH1F*    fInstLumiCpr; // only filled if cpr triggered event
+    TH1F*    fInstLumiAprCpr; // filled if either apr or cpr triggered event
+    TH1F*    fNAprTracks;
+    TH1F*    fNCprTracks;
   };
 
 }

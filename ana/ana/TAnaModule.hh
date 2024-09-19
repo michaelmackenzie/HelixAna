@@ -52,6 +52,7 @@ public:
 
   void    InitTrackPar            (TStnTrack* Trk, ePlus2024::TrackPar_t* TrkPar);
 
+  ClassDef(TAnaModule,0)
 };
 }
 #endif

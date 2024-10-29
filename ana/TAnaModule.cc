@@ -71,13 +71,19 @@ void TAnaModule::BookEventHistograms(EventHist_t* Hist, const char* Folder) {
   HBook1F(Hist->fInstLumiAprCpr,"inst_lumi_apr_cpr",Form("%s: POT",Folder), 300,  0.0, 1.5e8, Folder);
   HBook1F(Hist->fNAprTracks,"nTracksApr",Form("%s: nTracksApr",Folder), 50, 0.0, 50.0, Folder);
   HBook1F(Hist->fNCprTracks,"nTracksCpr",Form("%s: nTracksCpr",Folder), 50, 0.0, 50.0, Folder);
-  
+  HBook1F(Hist->fNTracks,"nTracks",Form("%s: nTracks",Folder), 50, 0.0, 50.0, Folder);
+
 }
 
 //-----------------------------------------------------------------------------
 void TAnaModule::BookTrackHistograms(TrackHist_t* Hist, const char* Folder) {
 
-  HBook1F(Hist->fP,"p",Form("%s: track momentum",Folder), 300,  0.,300,Folder);
+  HBook1F(Hist->fP,"p",Form("%s: track momentum",Folder), 600,  -300.0, 300.0, Folder);
+  HBook1F(Hist->fPt,"pt",Form("%s: track transverse momentum",Folder), 600,  -300.0, 300.0, Folder);
+  HBook1F(Hist->fD0,"d0",Form("%s: track d0",Folder), 200, -200.0, 200.0, Folder);
+  HBook1F(Hist->fTanDip,"tanDip",Form("%s: track tanDip",Folder), 200,  0.0, 2.0, Folder);
+  HBook1F(Hist->fRadius,"radius",Form("%s: track radius",Folder), 1000,  0.0, 1000, Folder);
+  HBook1F(Hist->fMaxApproach,"maxApproach",Form("%s: track max approach",Folder), 2000,  0.0, 2000, Folder);
   
 }
 
@@ -90,20 +96,31 @@ void TAnaModule::FillEventHistograms(EventHist_t* Hist, EventPar_t* EvtPar) {
   if (EvtPar->fPassedAprPath || EvtPar->fPassedCprPath) { Hist->fInstLumiAprCpr->Fill(EvtPar->fInstLum); }
   Hist->fNAprTracks->Fill(EvtPar->fNAprTracks);
   Hist->fNCprTracks->Fill(EvtPar->fNCprTracks);
+  Hist->fNTracks->Fill(EvtPar->fNTracks);
   
 }
 
 //-----------------------------------------------------------------------------
 void TAnaModule::FillTrackHistograms(TrackHist_t* Hist, TrackPar_t* TrkPar) {
 
-  Hist->fP->Fill(TrkPar->fTrack->fP);
+  Hist->fP->Fill((TrkPar->fTrack->fP)*(TrkPar->fTrack->fCharge));
+  Hist->fPt->Fill((TrkPar->fTrack->fPt)*(TrkPar->fTrack->fCharge));
+  Hist->fD0->Fill(TrkPar->fTrack->fD0);
+  Hist->fTanDip->Fill(TrkPar->fTrack->fTanDip);
+  Hist->fRadius->Fill(TrkPar->fRadius);
+  Hist->fMaxApproach->Fill(TrkPar->fMaxApproach);
   
 }
 
 void TAnaModule::InitTrackPar(TStnTrack* Trk, ePlus2024::TrackPar_t* TrkPar) {
-
+  
+  // set pointer to TStnTrack
   TrkPar->fTrack = Trk;
 
+  // compute parameters not contained in TStnTrack
+  TrkPar->fRadius = Trk->fPt / (mmTconversion*bz0);
+  TrkPar->fMaxApproach = Trk->fD0 + 2*TrkPar->fRadius;
+  
 }
 
 }

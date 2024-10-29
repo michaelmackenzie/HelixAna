@@ -18,9 +18,18 @@
 #include "ePlus2024/ana/EventHist_t.hh"
 #include "ePlus2024/ana/TrackHist_t.hh"
 
+#include "CLHEP/Units/PhysicalConstants.h"
+
 namespace ePlus2024 {
 class TAnaModule: public TStnModule {
 public:
+
+//-----------------------------------------------------------------------------
+//  define constexpr
+//-----------------------------------------------------------------------------
+  static constexpr float mmTconversion = CLHEP::c_light/1000.0;
+  static constexpr float bz0           = 1.0;
+  
 //-----------------------------------------------------------------------------
 //  data members
 //-----------------------------------------------------------------------------

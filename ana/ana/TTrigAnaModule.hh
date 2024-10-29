@@ -16,8 +16,8 @@ namespace ePlus2024 {
 class TTrigAnaModule: public TAnaModule {
 public:
 
-  enum { kNEventHistSets          =   1 };
-  enum { kNTrackHistSets          =   2 };
+  enum { kNEventHistSets          =   2 };
+  enum { kNTrackHistSets          =   5 };
 
   struct Hist_t {
     ePlus2024::EventHist_t*    fEvent[kNEventHistSets];
@@ -34,9 +34,14 @@ public:
   
   TStnTrackBlock*          fAprTrackBlock;
   TStnTrackBlock*          fCprTrackBlock;
+  TStnTrackBlock*          fOfflineTrackBlock;
   TString                  fAprTrackBlockName;
   TString                  fCprTrackBlockName;
+  TString                  fOfflineTrackBlockName;
   TStnTrack*               fTrack;
+
+  bool                     fGoodOfflineTrackExists;
+  int                      fGoodOfflineTrackIndex;
 
   ePlus2024::EventPar_t    fEvtPar;
   ePlus2024::TrackPar_t    fTrkPar;
@@ -66,6 +71,12 @@ public:
 //-----------------------------------------------------------------------------
   void    BookHistograms();
   void    FillHistograms();
+
+//-----------------------------------------------------------------------------
+// custom functions
+//-----------------------------------------------------------------------------
+  // function used to set fGoodOfflineTrackExists as well as fGoodOfflineTrackIndex
+  bool    GoodOfflineTrackExists();
 
 };
 }

@@ -6,10 +6,11 @@ namespace ePlus2024 {
   struct EventPar_t {
     
     float         fInstLum;
-    int           fNAprTracks;
-    int           fNCprTracks;
+    int           fNAprTracks;  // for trigger analysis
+    int           fNCprTracks;  // for trigger analysis
+    int           fNTracks;
 
-    bool          fPassedAprPath;
+    bool          fPassedAprPath;  
     bool          fPassedCprPath;
 
   };

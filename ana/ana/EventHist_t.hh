@@ -12,6 +12,7 @@ namespace ePlus2024 {
     TH1F*    fInstLumiAprCpr; // filled if either apr or cpr triggered event
     TH1F*    fNAprTracks;
     TH1F*    fNCprTracks;
+    TH1F*    fNTracks;
   };
 
 }

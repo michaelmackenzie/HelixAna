@@ -7,6 +7,11 @@ namespace ePlus2024 {
 
   struct TrackHist_t {
     TH1F*    fP;
+    TH1F*    fPt;
+    TH1F*    fD0;
+    TH1F*    fTanDip;
+    TH1F*    fRadius;
+    TH1F*    fMaxApproach;
   };
 
 }

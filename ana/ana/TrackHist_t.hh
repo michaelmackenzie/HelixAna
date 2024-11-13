@@ -9,9 +9,12 @@ namespace ePlus2024 {
     TH1F*    fP;
     TH1F*    fPt;
     TH1F*    fD0;
+    TH1F*    fDP;
+    TH1F*    fFitQual;
     TH1F*    fTanDip;
     TH1F*    fRadius;
     TH1F*    fMaxApproach;
+    TH1F*    fNActive;
   };
 
 }

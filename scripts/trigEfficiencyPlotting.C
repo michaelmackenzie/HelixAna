@@ -149,5 +149,24 @@ void efficiency_vs_track_params() {
   c3->cd();
   eff_vs_pt->Draw();
   eff_vs_pt->SetTitle("efficiency vs. pt; pt; #epsilon");
+
+  // let's do vs p
+  // create canvas
+  TCanvas* c4 = new TCanvas("c4","",900,700);
+  gStyle->SetOptStat(0);
+  // read in signal dataset plots
+  TH1F* numerator_2 = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/trk_4/p");
+  TH1F* denominator_2 = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/trk_3/p");
+  int group_factor_2 = 1;
+  numerator_2 = (TH1F*) numerator_2->Rebin(group_factor_2);
+  denominator_2 = (TH1F*) denominator_2->Rebin(group_factor_2);
+  // make efficiency plot
+  TEfficiency* eff_vs_p = new TEfficiency(*numerator_2, *denominator_2);
+  eff_vs_p->SetLineColor(kBlue);
+  eff_vs_p->SetLineWidth(2);
+  // draw plots
+  c4->cd();
+  eff_vs_p->Draw();
+  eff_vs_p->SetTitle("efficiency vs. p; p; #epsilon");
   
 }

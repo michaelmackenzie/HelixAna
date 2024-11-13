@@ -9,8 +9,8 @@ namespace ePlus2024 {
 TTrigAnaModule::TTrigAnaModule(const char* name, const char* title):
   TAnaModule(name,title)
 {
-  fAprTrackBlockName      =  "TrackBlockAprHighPStopTarg";
-  fCprTrackBlockName      =  "TrackBlockCprDeHighPStopTarg";
+  fAprTrackBlockName      =  "TrackBlockAprHighP";
+  fCprTrackBlockName      =  "TrackBlockCprDeHighP";
   fOfflineTrackBlockName  =  "TrackBlockDe";
   fTriggerBlockName       =  "TriggerBlock";
 }
@@ -80,6 +80,7 @@ void TTrigAnaModule::BookHistograms() {
   track_selection[2] = new TString("Offline tracks");
   track_selection[3] = new TString("Best Offline track if track is good");
   track_selection[4] = new TString("Best Offline track if track is good and apr or cpr triggered");
+  track_selection[5] = new TString("Best Offline track if track is good and neither apr or cpr trigger");
   
   for (int i=0; i<kNTrackHistSets; i++) {
     if (track_selection[i] != 0) {
@@ -142,6 +143,10 @@ void TTrigAnaModule::FillHistograms() {
       if (fEvtPar.fPassedCprPath || fEvtPar.fPassedAprPath) {
         FillTrackHistograms(fHist.fTrack[4],&fTrkPar);
       }
+      // fill folder 5 with best offline track when neither apr or cpr trigger
+      if (!fEvtPar.fPassedCprPath && !fEvtPar.fPassedAprPath) {
+        FillTrackHistograms(fHist.fTrack[5],&fTrkPar);
+      }
     }
   }
   
@@ -165,7 +170,7 @@ bool TTrigAnaModule::GoodOfflineTrackExists() {
   // TODO : make selection cuts more precise
   for (int i=0; i<fEvtPar.fNTracks; i++) {
     fTrack = fOfflineTrackBlock->Track(i);
-    if (fTrack->fNActive < nActiveMin) continue;
+    if (fTrack->NActive() < nActiveMin) continue;
     if (fTrack->fCharge != charge) continue;
     if (fTrack->fP < minP) continue;
     if (fTrack->fP > maxP) continue;

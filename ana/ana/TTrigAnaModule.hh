@@ -17,7 +17,7 @@ class TTrigAnaModule: public TAnaModule {
 public:
 
   enum { kNEventHistSets          =   2 };
-  enum { kNTrackHistSets          =   5 };
+  enum { kNTrackHistSets          =   6 };
 
   struct Hist_t {
     ePlus2024::EventHist_t*    fEvent[kNEventHistSets];

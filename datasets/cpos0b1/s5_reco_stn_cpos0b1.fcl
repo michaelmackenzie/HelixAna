@@ -1,0 +1,14 @@
+#include "ePlus2024/datasets/cele0b1/s5_reco_stn_cele0b1.fcl"
+
+
+physics.filters.Triggerable.MinParticleMom : 87.0
+physics.filters.Triggerable.MaxParticleMom : 20000.0
+physics.filters.Triggerable.particleTypes  : [ 11, -11] 
+physics.filters.Triggerable.MinNParticles  : 1
+physics.filters.Triggerable.MinNDigis      : 15 
+
+
+services.TFileService.fileName              : "nts.user.cpos0b1s5r0000.ePlus2024.001210_00000000.root"
+physics.analyzers.InitStntuple.histFileName : "nts.user.cpos0b1s5r0000.ePlus2024.001210_00000000.stn"
+outputs.defaultOutput.fileName              : "sim.user.cpos0b1s5r0000.ePlus2024.001210_00000000.art"
+

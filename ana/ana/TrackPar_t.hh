@@ -9,7 +9,7 @@ namespace ePlus2024 {
     
     TStnTrack* fTrack;
 
-    float fMaxApproach;
+    float fRMax;
     float fRadius;
 
   };

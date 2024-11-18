@@ -82,10 +82,10 @@ void TAnaModule::BookTrackHistograms(TrackHist_t* Hist, const char* Folder) {
   HBook1F(Hist->fPt,"pt",Form("%s: track transverse momentum",Folder), 600,  -300.0, 300.0, Folder);
   HBook1F(Hist->fD0,"d0",Form("%s: track d0",Folder), 200, -200.0, 200.0, Folder);
   HBook1F(Hist->fDP,"dP",Form("%s: track p_reco - p_mc",Folder), 400, -200.0, 200.0, Folder);
-  HBook1F(Hist->fFitQual,"fitQual",Form("%s: track chi2/ndof",Folder), 200, 0.0, 10.0, Folder);
+  HBook1F(Hist->fChi2NDof,"chi2NDof",Form("%s: track chi2/ndof",Folder), 200, 0.0, 10.0, Folder);
   HBook1F(Hist->fTanDip,"tanDip",Form("%s: track tanDip",Folder), 200,  0.0, 2.0, Folder);
   HBook1F(Hist->fRadius,"radius",Form("%s: track radius",Folder), 1000,  0.0, 1000, Folder);
-  HBook1F(Hist->fMaxApproach,"maxApproach",Form("%s: track max approach",Folder), 2000,  0.0, 2000, Folder);
+  HBook1F(Hist->fRMax,"rMax",Form("%s: track rMax",Folder), 2000,  0.0, 2000, Folder);
   HBook1F(Hist->fNActive,"nActive",Form("%s: nHits used in fit",Folder), 150, 0.0, 150.0, Folder);
   
 }
@@ -110,10 +110,10 @@ void TAnaModule::FillTrackHistograms(TrackHist_t* Hist, TrackPar_t* TrkPar) {
   Hist->fPt->Fill((TrkPar->fTrack->fPt)*(TrkPar->fTrack->fCharge));
   Hist->fD0->Fill(TrkPar->fTrack->fD0);
   Hist->fDP->Fill((TrkPar->fTrack->fP)-(TrkPar->fTrack->fPFront));
-  Hist->fFitQual->Fill(TrkPar->fTrack->Chi2Dof());
+  Hist->fChi2NDof->Fill(TrkPar->fTrack->Chi2Dof());
   Hist->fTanDip->Fill(TrkPar->fTrack->fTanDip);
   Hist->fRadius->Fill(TrkPar->fRadius);
-  Hist->fMaxApproach->Fill(TrkPar->fMaxApproach);
+  Hist->fRMax->Fill(TrkPar->fRMax);
   Hist->fNActive->Fill(TrkPar->fTrack->NActive());
   
 }
@@ -125,7 +125,7 @@ void TAnaModule::InitTrackPar(TStnTrack* Trk, ePlus2024::TrackPar_t* TrkPar) {
 
   // compute parameters not contained in TStnTrack
   TrkPar->fRadius = Trk->fPt / (mmTconversion*bz0);
-  TrkPar->fMaxApproach = Trk->fD0 + 2*TrkPar->fRadius;
+  TrkPar->fRMax = Trk->fD0 + 2*TrkPar->fRadius;
   
 }
 

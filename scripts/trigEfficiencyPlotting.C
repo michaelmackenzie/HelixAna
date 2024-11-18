@@ -117,8 +117,8 @@ void efficiency_vs_track_params() {
   TCanvas* c2 = new TCanvas("c2","",900,700);
   gStyle->SetOptStat(0);
   // read in signal dataset plots
-  TH1F* numerator_0 = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/trk_4/maxApproach");
-  TH1F* denominator_0 = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/trk_3/maxApproach");
+  TH1F* numerator_0 = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/trk_4/rMax");
+  TH1F* denominator_0 = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/trk_3/rMax");
   int group_factor_0 = 10;
   numerator_0 = (TH1F*) numerator_0->Rebin(group_factor_0);
   denominator_0 = (TH1F*) denominator_0->Rebin(group_factor_0);
@@ -129,7 +129,7 @@ void efficiency_vs_track_params() {
   // draw plots
   c2->cd();
   eff_vs_max_approach->Draw();
-  eff_vs_max_approach->SetTitle("efficiency vs. max approach; max approach; #epsilon");
+  eff_vs_max_approach->SetTitle("efficiency vs. rMax; rMax [mm]; #epsilon");
 
   // let's do vs pt
   // create canvas
@@ -148,7 +148,7 @@ void efficiency_vs_track_params() {
   // draw plots
   c3->cd();
   eff_vs_pt->Draw();
-  eff_vs_pt->SetTitle("efficiency vs. pt; pt; #epsilon");
+  eff_vs_pt->SetTitle("efficiency vs. pt; pt [MeV/c]; #epsilon");
 
   // let's do vs p
   // create canvas
@@ -167,6 +167,6 @@ void efficiency_vs_track_params() {
   // draw plots
   c4->cd();
   eff_vs_p->Draw();
-  eff_vs_p->SetTitle("efficiency vs. p; p; #epsilon");
+  eff_vs_p->SetTitle("efficiency vs. p; p [MeV/c]; #epsilon");
   
 }

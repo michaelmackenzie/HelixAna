@@ -1,9 +1,9 @@
-#ifndef __ePlus2024_ana_TrackPar_t__
-#define __ePlus2024_ana_TrackPar_t__
+#ifndef __HelixAna_ana_TrackPar_t__
+#define __HelixAna_ana_TrackPar_t__
 
 #include "Stntuple/obj/TStnTrack.hh"
 
-namespace ePlus2024 {
+namespace HelixAna {
 
   struct TrackPar_t {
     

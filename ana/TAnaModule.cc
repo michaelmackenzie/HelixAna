@@ -14,22 +14,22 @@
 #include "Stntuple/geom/TCrvNumerology.hh"
 #include "Stntuple/val/stntuple_val_functions.hh"
 //------------------------------------------------------------------------------
-// 
+//
 //-----------------------------------------------------------------------------
-#include "ePlus2024/ana/TAnaModule.hh"
-ClassImp(ePlus2024::TAnaModule)
+#include "HelixAna/ana/TAnaModule.hh"
+ClassImp(HelixAna::TAnaModule)
 
 using std::vector;
 
-using namespace ePlus2024;
+using namespace HelixAna;
 
-namespace ePlus2024 {
+namespace HelixAna {
 
 //-----------------------------------------------------------------------------
 TAnaModule::TAnaModule(const char* name, const char* title):
   TStnModule(name,title)
 {
- 
+
 //-----------------------------------------------------------------------------
 // TStntuple singleton
 //-----------------------------------------------------------------------------
@@ -50,7 +50,7 @@ int TAnaModule::BeginJob() {
 
 //-----------------------------------------------------------------------------
 // common initializations
-// assume that the input dataset is initialized. 
+// assume that the input dataset is initialized.
 //-----------------------------------------------------------------------------
 int TAnaModule::BeginRun() {
 
@@ -58,7 +58,7 @@ int TAnaModule::BeginRun() {
 
   int rn = GetHeaderBlock()->RunNumber();
   TStntuple::Init(rn);
-  
+
   return 0;
 }
 
@@ -87,7 +87,7 @@ void TAnaModule::BookTrackHistograms(TrackHist_t* Hist, const char* Folder) {
   HBook1F(Hist->fRadius,"radius",Form("%s: track radius",Folder), 1000,  0.0, 1000, Folder);
   HBook1F(Hist->fRMax,"rMax",Form("%s: track rMax",Folder), 2000,  0.0, 2000, Folder);
   HBook1F(Hist->fNActive,"nActive",Form("%s: nHits used in fit",Folder), 150, 0.0, 150.0, Folder);
-  
+
 }
 
 //-----------------------------------------------------------------------------
@@ -100,7 +100,7 @@ void TAnaModule::FillEventHistograms(EventHist_t* Hist, EventPar_t* EvtPar) {
   Hist->fNAprTracks->Fill(EvtPar->fNAprTracks);
   Hist->fNCprTracks->Fill(EvtPar->fNCprTracks);
   Hist->fNTracks->Fill(EvtPar->fNTracks);
-  
+
 }
 
 //-----------------------------------------------------------------------------
@@ -115,18 +115,18 @@ void TAnaModule::FillTrackHistograms(TrackHist_t* Hist, TrackPar_t* TrkPar) {
   Hist->fRadius->Fill(TrkPar->fRadius);
   Hist->fRMax->Fill(TrkPar->fRMax);
   Hist->fNActive->Fill(TrkPar->fTrack->NActive());
-  
+
 }
 
-void TAnaModule::InitTrackPar(TStnTrack* Trk, ePlus2024::TrackPar_t* TrkPar) {
-  
+void TAnaModule::InitTrackPar(TStnTrack* Trk, HelixAna::TrackPar_t* TrkPar) {
+
   // set pointer to TStnTrack
   TrkPar->fTrack = Trk;
 
   // compute parameters not contained in TStnTrack
   TrkPar->fRadius = Trk->fPt / (mmTconversion*bz0);
   TrkPar->fRMax = Trk->fD0 + 2*TrkPar->fRadius;
-  
+
 }
 
 }

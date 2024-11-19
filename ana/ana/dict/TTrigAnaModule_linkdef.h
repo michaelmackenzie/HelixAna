@@ -3,6 +3,6 @@
 #pragma link off all   classes;
 #pragma link off all   functions;
 
-#pragma link C++ class ePlus2024::TTrigAnaModule;
+#pragma link C++ class HelixAna::TTrigAnaModule;
 
 #endif

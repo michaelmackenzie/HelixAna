@@ -7,8 +7,8 @@ sys.path.append(os.getenv("MUSE_WORK_DIR")+'/site_scons')
 #------------------------------------------------------------------------------
 # print("Stntuple/SConscript:muse branch: PWD:"+os.getenv("PWD"))
 
-x = subprocess.call(os.getenv("MUSE_WORK_DIR")+'/ePlus2024/scripts/build_config_muse ePlus2024',shell=True)
-ePlus2024_env = env.Clone()
+x = subprocess.call(os.getenv("MUSE_WORK_DIR")+'/HelixAna/scripts/build_config_muse HelixAna',shell=True)
+HelixAna_env = env.Clone()
 #------------------------------------------------------------------------------
 # done
 #------------------------------------------------------------------------------
@@ -23,13 +23,13 @@ w1  = w[0:len(w)-2]
 dir = '/'.join(w1)
 # print('dir = ',dir)
 
-ePlus2024_env['CPPPATH' ].append('-I'+dir+'/include');
-ePlus2024_env['CXXFLAGS'].append('-I'+dir+'/include');
+HelixAna_env['CPPPATH' ].append('-I'+dir+'/include');
+HelixAna_env['CXXFLAGS'].append('-I'+dir+'/include');
 #------------------------------------------------------------------------------
 # done
 #------------------------------------------------------------------------------
-ePlus2024_env.Append(BUILDERS = {'StntupleCodegen'  : stntuple_codegen})
-ePlus2024_env.Append(BUILDERS = {'StntupleRootCint' : stntuple_rootcint})
+HelixAna_env.Append(BUILDERS = {'StntupleCodegen'  : stntuple_codegen})
+HelixAna_env.Append(BUILDERS = {'StntupleRootCint' : stntuple_rootcint})
 
-Export('ePlus2024_env')
+Export('HelixAna_env')
 Export('stntuple_helper')

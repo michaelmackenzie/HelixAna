@@ -1,21 +1,21 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef ePlus2024_ana_TTestAnaModule_hh
-#define ePlus2024_ana_TTestAnaModule_hh
+#ifndef HelixAna_ana_TTestAnaModule_hh
+#define HelixAna_ana_TTestAnaModule_hh
 
-#include "ePlus2024/ana/EventPar_t.hh"
+#include "HelixAna/ana/EventPar_t.hh"
 
-#include "ePlus2024/ana/TAnaModule.hh"
+#include "HelixAna/ana/TAnaModule.hh"
 
-namespace ePlus2024 {
+namespace HelixAna {
 class TTestAnaModule: public TAnaModule {
 public:
 
   enum { kNEventHistSets          =   1 };
 
   struct Hist_t {
-    ePlus2024::EventHist_t*           fEvent[kNEventHistSets];
+    HelixAna::EventHist_t*           fEvent[kNEventHistSets];
   };
   
 //-----------------------------------------------------------------------------
@@ -23,14 +23,14 @@ public:
 //-----------------------------------------------------------------------------
 public:
 
-  ePlus2024::EventPar_t    fEvtPar;        // defined in TAnaModule.hh
+  HelixAna::EventPar_t    fEvtPar;        // defined in TAnaModule.hh
   Hist_t                   fHist;          // histograms fille
   
 //-----------------------------------------------------------------------------
 //  functions
 //-----------------------------------------------------------------------------
 public:
-  TTestAnaModule(const char* name="ePlus2024_TestAna", const char* title="TestAna");
+  TTestAnaModule(const char* name="HelixAna_TestAna", const char* title="TestAna");
   ~TTestAnaModule();
   
 //-----------------------------------------------------------------------------

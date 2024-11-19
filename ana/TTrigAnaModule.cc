@@ -1,9 +1,9 @@
 //------------------------------------------------------------------------------
 // analysis module used to study trigger parameter cuts 
 //-----------------------------------------------------------------------------
-#include "ePlus2024/ana/TTrigAnaModule.hh"
+#include "HelixAna/ana/TTrigAnaModule.hh"
 
-namespace ePlus2024 {
+namespace HelixAna {
 
 //-----------------------------------------------------------------------------
 TTrigAnaModule::TTrigAnaModule(const char* name, const char* title):

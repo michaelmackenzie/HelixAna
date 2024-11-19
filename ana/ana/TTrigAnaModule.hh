@@ -1,18 +1,18 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef ePlus2024_ana_TTrigAnaModule_hh
-#define ePlus2024_ana_TTrigAnaModule_hh
+#ifndef HelixAna_ana_TTrigAnaModule_hh
+#define HelixAna_ana_TTrigAnaModule_hh
 
-#include "ePlus2024/ana/EventPar_t.hh"
-#include "ePlus2024/ana/TrackPar_t.hh"
-#include "ePlus2024/ana/TAnaModule.hh"
+#include "HelixAna/ana/EventPar_t.hh"
+#include "HelixAna/ana/TrackPar_t.hh"
+#include "HelixAna/ana/TAnaModule.hh"
 
 #include "Stntuple/obj/TStnHeaderBlock.hh"
 #include "Stntuple/obj/TStnTrackBlock.hh"
 #include "Stntuple/obj/TStnTriggerBlock.hh"
 
-namespace ePlus2024 {
+namespace HelixAna {
 class TTrigAnaModule: public TAnaModule {
 public:
 
@@ -20,8 +20,8 @@ public:
   enum { kNTrackHistSets          =   6 };
 
   struct Hist_t {
-    ePlus2024::EventHist_t*    fEvent[kNEventHistSets];
-    ePlus2024::TrackHist_t*    fTrack[kNTrackHistSets];
+    HelixAna::EventHist_t*    fEvent[kNEventHistSets];
+    HelixAna::TrackHist_t*    fTrack[kNTrackHistSets];
   };
   
 //-----------------------------------------------------------------------------
@@ -43,15 +43,15 @@ public:
   bool                     fGoodOfflineTrackExists;
   int                      fGoodOfflineTrackIndex;
 
-  ePlus2024::EventPar_t    fEvtPar;
-  ePlus2024::TrackPar_t    fTrkPar;
+  HelixAna::EventPar_t    fEvtPar;
+  HelixAna::TrackPar_t    fTrkPar;
   Hist_t                   fHist;
   
 //-----------------------------------------------------------------------------
 //  functions
 //-----------------------------------------------------------------------------
 public:
-  TTrigAnaModule(const char* name="ePlus2024_TrigAna", const char* title="TrigAna");
+  TTrigAnaModule(const char* name="HelixAna_TrigAna", const char* title="TrigAna");
   ~TTrigAnaModule();
   
 //-----------------------------------------------------------------------------

@@ -18,10 +18,10 @@ void efficiency_vs_pot() {
   TCanvas* c0 = new TCanvas("c0","",900,700);
   gStyle->SetOptStat(0);
   // read in signal dataset plots
-  TH1F* instLumi = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/evt_0/inst_lumi");
-  TH1F* instLumiApr = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/evt_0/inst_lumi_apr");
-  TH1F* instLumiCpr = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/evt_0/inst_lumi_cpr");
-  TH1F* instLumiAprCpr = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/evt_0/inst_lumi_apr_cpr");
+  TH1F* instLumi = (TH1F*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/evt_0/inst_lumi");
+  TH1F* instLumiApr = (TH1F*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/evt_0/inst_lumi_apr");
+  TH1F* instLumiCpr = (TH1F*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/evt_0/inst_lumi_cpr");
+  TH1F* instLumiAprCpr = (TH1F*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/evt_0/inst_lumi_apr_cpr");
   int group_factor = 15;
   instLumi = (TH1F*) instLumi->Rebin(group_factor);
   instLumiApr = (TH1F*) instLumiApr->Rebin(group_factor);
@@ -67,10 +67,10 @@ void normalized_efficiency_vs_pot() {
   TCanvas* c1 = new TCanvas("c1","",900,700);
   gStyle->SetOptStat(0);
   // read in signal dataset plots
-  TH1F* instLumi_1 = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/evt_1/inst_lumi");
-  TH1F* instLumiApr_1 = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/evt_1/inst_lumi_apr");
-  TH1F* instLumiCpr_1 = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/evt_1/inst_lumi_cpr");
-  TH1F* instLumiAprCpr_1 = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/evt_1/inst_lumi_apr_cpr");
+  TH1F* instLumi_1 = (TH1F*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/evt_1/inst_lumi");
+  TH1F* instLumiApr_1 = (TH1F*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/evt_1/inst_lumi_apr");
+  TH1F* instLumiCpr_1 = (TH1F*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/evt_1/inst_lumi_cpr");
+  TH1F* instLumiAprCpr_1 = (TH1F*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/evt_1/inst_lumi_apr_cpr");
   int group_factor = 15;
   instLumi_1 = (TH1F*) instLumi_1->Rebin(group_factor);
   instLumiApr_1 = (TH1F*) instLumiApr_1->Rebin(group_factor);
@@ -117,8 +117,8 @@ void efficiency_vs_track_params() {
   TCanvas* c2 = new TCanvas("c2","",900,700);
   gStyle->SetOptStat(0);
   // read in signal dataset plots
-  TH1F* numerator_0 = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/trk_4/rMax");
-  TH1F* denominator_0 = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/trk_3/rMax");
+  TH1F* numerator_0 = (TH1F*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/trk_4/rMax");
+  TH1F* denominator_0 = (TH1F*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/trk_3/rMax");
   int group_factor_0 = 10;
   numerator_0 = (TH1F*) numerator_0->Rebin(group_factor_0);
   denominator_0 = (TH1F*) denominator_0->Rebin(group_factor_0);
@@ -136,8 +136,8 @@ void efficiency_vs_track_params() {
   TCanvas* c3 = new TCanvas("c3","",900,700);
   gStyle->SetOptStat(0);
   // read in signal dataset plots
-  TH1F* numerator_1 = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/trk_4/pt");
-  TH1F* denominator_1 = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/trk_3/pt");
+  TH1F* numerator_1 = (TH1F*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/trk_4/pt");
+  TH1F* denominator_1 = (TH1F*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/trk_3/pt");
   int group_factor_1 = 1;
   numerator_1 = (TH1F*) numerator_1->Rebin(group_factor_1);
   denominator_1 = (TH1F*) denominator_1->Rebin(group_factor_1);
@@ -155,8 +155,8 @@ void efficiency_vs_track_params() {
   TCanvas* c4 = new TCanvas("c4","",900,700);
   gStyle->SetOptStat(0);
   // read in signal dataset plots
-  TH1F* numerator_2 = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/trk_4/p");
-  TH1F* denominator_2 = (TH1F*)_inputFile->Get("Ana/ePlus2024_TrigAna/Hist/trk_3/p");
+  TH1F* numerator_2 = (TH1F*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/trk_4/p");
+  TH1F* denominator_2 = (TH1F*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/trk_3/p");
   int group_factor_2 = 1;
   numerator_2 = (TH1F*) numerator_2->Rebin(group_factor_2);
   denominator_2 = (TH1F*) denominator_2->Rebin(group_factor_2);

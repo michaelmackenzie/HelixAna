@@ -1,7 +1,7 @@
-#ifndef __ePlus2024_ana_EventPar_t__
-#define __ePlus2024_ana_EventPar_t__
+#ifndef __HelixAna_ana_EventPar_t__
+#define __HelixAna_ana_EventPar_t__
 
-namespace ePlus2024 {
+namespace HelixAna {
 
   struct EventPar_t {
     

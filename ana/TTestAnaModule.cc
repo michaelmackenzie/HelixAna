@@ -11,11 +11,11 @@
 // #include "Stntuple/geom/TDisk.hh"
 // #include "Stntuple/val/stntuple_val_functions.hh"
 //------------------------------------------------------------------------------
-// 
+//
 //-----------------------------------------------------------------------------
-#include "ePlus2024/ana/TTestAnaModule.hh"
+#include "HelixAna/ana/TTestAnaModule.hh"
 
-namespace ePlus2024 {
+namespace HelixAna {
 
 //-----------------------------------------------------------------------------
 TTestAnaModule::TTestAnaModule(const char* name, const char* title):
@@ -43,15 +43,15 @@ void TTestAnaModule::BookHistograms() {
 
   //  char name [200];
   //  char title[200];
-  
+
   TFolder*    fol;
   TFolder*    hist_folder;
   char        folder_name[200];
   const char* folder_title;
-  
+
   DeleteHistograms();
   hist_folder = (TFolder*) GetFolder()->FindObject("Hist");
-  
+
 //-----------------------------------------------------------------------------
 // book event histograms
 //-----------------------------------------------------------------------------
@@ -87,7 +87,7 @@ void TTestAnaModule::FillHistograms() {
 // 1. fill event histograms
 //-----------------------------------------------------------------------------
   FillEventHistograms(fHist.fEvent[0],&fEvtPar);
-  
+
 }
 
 //-----------------------------------------------------------------------------
@@ -97,7 +97,7 @@ int TTestAnaModule::Event(int ientry) {
 
   FillHistograms();
 
-  return 0;		       
+  return 0;
 }
 
 

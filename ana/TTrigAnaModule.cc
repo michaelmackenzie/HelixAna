@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-// analysis module used to study trigger parameter cuts 
+// analysis module used to study trigger parameter cuts
 //-----------------------------------------------------------------------------
 #include "HelixAna/ana/TTrigAnaModule.hh"
 
@@ -21,7 +21,7 @@ TTrigAnaModule::~TTrigAnaModule() {
 
 //-----------------------------------------------------------------------------
 int TTrigAnaModule::BeginJob() {
-  
+
   //-----------------------------------------------------------------------------
   // register data blocks
   //-----------------------------------------------------------------------------
@@ -40,15 +40,15 @@ int TTrigAnaModule::BeginJob() {
 
 //_____________________________________________________________________________
 void TTrigAnaModule::BookHistograms() {
-  
+
   TFolder*    fol;
   TFolder*    hist_folder;
   char        folder_name[200];
   const char* folder_title;
-  
+
   DeleteHistograms();
   hist_folder = (TFolder*) GetFolder()->FindObject("Hist");
-  
+
   //-----------------------------------------------------------------------------
   // book event histograms
   //-----------------------------------------------------------------------------
@@ -81,7 +81,7 @@ void TTrigAnaModule::BookHistograms() {
   track_selection[3] = new TString("Best Offline track if track is good");
   track_selection[4] = new TString("Best Offline track if track is good and apr or cpr triggered");
   track_selection[5] = new TString("Best Offline track if track is good and neither apr or cpr trigger");
-  
+
   for (int i=0; i<kNTrackHistSets; i++) {
     if (track_selection[i] != 0) {
       sprintf(folder_name,"trk_%i",i);
@@ -149,7 +149,7 @@ void TTrigAnaModule::FillHistograms() {
       }
     }
   }
-  
+
 }
 
 //-----------------------------------------------------------------------------
@@ -204,10 +204,10 @@ int TTrigAnaModule::Event(int ientry) {
 
   // determine whether a good offline track exists
   fGoodOfflineTrackExists = GoodOfflineTrackExists();
-  
+
   FillHistograms();
 
-  return 0;		       
+  return 0;
 }
 
 //_____________________________________________________________________________

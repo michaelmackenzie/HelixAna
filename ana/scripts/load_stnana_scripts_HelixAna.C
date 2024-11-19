@@ -4,9 +4,9 @@
 // If the corresponding env. variable is not defined, the script is not loaded. PWD is always defined
 ///////////////////////////////////////////////////////////////////////////////
 #include "TInterpreter.h"
-#include "ePlus2024/ana/scripts/modules.hh"
+#include "HelixAna/ana/scripts/modules.hh"
 
-int load_stnana_scripts_ePlus2024() {
+int load_stnana_scripts_HelixAna() {
   char        macro[200];
 
   const char* script[] = { 
@@ -20,7 +20,7 @@ int load_stnana_scripts_ePlus2024() {
   for (int i=0; script[i] != 0; i+=2) {
     const char* dir = gSystem->Getenv(script[i+1]);
     if (dir) {
-      sprintf(macro,"%s/ePlus2024/ana/scripts/%s",dir,script[i]);
+      sprintf(macro,"%s/HelixAna/ana/scripts/%s",dir,script[i]);
       if (! cint->IsLoaded(macro)) cint->LoadMacro(macro);
     }
   }

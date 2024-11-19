@@ -1,16 +1,16 @@
-#ifndef ePlus2024_ana_scripts_modules_hh
-#define ePlus2024_ana_scripts_modules_hh
+#ifndef HelixAna_ana_scripts_modules_hh
+#define HelixAna_ana_scripts_modules_hh
 
-#include "ePlus2024/ana/TTestAnaModule.hh"
-#include "ePlus2024/ana/TTrigAnaModule.hh"
+#include "HelixAna/ana/TTestAnaModule.hh"
+#include "HelixAna/ana/TTrigAnaModule.hh"
 
-namespace ePlus2024 {
+namespace HelixAna {
 
   class TTestAnaModule;
   class TTrigAnaModule;
 
-  ePlus2024::TTestAnaModule*          m_tst   = nullptr;
-  ePlus2024::TTrigAnaModule*          m_trg   = nullptr;
+  HelixAna::TTestAnaModule*          m_tst   = nullptr;
+  HelixAna::TTrigAnaModule*          m_trg   = nullptr;
 
 };
 

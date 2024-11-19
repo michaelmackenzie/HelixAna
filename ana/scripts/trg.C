@@ -1,13 +1,13 @@
 ///////////////////////////////////////////////////////////////////////////////
-// 
+//
 ///////////////////////////////////////////////////////////////////////////////
 #include "Stntuple/scripts/global_vars.h"
-#include "ePlus2024/ana/scripts/modules.hh"
+#include "HelixAna/ana/scripts/modules.hh"
 
-def_name ePlus2024_trg_001("ePlus2024_trg_ana");
+def_name HelixAna_trg_001("HelixAna_trg_ana");
 
-void  ePlus2024_trg_ana(int DebugBit = -1) {
-  ePlus2024::m_trg = (ePlus2024::TTrigAnaModule*) g.x->AddModule("ePlus2024::TTrigAnaModule",0);  
+void  HelixAna_trg_ana(int DebugBit = -1) {
+  HelixAna::m_trg = (HelixAna::TTrigAnaModule*) g.x->AddModule("HelixAna::TTrigAnaModule",0);
 
-  if (DebugBit >= 0) ePlus2024::m_trg->SetDebugBit(DebugBit,1);
+  if (DebugBit >= 0) HelixAna::m_trg->SetDebugBit(DebugBit,1);
 }

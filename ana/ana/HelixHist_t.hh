@@ -6,15 +6,22 @@
 namespace HelixAna {
 
   struct HelixHist_t {
-    TH1F*    fP;
+    TH1F*    fNHits;
+    TH1F*    fHelicity;
+    TH1F*    fClusterTime;
+    TH1F*    fClusterEnergy;
+    TH1F*    fRadius;    // fabs(1/omega)
+    TH1F*    fMom;
     TH1F*    fPt;
-    TH1F*    fD0;
-    TH1F*    fDP;
-    TH1F*    fChi2NDof;
+    TH1F*    fLambda;   //dz/dphi
     TH1F*    fTanDip;
-    TH1F*    fRadius;
-    TH1F*    fRMax;
-    TH1F*    fNActive;
+    TH1F*    fT0;
+    TH1F*    fT0Err;
+    TH1F*    fD0;
+    TH1F*    fBestAlg;
+    TH1F*    fAlgMask;
+    TH1F*    fChi2XY;
+    TH1F*    fChi2ZPhi;
   };
 
 }

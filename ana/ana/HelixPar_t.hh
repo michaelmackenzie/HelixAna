@@ -10,7 +10,6 @@ namespace HelixAna {
     TStnHelix* fHelix;
 
     float fRMax;
-    float fRadius;
 
   };
 }

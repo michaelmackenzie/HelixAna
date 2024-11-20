@@ -96,15 +96,22 @@ void TAnaModule::BookTrackHistograms(TrackHist_t* Hist, const char* Folder) {
 //-----------------------------------------------------------------------------
 void TAnaModule::BookHelixHistograms(HelixHist_t* Hist, const char* Folder) {
 
-  HBook1F(Hist->fP,"p",Form("%s: helix momentum",Folder), 600,  -300.0, 300.0, Folder);
-  HBook1F(Hist->fPt,"pt",Form("%s: helix transverse momentum",Folder), 600,  -300.0, 300.0, Folder);
-  HBook1F(Hist->fD0,"d0",Form("%s: helix d0",Folder), 200, -200.0, 200.0, Folder);
-  HBook1F(Hist->fDP,"dP",Form("%s: helix p_reco - p_mc",Folder), 400, -200.0, 200.0, Folder);
-  HBook1F(Hist->fChi2NDof,"chi2NDof",Form("%s: helix chi2/ndof",Folder), 200, 0.0, 10.0, Folder);
-  HBook1F(Hist->fTanDip,"tanDip",Form("%s: helix tanDip",Folder), 200,  0.0, 2.0, Folder);
-  HBook1F(Hist->fRadius,"radius",Form("%s: helix radius",Folder), 1000,  0.0, 1000, Folder);
-  HBook1F(Hist->fRMax,"rMax",Form("%s: helix rMax",Folder), 2000,  0.0, 2000, Folder);
-  HBook1F(Hist->fNActive,"nActive",Form("%s: nHits used in fit",Folder), 150, 0.0, 150.0, Folder);
+  HBook1F(Hist->fNHits         ,"nhits"      ,Form("%s: # of straw hits"              ,Folder),  150,     0,  150,Folder);
+  HBook1F(Hist->fHelicity      ,"hel"        ,Form("%s: Helicity"                     ,Folder),   10,    -5,    5,Folder);
+  HBook1F(Hist->fClusterTime   ,"clusterTime",Form("%s: cluster time; t_{cluster}[ns]",Folder),  400,     0, 2000,Folder);
+  HBook1F(Hist->fClusterEnergy ,"clusterE"   ,Form("%s: cluster energy; E [MeV]      ",Folder),  400,     0,  200,Folder);
+  HBook1F(Hist->fRadius        ,"radius"     ,Form("%s: helix radius; r [mm]"         ,Folder),  500,     0,  500,Folder);
+  HBook1F(Hist->fMom           ,"p"          ,Form("%s: momentum; p [MeV/c]"          ,Folder),  300,    50,  200,Folder);
+  HBook1F(Hist->fPt            ,"pT"         ,Form("%s: pT; pT [MeV/c]"               ,Folder),  600,     0,  150,Folder);
+  HBook1F(Hist->fLambda        ,"lambda"     ,Form("%s: lambda; #lambda"              ,Folder),  200, -1000, 1000,Folder);
+  HBook1F(Hist->fTanDip        ,"tanDip"     ,Form("%s: tanDip"                       ,Folder),  200,   0.0,  2.0,Folder);
+  HBook1F(Hist->fT0            ,"t0"         ,Form("%s: t0; t0[ns]"                   ,Folder),  400,     0, 2000,Folder);
+  HBook1F(Hist->fT0Err         ,"t0err"      ,Form("%s: t0err; t0err [ns]"            ,Folder),  100,     0,   10,Folder);
+  HBook1F(Hist->fD0            ,"d0"         ,Form("%s: D0; d0 [mm]"                  ,Folder), 1600,  -400,  400,Folder);
+  HBook1F(Hist->fAlgMask       ,"algmask"    ,Form("%s: Algorithm Mask"               ,Folder),   10,     0,   10,Folder);
+  HBook1F(Hist->fBestAlg       ,"bestalg"    ,Form("%s: Best Algorithm"               ,Folder),   10,     0,   10,Folder);
+  HBook1F(Hist->fChi2XY        ,"chi2xy"     ,Form("%s: Chi2(XY)/DOF"                 ,Folder),  100,     0,   10,Folder);
+  HBook1F(Hist->fChi2ZPhi      ,"chi2zphi"   ,Form("%s: Chi2(ZPhi)/DOF"               ,Folder),  100,     0,   10,Folder);
 
 }
 
@@ -142,15 +149,38 @@ void TAnaModule::FillTrackHistograms(TrackHist_t* Hist, TrackPar_t* TrkPar) {
 //-----------------------------------------------------------------------------
 void TAnaModule::FillHelixHistograms(HelixHist_t* Hist, HelixPar_t* HlxPar) {
 
-  Hist->fP->Fill((HlxPar->fHelix->P()));
-  Hist->fPt->Fill((HlxPar->fHelix->Pt()));
-  Hist->fD0->Fill(HlxPar->fHelix->D0());
-  Hist->fDP->Fill((HlxPar->fHelix->P())-(HlxPar->fHelix->P())); //FIXME: Use MC momentum of helix
-  Hist->fChi2NDof->Fill(HlxPar->fHelix->Chi2XY()); //FIXME: Decide which chi^2 to use
-  // Hist->fTanDip->Fill(HlxPar->fHelix->TanDip());
-  Hist->fRadius->Fill(HlxPar->fHelix->Radius());
-  Hist->fRMax->Fill(HlxPar->fRMax);
-  Hist->fNActive->Fill(HlxPar->fHelix->NHits());
+  auto Helix = HlxPar->fHelix;
+
+  const int    nhits    = Helix->NHits      ();
+  const double clusterT = Helix->ClusterTime();
+  const double clusterE = Helix->ClusterEnergy();
+
+  const double radius   = Helix->Radius();
+
+  const double lambda   = Helix->Lambda();
+  const double tanDip   = lambda/radius;
+  const double pT       = Helix->Pt();
+  const double p        = Helix->P();
+
+
+  Hist->fHelicity      ->Fill(Helix->Helicity());
+  Hist->fNHits         ->Fill(nhits);
+  Hist->fClusterTime   ->Fill(clusterT);
+  Hist->fClusterEnergy ->Fill(clusterE);
+
+  Hist->fRadius        ->Fill(radius);
+  Hist->fMom           ->Fill(p);
+  Hist->fPt            ->Fill(pT);
+  Hist->fLambda        ->Fill(lambda);
+  Hist->fTanDip        ->Fill(tanDip);
+
+  Hist->fBestAlg       ->Fill(Helix->BestAlg());
+  Hist->fAlgMask       ->Fill(Helix->AlgMask());
+  Hist->fD0            ->Fill(Helix->D0());
+  Hist->fT0            ->Fill(Helix->T0());
+  Hist->fT0Err         ->Fill(Helix->T0Err());
+  Hist->fChi2XY        ->Fill(Helix->Chi2XY());
+  Hist->fChi2ZPhi      ->Fill(Helix->Chi2ZPhi());
 
 }
 
@@ -171,8 +201,7 @@ void TAnaModule::InitHelixPar(TStnHelix* Hlx, HelixAna::HelixPar_t* HlxPar) {
   HlxPar->fHelix = Hlx;
 
   // compute parameters not contained in TStnHelix
-  HlxPar->fRadius = Hlx->Radius();
-  HlxPar->fRMax = Hlx->D0() + 2.*HlxPar->fRadius;
+  HlxPar->fRMax = Hlx->D0() + 2.*Hlx->Radius();
 
 }
 

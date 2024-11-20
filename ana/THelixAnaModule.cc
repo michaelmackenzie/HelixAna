@@ -47,19 +47,19 @@ namespace HelixAna {
   //-----------------------------------------------------------------------------
   void THelixAnaModule::BookHelixCompHistograms(HelixAna::HelixCompHist_t* Hist, const char* Folder) {
 
-    HBook1F(Hist->fAprHelixDeltaP,"AprHelixDeltaP",Form("%s: AprHelixDeltaP",Folder), 200,  -20, 20, Folder);
-    HBook1F(Hist->fAprTrackDeltaP,"AprTrackDeltaP",Form("%s: AprTrackDeltaP",Folder), 200,  -20, 20, Folder);
-    HBook1F(Hist->fCprHelixDeltaP,"CprHelixDeltaP",Form("%s: CprHelixDeltaP",Folder), 200,  -20, 20, Folder);
-    HBook1F(Hist->fCprTrackDeltaP,"CprTrackDeltaP",Form("%s: CprTrackDeltaP",Folder), 200,  -20, 20, Folder);
-    HBook1F(Hist->fHelixDeltaP,"HelixDeltaP",Form("%s: HelixDeltaP",Folder), 200,  -20, 20, Folder);
-    HBook1F(Hist->fTrackDeltaP,"TrackDeltaP",Form("%s: TrackDeltaP",Folder), 200,  -20, 20, Folder);
+    HBook1F(Hist->fAprHelixDeltaP,"AprHelixDeltaP",Form("%s: AprHelixDeltaP",Folder), 200,  -10, 10, Folder);
+    HBook1F(Hist->fAprTrackDeltaP,"AprTrackDeltaP",Form("%s: AprTrackDeltaP",Folder), 200,  -10, 10, Folder);
+    HBook1F(Hist->fCprHelixDeltaP,"CprHelixDeltaP",Form("%s: CprHelixDeltaP",Folder), 200,  -10, 10, Folder);
+    HBook1F(Hist->fCprTrackDeltaP,"CprTrackDeltaP",Form("%s: CprTrackDeltaP",Folder), 200,  -10, 10, Folder);
+    HBook1F(Hist->fHelixDeltaP,"HelixDeltaP",Form("%s: HelixDeltaP",Folder), 200,  -10, 10, Folder);
+    HBook1F(Hist->fTrackDeltaP,"TrackDeltaP",Form("%s: TrackDeltaP",Folder), 200,  -10, 10, Folder);
   }
 
   //-----------------------------------------------------------------------------
   void THelixAnaModule::FillHelixCompHistograms(HelixAna::HelixCompHist_t* Hist, HelixPair_t& Match) {
     // Fill APR helix info
     if(Match.fAprHelix) {
-      const float MC_P = 104.97; //FIXME: Retrieve true particle momentum corresponding to the helix
+      const float MC_P = (Match.fAprTrack) ? Match.fAprTrack->fPFront : 104.97; //FIXME: Retrieve true particle momentum corresponding to the helix
       Hist->fAprHelixDeltaP->Fill(Match.fAprHelix->P() - MC_P);
     } else {
       Hist->fAprHelixDeltaP->Fill(-999.);
@@ -67,7 +67,7 @@ namespace HelixAna {
 
     // Fill CPR helix info
     if(Match.fCprHelix) {
-      const float MC_P = 104.97; //FIXME: Retrieve true particle momentum corresponding to the helix
+      const float MC_P = (Match.fCprTrack) ? Match.fCprTrack->fPFront : 104.97; //FIXME: Retrieve true particle momentum corresponding to the helix
       Hist->fCprHelixDeltaP->Fill(Match.fCprHelix->P() - MC_P);
     } else {
       Hist->fCprHelixDeltaP->Fill(-999.);
@@ -78,6 +78,20 @@ namespace HelixAna {
       Hist->fHelixDeltaP->Fill(Match.fAprHelix->P() - Match.fCprHelix->P());
     } else {
       Hist->fCprHelixDeltaP->Fill(-999.);
+    }
+
+    // Fill APR track info
+    if(Match.fAprTrack) {
+      Hist->fAprTrackDeltaP->Fill(Match.fAprTrack->fP - Match.fAprTrack->fPFront);
+    } else {
+      Hist->fAprTrackDeltaP->Fill(-999.);
+    }
+
+    // Fill CPR track info
+    if(Match.fCprTrack) {
+      Hist->fCprTrackDeltaP->Fill(Match.fCprTrack->fP - Match.fCprTrack->fPFront);
+    } else {
+      Hist->fCprTrackDeltaP->Fill(-999.);
     }
   }
 
@@ -286,6 +300,17 @@ namespace HelixAna {
   }
 
   //_____________________________________________________________________________
+  TStnTrack* THelixAnaModule::GetMatchingTrack(TStnHelix* h, int h_index, TStnTrackBlock* block) {
+    for(int t_index = 0; t_index; ++t_index) {
+      auto track = block->Track(t_index);
+      if(!track) continue;
+      // FIXME: Check the proper technique for this matching
+      if(track->fHelixIndex == h_index && track->fSeedIndex == h->fTrackSeedIndex) return track;
+    }
+    return nullptr;
+  }
+
+  //_____________________________________________________________________________
   bool THelixAnaModule::CompareHelices(TStnHelix* h1, TStnHelix* h2) {
     // printf("THelixAnaModule::%s: Function not yet implemented\n", __func__);
     if(!h1 || !h2) return false;
@@ -320,7 +345,8 @@ namespace HelixAna {
           const int index = fEvtPar.fNMatchedHelices - 1;
           fMatchedHelices[index].fAprHelix = apr_helix;
           fMatchedHelices[index].fCprHelix = cpr_helix;
-          //FIXME: Get the corresponding tracks if they exist
+          fMatchedHelices[index].fAprTrack = GetMatchingTrack(apr_helix, iapr, fAprTrackBlock);
+          fMatchedHelices[index].fCprTrack = GetMatchingTrack(cpr_helix, icpr, fCprTrackBlock);
           //FIXME: Get the corresponding merged helix/track collection entries if they exist
         }
       }

@@ -4,13 +4,17 @@
 namespace HelixAna {
 
   struct EventPar_t {
-    
+
     float         fInstLum;
+    int           fNAprHelices;
+    int           fNCprHelices;
+    int           fNMergedHelices;
     int           fNAprTracks;  // for trigger analysis
     int           fNCprTracks;  // for trigger analysis
     int           fNTracks;
+    int           fNMatchedHelices;
 
-    bool          fPassedAprPath;  
+    bool          fPassedAprPath;
     bool          fPassedCprPath;
 
   };

@@ -10,6 +10,10 @@ namespace HelixAna {
     TH1F*    fInstLumiApr; // only filled if apr triggered event
     TH1F*    fInstLumiCpr; // only filled if cpr triggered event
     TH1F*    fInstLumiAprCpr; // filled if either apr or cpr triggered event
+    TH1F*    fNAprHelices;
+    TH1F*    fNCprHelices;
+    TH1F*    fNHelices;
+    TH1F*    fNMatchedHelices;
     TH1F*    fNAprTracks;
     TH1F*    fNCprTracks;
     TH1F*    fNTracks;

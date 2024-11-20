@@ -3,14 +3,17 @@
 
 #include "HelixAna/ana/TTestAnaModule.hh"
 #include "HelixAna/ana/TTrigAnaModule.hh"
+#include "HelixAna/ana/THelixAnaModule.hh"
 
 namespace HelixAna {
 
   class TTestAnaModule;
   class TTrigAnaModule;
+  class THelixAnaModule;
 
   HelixAna::TTestAnaModule*          m_tst   = nullptr;
   HelixAna::TTrigAnaModule*          m_trg   = nullptr;
+  HelixAna::THelixAnaModule*         m_hlx   = nullptr;
 
 };
 

@@ -6,7 +6,7 @@
 namespace HelixAna {
 
   struct TrackPar_t {
-    
+
     TStnTrack* fTrack;
 
     float fRMax;

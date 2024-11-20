@@ -72,6 +72,9 @@ void TAnaModule::BookEventHistograms(EventHist_t* Hist, const char* Folder) {
   HBook1F(Hist->fNAprTracks,"nTracksApr",Form("%s: nTracksApr",Folder), 50, 0.0, 50.0, Folder);
   HBook1F(Hist->fNCprTracks,"nTracksCpr",Form("%s: nTracksCpr",Folder), 50, 0.0, 50.0, Folder);
   HBook1F(Hist->fNTracks,"nTracks",Form("%s: nTracks",Folder), 50, 0.0, 50.0, Folder);
+  HBook1F(Hist->fNAprHelices,"nHelicesApr",Form("%s: nHelicesApr",Folder), 50, 0.0, 50.0, Folder);
+  HBook1F(Hist->fNCprHelices,"nHelicesCpr",Form("%s: nHelicesCpr",Folder), 50, 0.0, 50.0, Folder);
+  HBook1F(Hist->fNMatchedHelices,"nHelicesMatched",Form("%s: nHelicesMatched",Folder), 50, 0.0, 50.0, Folder);
 
 }
 
@@ -91,6 +94,21 @@ void TAnaModule::BookTrackHistograms(TrackHist_t* Hist, const char* Folder) {
 }
 
 //-----------------------------------------------------------------------------
+void TAnaModule::BookHelixHistograms(HelixHist_t* Hist, const char* Folder) {
+
+  HBook1F(Hist->fP,"p",Form("%s: helix momentum",Folder), 600,  -300.0, 300.0, Folder);
+  HBook1F(Hist->fPt,"pt",Form("%s: helix transverse momentum",Folder), 600,  -300.0, 300.0, Folder);
+  HBook1F(Hist->fD0,"d0",Form("%s: helix d0",Folder), 200, -200.0, 200.0, Folder);
+  HBook1F(Hist->fDP,"dP",Form("%s: helix p_reco - p_mc",Folder), 400, -200.0, 200.0, Folder);
+  HBook1F(Hist->fChi2NDof,"chi2NDof",Form("%s: helix chi2/ndof",Folder), 200, 0.0, 10.0, Folder);
+  HBook1F(Hist->fTanDip,"tanDip",Form("%s: helix tanDip",Folder), 200,  0.0, 2.0, Folder);
+  HBook1F(Hist->fRadius,"radius",Form("%s: helix radius",Folder), 1000,  0.0, 1000, Folder);
+  HBook1F(Hist->fRMax,"rMax",Form("%s: helix rMax",Folder), 2000,  0.0, 2000, Folder);
+  HBook1F(Hist->fNActive,"nActive",Form("%s: nHits used in fit",Folder), 150, 0.0, 150.0, Folder);
+
+}
+
+//-----------------------------------------------------------------------------
 void TAnaModule::FillEventHistograms(EventHist_t* Hist, EventPar_t* EvtPar) {
 
   Hist->fInstLumi->Fill(EvtPar->fInstLum);
@@ -100,6 +118,9 @@ void TAnaModule::FillEventHistograms(EventHist_t* Hist, EventPar_t* EvtPar) {
   Hist->fNAprTracks->Fill(EvtPar->fNAprTracks);
   Hist->fNCprTracks->Fill(EvtPar->fNCprTracks);
   Hist->fNTracks->Fill(EvtPar->fNTracks);
+  Hist->fNAprHelices->Fill(EvtPar->fNAprHelices);
+  Hist->fNCprHelices->Fill(EvtPar->fNCprHelices);
+  Hist->fNMatchedHelices->Fill(EvtPar->fNMatchedHelices);
 
 }
 
@@ -118,6 +139,21 @@ void TAnaModule::FillTrackHistograms(TrackHist_t* Hist, TrackPar_t* TrkPar) {
 
 }
 
+//-----------------------------------------------------------------------------
+void TAnaModule::FillHelixHistograms(HelixHist_t* Hist, HelixPar_t* HlxPar) {
+
+  Hist->fP->Fill((HlxPar->fHelix->P()));
+  Hist->fPt->Fill((HlxPar->fHelix->Pt()));
+  Hist->fD0->Fill(HlxPar->fHelix->D0());
+  Hist->fDP->Fill((HlxPar->fHelix->P())-(HlxPar->fHelix->P())); //FIXME: Use MC momentum of helix
+  Hist->fChi2NDof->Fill(HlxPar->fHelix->Chi2XY()); //FIXME: Decide which chi^2 to use
+  // Hist->fTanDip->Fill(HlxPar->fHelix->TanDip());
+  Hist->fRadius->Fill(HlxPar->fHelix->Radius());
+  Hist->fRMax->Fill(HlxPar->fRMax);
+  Hist->fNActive->Fill(HlxPar->fHelix->NHits());
+
+}
+
 void TAnaModule::InitTrackPar(TStnTrack* Trk, HelixAna::TrackPar_t* TrkPar) {
 
   // set pointer to TStnTrack
@@ -126,6 +162,17 @@ void TAnaModule::InitTrackPar(TStnTrack* Trk, HelixAna::TrackPar_t* TrkPar) {
   // compute parameters not contained in TStnTrack
   TrkPar->fRadius = Trk->fPt / (mmTconversion*bz0);
   TrkPar->fRMax = Trk->fD0 + 2*TrkPar->fRadius;
+
+}
+
+void TAnaModule::InitHelixPar(TStnHelix* Hlx, HelixAna::HelixPar_t* HlxPar) {
+
+  // set pointer to TStnTrack
+  HlxPar->fHelix = Hlx;
+
+  // compute parameters not contained in TStnHelix
+  HlxPar->fRadius = Hlx->Radius();
+  HlxPar->fRMax = Hlx->D0() + 2.*HlxPar->fRadius;
 
 }
 

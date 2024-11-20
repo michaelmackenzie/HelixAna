@@ -17,7 +17,7 @@ public:
   struct Hist_t {
     HelixAna::EventHist_t*           fEvent[kNEventHistSets];
   };
-  
+
 //-----------------------------------------------------------------------------
 //  data members
 //-----------------------------------------------------------------------------
@@ -25,14 +25,14 @@ public:
 
   HelixAna::EventPar_t    fEvtPar;        // defined in TAnaModule.hh
   Hist_t                   fHist;          // histograms fille
-  
+
 //-----------------------------------------------------------------------------
 //  functions
 //-----------------------------------------------------------------------------
 public:
   TTestAnaModule(const char* name="HelixAna_TestAna", const char* title="TestAna");
   ~TTestAnaModule();
-  
+
 //-----------------------------------------------------------------------------
 // accessors
 //-----------------------------------------------------------------------------

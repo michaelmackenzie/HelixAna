@@ -81,8 +81,8 @@ int plot_helix_comparison(const char* filename = "cele0b2s8r0000.hist", const ch
 
   int status(0);
 
-  status += print_comparison("HelixDeltaP", 0, "helix_dp", f, figdir);
-  status += print_comparison("TrackDeltaP", 0, "track_dp", f, figdir);
+  status += print_comparison("HelixDeltaP", 1, "helix_dp", f, figdir);
+  status += print_comparison("TrackDeltaP", 1, "track_dp", f, figdir);
 
   return status;
 }

@@ -41,7 +41,7 @@ python mu2e_trig_config/python/generateMenuFromJSON.py -mf mu2e_trig_config/data
 
 Example Stntuple processing with `stnana`:
 ```
-# Using the HelixAna/ana/THelixAnaModule.cc module as defined in Helix/ana/scripts/hlx.C
+# Using the HelixAna/ana/THelixAnaModule.cc module as defined in HelixAna/ana/scripts/hlx.C
 $> root.exe
 root> .L stnana.C
 root> stnana("mdc2020ae","cele0b2s8r0000","","","HelixAna_hlx_ana()/save=cele0b2s8r0000.hist",10000)

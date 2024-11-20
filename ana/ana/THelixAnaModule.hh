@@ -15,6 +15,7 @@
 // Stntuple includes
 #include "Stntuple/obj/TStnHelix.hh"
 #include "Stntuple/obj/TStnTrack.hh"
+#include "Stntuple/obj/TStnEvent.hh"
 #include "Stntuple/obj/TStnHeaderBlock.hh"
 #include "Stntuple/obj/TStnHelixBlock.hh"
 #include "Stntuple/obj/TStnTrackBlock.hh"
@@ -112,6 +113,8 @@ public:
   void MatchHelices();
   bool CompareHelices(TStnHelix* h1, TStnHelix* h2);
   TStnTrack* GetMatchingTrack(TStnHelix* h, int h_index, TStnTrackBlock* block);
+
+  void Debug();
 
 };
 }

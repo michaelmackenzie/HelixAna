@@ -77,7 +77,7 @@ namespace HelixAna {
     if(Match.fAprHelix && Match.fCprHelix) {
       Hist->fHelixDeltaP->Fill(Match.fAprHelix->P() - Match.fCprHelix->P());
     } else {
-      Hist->fCprHelixDeltaP->Fill(-999.);
+      Hist->fHelixDeltaP->Fill(-999.);
     }
 
     // Fill APR track info
@@ -93,6 +93,14 @@ namespace HelixAna {
     } else {
       Hist->fCprTrackDeltaP->Fill(-999.);
     }
+
+    // Fill APR vs. CPR track info
+    if(Match.fAprTrack && Match.fCprTrack) {
+      Hist->fTrackDeltaP->Fill(Match.fAprTrack->P() - Match.fCprTrack->P());
+    } else {
+      Hist->fTrackDeltaP->Fill(-999.);
+    }
+
   }
 
   //_____________________________________________________________________________
@@ -265,6 +273,7 @@ namespace HelixAna {
     //-----------------------------------------------------------------------------
     for(int imatch = 0; imatch < fEvtPar.fNMatchedHelices; ++imatch) {
       FillHelixCompHistograms(fHist.fHelixComp[0],fMatchedHelices[imatch]);
+      if(fMatchedHelices[imatch].fAprTrack && fMatchedHelices[imatch].fCprTrack) FillHelixCompHistograms(fHist.fHelixComp[1],fMatchedHelices[imatch]);
     }
 
   }
@@ -285,6 +294,7 @@ namespace HelixAna {
     fEvtPar.fInstLum  = GetHeaderBlock()->fInstLum;
     fEvtPar.fNAprHelices = fAprHelixBlock->NHelices();
     fEvtPar.fNCprHelices = fCprHelixBlock->NHelices();
+    fEvtPar.fNMergedHelices = fMergedHelixBlock->NHelices();
     fEvtPar.fNAprTracks = fAprTrackBlock->NTracks();
     fEvtPar.fNCprTracks = fCprTrackBlock->NTracks();
     fEvtPar.fNTracks = fMergedTrackBlock->NTracks();
@@ -294,6 +304,8 @@ namespace HelixAna {
     // perform helix matching
     MatchHelices();
 
+    Debug();
+
     FillHistograms();
 
     return 0;
@@ -301,11 +313,18 @@ namespace HelixAna {
 
   //_____________________________________________________________________________
   TStnTrack* THelixAnaModule::GetMatchingTrack(TStnHelix* h, int h_index, TStnTrackBlock* block) {
-    for(int t_index = 0; t_index; ++t_index) {
+    for(int t_index = 0; t_index < block->NTracks(); ++t_index) {
       auto track = block->Track(t_index);
       if(!track) continue;
       // FIXME: Check the proper technique for this matching
-      if(track->fHelixIndex == h_index && track->fSeedIndex == h->fTrackSeedIndex) return track;
+      // if(track->fHelixIndex == h_index && track->fSeedIndex == h->fTrackSeedIndex) return track;
+      // if(track->fHelixIndex == h_index) return track;
+      // temporarily just match in time and space
+      bool matched(true);
+      // matched &= std::fabs(h->T0() - track->T0()) / std::sqrt(std::pow(h->T0Err(),2) + std::pow(track->T0Err(),2)) < 2.;
+      matched &= std::fabs(h->D0() - track->D0()) < 20.;
+      matched &= std::fabs(h->P() - track->P())/(h->P() + track->P())/2. < 0.02;
+      if(matched) return track;
     }
     return nullptr;
   }
@@ -349,6 +368,48 @@ namespace HelixAna {
           fMatchedHelices[index].fCprTrack = GetMatchingTrack(cpr_helix, icpr, fCprTrackBlock);
           //FIXME: Get the corresponding merged helix/track collection entries if they exist
         }
+      }
+    }
+  }
+
+  //_____________________________________________________________________________
+  void THelixAnaModule::Debug() {
+    const bool print_event = ((GetDebugBit(0)) || //all events
+                              (GetDebugBit(1) && fEvtPar.fNMatchedHelices) || //events with matches
+                              (GetDebugBit(2) && fEvtPar.fNMatchedHelices > 1) //events with multiple matches
+                              );
+    if(print_event) { //print event info
+      auto event = GetEvent();
+      printf(">>> Event %5i/%5i/%6i:\n", event->fRunNumber, event->fSectionNumber, event->fEventNumber);
+      printf(" Helices: %2i %2i %2i: %2i matches\n",
+             fEvtPar.fNAprHelices, fEvtPar.fNCprHelices, fEvtPar.fNMergedHelices, fEvtPar.fNMatchedHelices);
+      printf(" Tracks : %2i %2i %2i\n",
+             fEvtPar.fNAprTracks, fEvtPar.fNCprTracks, fEvtPar.fNTracks);
+      printf(" APR helices:\n");
+      fAprHelixBlock->Print();
+      printf(" CPR helices:\n");
+      fCprHelixBlock->Print();
+      printf(" APR tracks:\n");
+      fAprTrackBlock->Print();
+      for(int itrack = 0; itrack < fEvtPar.fNAprTracks; ++itrack) printf(" %2i: helix index = %2i\n", itrack, fAprTrackBlock->Track(itrack)->fHelixIndex);
+      printf(" CPR tracks:\n");
+      fCprTrackBlock->Print();
+      for(int itrack = 0; itrack < fEvtPar.fNCprTracks; ++itrack) printf(" %2i: helix index = %2i\n", itrack, fCprTrackBlock->Track(itrack)->fHelixIndex);
+      printf(" Matched helices:\n");
+      for(int imatch = 0; imatch < fEvtPar.fNMatchedHelices; ++imatch) {
+        printf("  %2i:\n", imatch);
+        if(fMatchedHelices[imatch].fAprHelix)    fMatchedHelices[imatch].fAprHelix->Print("banner data");
+        else                                     printf("   --> No APR helix found!\n");
+        if(fMatchedHelices[imatch].fCprHelix)    fMatchedHelices[imatch].fCprHelix->Print("data");
+        else                                     printf("   --> No CPR helix found!\n");
+        if(fMatchedHelices[imatch].fMergedHelix) fMatchedHelices[imatch].fMergedHelix->Print("data");
+        else                                     printf("   --> No merged helix found!\n");
+        if(fMatchedHelices[imatch].fAprTrack)    fMatchedHelices[imatch].fAprTrack->Print("banner data");
+        else                                     printf("   --> No APR track found!\n");
+        if(fMatchedHelices[imatch].fCprTrack)    fMatchedHelices[imatch].fCprTrack->Print("data");
+        else                                     printf("   --> No CPR track found!\n");
+        if(fMatchedHelices[imatch].fMergedTrack) fMatchedHelices[imatch].fMergedTrack->Print("data");
+        else                                     printf("   --> No merged track found!\n");
       }
     }
   }

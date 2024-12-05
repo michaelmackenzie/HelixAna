@@ -2,17 +2,18 @@
 
 //-----------------------------------------------------------------------------
 // Make a comparison plot
-int print_comparison(const char* name, const int hist_set, const char* outname, TFile* f, const char* figdir) {
-  TH1* hapr = (TH1*) f->Get(Form("Ana/HelixAna_HelixAna/Hist/cmp_%i/Apr%s", hist_set, name));
-  TH1* hcpr = (TH1*) f->Get(Form("Ana/HelixAna_HelixAna/Hist/cmp_%i/Cpr%s", hist_set, name));
+int print_comparison(const char* name_1, const int hist_set_1, const char* name_2, const int hist_set_2,
+                     const char* outname, TFile* f, const char* figdir, const char* type = "hlx") {
+  TH1* hapr = (TH1*) f->Get(Form("Ana/HelixAna_HelixAna/Hist/%s_%i/%s", type, hist_set_1, name_1));
+  TH1* hcpr = (TH1*) f->Get(Form("Ana/HelixAna_HelixAna/Hist/%s_%i/%s", type, hist_set_2, name_2));
   if(!hapr || !hcpr) {
-    cout << "Histograms " << name << " with set " << hist_set << " not found!\n";
+    cout << "Histograms " << name_1 << "/" << name_2 << " with set " << hist_set_1 << "/" << hist_set_2 << " not found!\n";
     return 1;
   }
 
   gStyle->SetOptStat(0);
 
-  TCanvas* c = new TCanvas(Form("c_%s_%i", name, hist_set), Form("c_%s_%i", name, hist_set), 800, 800);
+  TCanvas* c = new TCanvas(Form("c_%s_%i", name_1, hist_set_1), Form("c_%s_%i", name_1, hist_set_1), 800, 800);
   TPad* pad1 = new TPad("pad1", "pad1", 0., 0.3, 1., 1.0); pad1->Draw();
   TPad* pad2 = new TPad("pad2", "pad2", 0., 0.0, 1., 0.3); pad2->Draw();
   pad1->SetBottomMargin(0.05);
@@ -43,7 +44,7 @@ int print_comparison(const char* name, const int hist_set, const char* outname, 
   leg->Draw("same");
 
   pad2->cd();
-  TH1* ratio = (TH1*) hcpr->Clone(Form("ratio_%s_%i", outname, hist_set));
+  TH1* ratio = (TH1*) hcpr->Clone(Form("ratio_%s_%i_%i", outname, hist_set_1, hist_set_2));
   ratio->Divide(hapr);
   ratio->Draw("hist");
   ratio->GetYaxis()->SetRangeUser(0., 2.);
@@ -69,8 +70,14 @@ int print_comparison(const char* name, const int hist_set, const char* outname, 
 }
 
 //-----------------------------------------------------------------------------
+// Make a comparison plot
+int print_comparison(const char* name, const int hist_set, const char* outname, TFile* f, const char* figdir) {
+  return print_comparison(Form("Apr%s", name), hist_set, Form("Cpr%s", name), hist_set, outname, f, figdir, "cmp");
+}
+
+//-----------------------------------------------------------------------------
 // Main function
-int plot_helix_comparison(const char* filename = "cele0b2s8r0000.hist", const char* figdir = "figures") {
+int plot_helix_comparison(const char* filename = "cele0b2s8r0000.hist", const char* figdir = "figures/HelixAna") {
 
   // create the output directory
   gSystem->Exec(Form("[ ! -d %s ] && mkdir -p %s", figdir, figdir));
@@ -83,6 +90,10 @@ int plot_helix_comparison(const char* filename = "cele0b2s8r0000.hist", const ch
 
   status += print_comparison("HelixDeltaP", 1, "helix_dp", f, figdir);
   status += print_comparison("TrackDeltaP", 1, "track_dp", f, figdir);
+  status += print_comparison("TrackDeltaP", 10, "track_dp_good_apr", f, figdir);
+  status += print_comparison("TrackDeltaP", 11, "track_dp_good_cpr", f, figdir);
+  status += print_comparison("TrackDeltaP", 13, "track_dp_bad_apr", f, figdir);
+  status += print_comparison("TrackDeltaP", 14, "track_dp_bad_cpr", f, figdir);
 
   return status;
 }

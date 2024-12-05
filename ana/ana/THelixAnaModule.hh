@@ -16,16 +16,22 @@
 #include "Stntuple/obj/TStnHelix.hh"
 #include "Stntuple/obj/TStnTrack.hh"
 #include "Stntuple/obj/TStnEvent.hh"
+#include "Stntuple/obj/TGenParticle.hh"
+#include "Stntuple/obj/TSimParticle.hh"
 #include "Stntuple/obj/TStnHeaderBlock.hh"
 #include "Stntuple/obj/TStnHelixBlock.hh"
 #include "Stntuple/obj/TStnTrackBlock.hh"
 #include "Stntuple/obj/TStnTriggerBlock.hh"
+#include "Stntuple/obj/TGenpBlock.hh"
+#include "Stntuple/obj/TSimpBlock.hh"
 
 namespace HelixAna {
 class THelixAnaModule: public TAnaModule {
 public:
 
   enum { kNEventHistSets          = 100};
+  enum { kNGenpHistSets           =  10};
+  enum { kNSimpHistSets           =  10};
   enum { kNTrackHistSets          = 100};
   enum { kNHelixHistSets          = 100};
   enum { kNHelixCompHistSets      = 100};
@@ -33,6 +39,8 @@ public:
 
   struct Hist_t {
     HelixAna::EventHist_t*     fEvent[kNEventHistSets];
+    HelixAna::GenpHist_t*      fGenp [kNGenpHistSets ];
+    HelixAna::SimpHist_t*      fSimp [kNSimpHistSets ];
     HelixAna::TrackHist_t*     fTrack[kNTrackHistSets];
     HelixAna::HelixHist_t*     fHelix[kNHelixHistSets];
     HelixAna::HelixCompHist_t* fHelixComp[kNHelixCompHistSets];
@@ -57,6 +65,10 @@ public:
 
   TStnTriggerBlock*        fTriggerBlock;
   TString                  fTriggerBlockName;
+  TGenpBlock*              fGenpBlock = nullptr;
+  TString                  fGenpBlockName;
+  TSimpBlock*              fSimpBlock = nullptr;
+  TString                  fSimpBlockName;
 
   TStnHelixBlock*          fAprHelixBlock;
   TStnHelixBlock*          fCprHelixBlock;
@@ -73,6 +85,7 @@ public:
 
   TStnTrack*               fTrack;
   TStnHelix*               fHelix;
+  TGenParticle*            fGen;
 
   HelixAna::EventPar_t    fEvtPar;
   HelixAna::TrackPar_t    fTrkPar;

@@ -9,6 +9,9 @@ namespace HelixAna {
   THelixAnaModule::THelixAnaModule(const char* name, const char* title):
     TAnaModule(name,title)
   {
+    // fAprHelixBlockName      =  "HelixBlockDeApr";
+    // fCprHelixBlockName      =  "HelixBlockDeCpr";
+    // fMergedHelixBlockName   =  "HelixBlockDe";
     fAprHelixBlockName      =  "HelixBlockAprHighP";
     fCprHelixBlockName      =  "HelixBlockCprDeHighP";
     fMergedHelixBlockName   =  "HelixBlockDe";
@@ -16,6 +19,8 @@ namespace HelixAna {
     fCprTrackBlockName      =  "TrackBlockCprDeHighP";
     fMergedTrackBlockName   =  "TrackBlockDe";
     fTriggerBlockName       =  "TriggerBlock";
+    fGenpBlockName          =  "GenpBlock";
+    fSimpBlockName          =  "SimpBlock";
   }
 
   //-----------------------------------------------------------------------------
@@ -35,6 +40,8 @@ namespace HelixAna {
     RegisterDataBlock(fCprTrackBlockName,     "TStnTrackBlock"  , &fCprTrackBlock     );
     RegisterDataBlock(fMergedTrackBlockName,  "TStnTrackBlock"  , &fMergedTrackBlock  );
     RegisterDataBlock(fTriggerBlockName,      "TStnTriggerBlock", &fTriggerBlock      );
+    RegisterDataBlock(fGenpBlockName,         "TGenpBlock"      , &fGenpBlock         );
+    RegisterDataBlock(fSimpBlockName,         "TSimpBlock"      , &fSimpBlock         );
 
     //-----------------------------------------------------------------------------
     // book histograms
@@ -48,18 +55,19 @@ namespace HelixAna {
   void THelixAnaModule::BookHelixCompHistograms(HelixAna::HelixCompHist_t* Hist, const char* Folder) {
 
     HBook1F(Hist->fAprHelixDeltaP,"AprHelixDeltaP",Form("%s: AprHelixDeltaP",Folder), 200,  -10, 10, Folder);
-    HBook1F(Hist->fAprTrackDeltaP,"AprTrackDeltaP",Form("%s: AprTrackDeltaP",Folder), 200,  -10, 10, Folder);
+    HBook1F(Hist->fAprTrackDeltaP,"AprTrackDeltaP",Form("%s: AprTrackDeltaP",Folder), 200,   -5,  5, Folder);
     HBook1F(Hist->fCprHelixDeltaP,"CprHelixDeltaP",Form("%s: CprHelixDeltaP",Folder), 200,  -10, 10, Folder);
-    HBook1F(Hist->fCprTrackDeltaP,"CprTrackDeltaP",Form("%s: CprTrackDeltaP",Folder), 200,  -10, 10, Folder);
+    HBook1F(Hist->fCprTrackDeltaP,"CprTrackDeltaP",Form("%s: CprTrackDeltaP",Folder), 200,   -5,  5, Folder);
     HBook1F(Hist->fHelixDeltaP,"HelixDeltaP",Form("%s: HelixDeltaP",Folder), 200,  -10, 10, Folder);
-    HBook1F(Hist->fTrackDeltaP,"TrackDeltaP",Form("%s: TrackDeltaP",Folder), 200,  -10, 10, Folder);
+    HBook1F(Hist->fTrackDeltaP,"TrackDeltaP",Form("%s: TrackDeltaP",Folder), 200,   -5,  5, Folder);
   }
 
   //-----------------------------------------------------------------------------
   void THelixAnaModule::FillHelixCompHistograms(HelixAna::HelixCompHist_t* Hist, HelixPair_t& Match) {
     // Fill APR helix info
     if(Match.fAprHelix) {
-      const float MC_P = (Match.fAprTrack) ? Match.fAprTrack->fPFront : 104.97; //FIXME: Retrieve true particle momentum corresponding to the helix
+      // const float MC_P = (Match.fAprTrack) ? Match.fAprTrack->fPFront : 0.; //FIXME: Retrieve true particle momentum corresponding to the helix
+      const float MC_P = Match.fAprHelix->fMom1.P();
       Hist->fAprHelixDeltaP->Fill(Match.fAprHelix->P() - MC_P);
     } else {
       Hist->fAprHelixDeltaP->Fill(-999.);
@@ -67,7 +75,8 @@ namespace HelixAna {
 
     // Fill CPR helix info
     if(Match.fCprHelix) {
-      const float MC_P = (Match.fCprTrack) ? Match.fCprTrack->fPFront : 104.97; //FIXME: Retrieve true particle momentum corresponding to the helix
+      // const float MC_P = (Match.fCprTrack) ? Match.fCprTrack->fPFront : 0.; //FIXME: Retrieve true particle momentum corresponding to the helix
+      const float MC_P = Match.fCprHelix->fMom1.P();
       Hist->fCprHelixDeltaP->Fill(Match.fCprHelix->P() - MC_P);
     } else {
       Hist->fCprHelixDeltaP->Fill(-999.);
@@ -135,6 +144,44 @@ namespace HelixAna {
     }
 
     //-----------------------------------------------------------------------------
+    // book genp histograms
+    //-----------------------------------------------------------------------------
+    TString* genp_selection[kNGenpHistSets];
+    for (int i=0; i<kNGenpHistSets; i++) genp_selection[i] = 0;
+
+    genp_selection[0] = new TString("All gen partilces");
+
+    for (int i=0; i<kNGenpHistSets; i++) {
+      if (genp_selection[i] != 0) {
+        sprintf(folder_name,"gen_%i",i);
+        fol = (TFolder*) hist_folder->FindObject(folder_name);
+        folder_title    = genp_selection[i]->Data();
+        if (! fol) fol  = hist_folder->AddFolder(folder_name,folder_title);
+        fHist.fGenp[i] = new GenpHist_t;
+        BookGenpHistograms(fHist.fGenp[i],Form("Hist/%s",folder_name));
+      }
+    }
+
+    //-----------------------------------------------------------------------------
+    // book simp histograms
+    //-----------------------------------------------------------------------------
+    TString* simp_selection[kNSimpHistSets];
+    for (int i=0; i<kNSimpHistSets; i++) simp_selection[i] = 0;
+
+    simp_selection[0] = new TString("All sim partilces");
+
+    for (int i=0; i<kNSimpHistSets; i++) {
+      if (simp_selection[i] != 0) {
+        sprintf(folder_name,"sim_%i",i);
+        fol = (TFolder*) hist_folder->FindObject(folder_name);
+        folder_title    = simp_selection[i]->Data();
+        if (! fol) fol  = hist_folder->AddFolder(folder_name,folder_title);
+        fHist.fSimp[i] = new SimpHist_t;
+        BookSimpHistograms(fHist.fSimp[i],Form("Hist/%s",folder_name));
+      }
+    }
+
+    //-----------------------------------------------------------------------------
     // book track histograms
     //-----------------------------------------------------------------------------
     TString* track_selection[kNTrackHistSets];
@@ -164,6 +211,24 @@ namespace HelixAna {
     helix_selection[0] = new TString("APR helices");
     helix_selection[1] = new TString("CPR helices");
     helix_selection[2] = new TString("Merged helices");
+    helix_selection[10] = new TString("low |TrackDeltaP| APR helices");
+    helix_selection[11] = new TString("low |TrackDeltaP| CPR helices");
+    helix_selection[12] = new TString("low |TrackDeltaP| Merged helices");
+    helix_selection[13] = new TString("high |TrackDeltaP| APR helices");
+    helix_selection[14] = new TString("high |TrackDeltaP| CPR helices");
+    helix_selection[15] = new TString("high |TrackDeltaP| Merged helices");
+
+    helix_selection[50] = new TString("APR P>70 helices");
+    helix_selection[51] = new TString("APR P>70 helices with clusters");
+    helix_selection[52] = new TString("APR P>70 helices without clusters");
+
+    helix_selection[60] = new TString("CPR P>70 helices");
+    helix_selection[61] = new TString("CPR P>70 helices with clusters");
+    helix_selection[62] = new TString("CPR P>70 helices without clusters");
+
+    helix_selection[70] = new TString("Merged P>70 helices");
+    helix_selection[71] = new TString("Merged P>70 helices with clusters");
+    helix_selection[72] = new TString("Merged P>70 helices without clusters");
 
     for (int i=0; i<kNHelixHistSets; i++) {
       if (helix_selection[i] != 0) {
@@ -184,6 +249,12 @@ namespace HelixAna {
 
     comp_selection[0] = new TString("All matched");
     comp_selection[1] = new TString("Good matched helices");
+    comp_selection[10] = new TString("low APR |TrackDeltaP|");
+    comp_selection[11] = new TString("low CPR |TrackDeltaP|");
+    comp_selection[12] = new TString("low Merged |TrackDeltaP|");
+    comp_selection[13] = new TString("high APR |TrackDeltaP|");
+    comp_selection[14] = new TString("high CPR |TrackDeltaP|");
+    comp_selection[15] = new TString("high Merged |TrackDeltaP|");
 
     for (int i=0; i<kNHelixCompHistSets; i++) {
       if (comp_selection[i] != 0) {
@@ -213,6 +284,24 @@ namespace HelixAna {
     //-----------------------------------------------------------------------------
     FillEventHistograms(fHist.fEvent[0],&fEvtPar);
     if(fEvtPar.fNMatchedHelices > 0) FillEventHistograms(fHist.fEvent[1],&fEvtPar);
+
+    //-----------------------------------------------------------------------------
+    // fill genp histograms
+    //-----------------------------------------------------------------------------
+    if(fGenpBlock) {
+      for (int i=0; i<fGenpBlock->NParticles(); i++) {
+        FillGenpHistograms(fHist.fGenp[0],fGenpBlock->Particle(i));
+      }
+    }
+
+    //-----------------------------------------------------------------------------
+    // fill simp histograms
+    //-----------------------------------------------------------------------------
+    if(fSimpBlock) {
+      for (int i=0; i<fSimpBlock->NParticles(); i++) {
+        FillSimpHistograms(fHist.fSimp[0],fSimpBlock->Particle(i));
+      }
+    }
 
     //-----------------------------------------------------------------------------
     // fill apr track histograms
@@ -248,6 +337,11 @@ namespace HelixAna {
       fHelix = fAprHelixBlock->Helix(i);
       InitHelixPar(fHelix,&fHlxPar);
       FillHelixHistograms(fHist.fHelix[0],&fHlxPar);
+      if(fHelix->P() > 70.f) { //remove most pileup helices
+        FillHelixHistograms(fHist.fHelix[50],&fHlxPar);
+        if(fHelix->ClusterEnergy() > 0.) FillHelixHistograms(fHist.fHelix[51],&fHlxPar);
+        else                             FillHelixHistograms(fHist.fHelix[52],&fHlxPar);
+      }
     }
 
     //-----------------------------------------------------------------------------
@@ -257,6 +351,11 @@ namespace HelixAna {
       fHelix = fCprHelixBlock->Helix(i);
       InitHelixPar(fHelix,&fHlxPar);
       FillHelixHistograms(fHist.fHelix[1],&fHlxPar);
+      if(fHelix->P() > 70.f) { //remove most pileup helices
+        FillHelixHistograms(fHist.fHelix[60],&fHlxPar);
+        if(fHelix->ClusterEnergy() > 0.) FillHelixHistograms(fHist.fHelix[61],&fHlxPar);
+        else                             FillHelixHistograms(fHist.fHelix[62],&fHlxPar); //shouldn't have helices without clusters
+      }
     }
 
     //-----------------------------------------------------------------------------
@@ -266,6 +365,11 @@ namespace HelixAna {
       fHelix = fMergedHelixBlock->Helix(i);
       InitHelixPar(fHelix,&fHlxPar);
       FillHelixHistograms(fHist.fHelix[2],&fHlxPar);
+      if(fHelix->P() > 70.f) { //remove most pileup helices
+        FillHelixHistograms(fHist.fHelix[70],&fHlxPar);
+        if(fHelix->ClusterEnergy() > 0.) FillHelixHistograms(fHist.fHelix[71],&fHlxPar);
+        else                             FillHelixHistograms(fHist.fHelix[72],&fHlxPar);
+      }
     }
 
     //-----------------------------------------------------------------------------
@@ -273,7 +377,41 @@ namespace HelixAna {
     //-----------------------------------------------------------------------------
     for(int imatch = 0; imatch < fEvtPar.fNMatchedHelices; ++imatch) {
       FillHelixCompHistograms(fHist.fHelixComp[0],fMatchedHelices[imatch]);
-      if(fMatchedHelices[imatch].fAprTrack && fMatchedHelices[imatch].fCprTrack) FillHelixCompHistograms(fHist.fHelixComp[1],fMatchedHelices[imatch]);
+      if(fMatchedHelices[imatch].fAprTrack && fMatchedHelices[imatch].fCprTrack) {
+        FillHelixCompHistograms(fHist.fHelixComp[1],fMatchedHelices[imatch]);
+
+        // final track fit accuracy
+        const double apr_dtp = fMatchedHelices[imatch].fAprTrack->fP - fMatchedHelices[imatch].fAprTrack->fPFront;
+        const double cpr_dtp = fMatchedHelices[imatch].fCprTrack->fP - fMatchedHelices[imatch].fCprTrack->fPFront;
+
+        // well reconstructed APR tracks
+        if(std::fabs(apr_dtp) < 0.250) {
+          InitHelixPar(fMatchedHelices[imatch].fAprHelix,&fHlxPar);
+          FillHelixHistograms(fHist.fHelix[10],&fHlxPar);
+          FillHelixCompHistograms(fHist.fHelixComp[10],fMatchedHelices[imatch]);
+        }
+
+        // well reconstructed CPR tracks
+        if(std::fabs(cpr_dtp) < 0.250) {
+          InitHelixPar(fMatchedHelices[imatch].fCprHelix,&fHlxPar);
+          FillHelixHistograms(fHist.fHelix[11],&fHlxPar);
+          FillHelixCompHistograms(fHist.fHelixComp[11],fMatchedHelices[imatch]);
+        }
+
+        // poorly reconstructed APR tracks
+        if(apr_dtp > 0.500 && apr_dtp < 5.) {
+          InitHelixPar(fMatchedHelices[imatch].fAprHelix,&fHlxPar);
+          FillHelixHistograms(fHist.fHelix[13],&fHlxPar);
+          FillHelixCompHistograms(fHist.fHelixComp[13],fMatchedHelices[imatch]);
+        }
+
+        // poorly reconstructed CPR tracks
+        if(cpr_dtp > 0.500 && cpr_dtp < 5.) {
+          InitHelixPar(fMatchedHelices[imatch].fCprHelix,&fHlxPar);
+          FillHelixHistograms(fHist.fHelix[14],&fHlxPar);
+          FillHelixCompHistograms(fHist.fHelixComp[14],fMatchedHelices[imatch]);
+        }
+      }
     }
 
   }
@@ -289,6 +427,8 @@ namespace HelixAna {
     fCprTrackBlock->GetEntry(ientry);
     fMergedTrackBlock->GetEntry(ientry);
     fTriggerBlock->GetEntry(ientry);
+    fGenpBlock->GetEntry(ientry);
+    fSimpBlock->GetEntry(ientry);
 
     // get/set event parameters
     fEvtPar.fInstLum  = GetHeaderBlock()->fInstLum;
@@ -301,7 +441,9 @@ namespace HelixAna {
     fEvtPar.fPassedCprPath = fTriggerBlock->PathPassed(150);
     fEvtPar.fPassedAprPath = fTriggerBlock->PathPassed(180);
 
-    // perform helix matching
+    fGen = (fGenpBlock && fGenpBlock->NParticles() > 0) ? fGenpBlock->Particle(0) : nullptr;
+
+    // perform helix-track matching
     MatchHelices();
 
     Debug();

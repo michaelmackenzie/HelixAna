@@ -13,6 +13,8 @@ namespace HelixAna {
     TH1F*    fRadius;    // fabs(1/omega)
     TH1F*    fMom;
     TH1F*    fPt;
+    TH1F*    fGenMom;
+    TH1F*    fGenID;
     TH1F*    fLambda;   //dz/dphi
     TH1F*    fTanDip;
     TH1F*    fT0;
@@ -22,6 +24,9 @@ namespace HelixAna {
     TH1F*    fAlgMask;
     TH1F*    fChi2XY;
     TH1F*    fChi2ZPhi;
+    TH1F*    fTZSlope;
+    TH1F*    fTZSlopeErr;
+    TH1F*    fTZSlopeSig;
   };
 
 }

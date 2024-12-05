@@ -14,12 +14,16 @@
 #include "Stntuple/loop/TStnModule.hh"
 #include "Stntuple/alg/TStntuple.hh"
 #include "Stntuple/obj/TStnTrack.hh"
+#include "Stntuple/obj/TGenParticle.hh"
+#include "Stntuple/obj/TSimParticle.hh"
 
 // local includes
 #include "HelixAna/ana/EventPar_t.hh"
 #include "HelixAna/ana/TrackPar_t.hh"
 #include "HelixAna/ana/HelixPar_t.hh"
 #include "HelixAna/ana/EventHist_t.hh"
+#include "HelixAna/ana/GenpHist_t.hh"
+#include "HelixAna/ana/SimpHist_t.hh"
 #include "HelixAna/ana/TrackHist_t.hh"
 #include "HelixAna/ana/HelixHist_t.hh"
 
@@ -57,10 +61,14 @@ public:
 // other methods
 //-----------------------------------------------------------------------------
   void    BookEventHistograms     (HelixAna::EventHist_t* Hist, const char* Folder);
+  void    BookGenpHistograms      (HelixAna::GenpHist_t*  Hist, const char* Folder);
+  void    BookSimpHistograms      (HelixAna::SimpHist_t*  Hist, const char* Folder);
   void    BookTrackHistograms     (HelixAna::TrackHist_t* Hist, const char* Folder);
   void    BookHelixHistograms     (HelixAna::HelixHist_t* Hist, const char* Folder);
 
   void    FillEventHistograms     (HelixAna::EventHist_t* Hist, HelixAna::EventPar_t*  EvtPar);
+  void    FillGenpHistograms      (HelixAna::GenpHist_t*  Hist, TGenParticle* Genp   );
+  void    FillSimpHistograms      (HelixAna::SimpHist_t*  Hist, TSimParticle* Simp   );
   void    FillTrackHistograms     (HelixAna::TrackHist_t* Hist, HelixAna::TrackPar_t*  TrkPar);
   void    FillHelixHistograms     (HelixAna::HelixHist_t* Hist, HelixAna::HelixPar_t*  HlxPar);
 

@@ -132,6 +132,7 @@ void TAnaModule::BookHelixHistograms(HelixHist_t* Hist, const char* Folder) {
   HBook1F(Hist->fPt            ,"pT"         ,Form("%s: pT; pT [MeV/c]"               ,Folder),  600,     0,  150,Folder);
   HBook1F(Hist->fGenMom        ,"simMom"     ,Form("%s: Sim particle P"               ,Folder),  400,     0,  200,Folder);
   HBook1F(Hist->fGenID         ,"simPDG"     ,Form("%s: Sim particle PDG type"        ,Folder),   60,   -30,   30,Folder);
+  HBook2F(Hist->fGenRZ         ,"simRZ"      ,Form("%s: Sim particle origin; Z (mm); R (mm)",Folder),  200, 5000., 15000., 200, 0, 600., Folder);
   HBook1F(Hist->fLambda        ,"lambda"     ,Form("%s: lambda; #lambda"              ,Folder),  200, -1000, 1000,Folder);
   HBook1F(Hist->fTanDip        ,"tanDip"     ,Form("%s: tanDip"                       ,Folder),  200,  -2.0,  2.0,Folder);
   HBook1F(Hist->fT0            ,"t0"         ,Form("%s: t0; t0[ns]"                   ,Folder),  400,     0, 2000,Folder);
@@ -237,6 +238,8 @@ void TAnaModule::FillHelixHistograms(HelixHist_t* Hist, HelixPar_t* HlxPar) {
   int genID = Helix->fSimpPDG1;
   if(abs(genID) == 2212) genID = genID*25*((genID < 0) ? -1 : 1); //compress some particle IDs
   if(abs(genID) ==  211) genID = genID*26*((genID < 0) ? -1 : 1);
+  const double gen_r    = std::sqrt(std::pow(Helix->fOrigin1.X()+3904., 2) + std::pow(Helix->fOrigin1.Y(),2));
+  const double gen_z    = Helix->fOrigin1.Z();
   const double p        = Helix->P();
 
 
@@ -253,6 +256,7 @@ void TAnaModule::FillHelixHistograms(HelixHist_t* Hist, HelixPar_t* HlxPar) {
 
   Hist->fGenMom        ->Fill(Helix->fMom1.P());
   Hist->fGenID         ->Fill(genID);
+  Hist->fGenRZ         ->Fill(gen_z, gen_r);
 
   Hist->fBestAlg       ->Fill(Helix->BestAlg());
   Hist->fAlgMask       ->Fill(Helix->AlgMask());

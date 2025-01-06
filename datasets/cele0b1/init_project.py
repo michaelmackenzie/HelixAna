@@ -7,17 +7,17 @@ class Project(ProjectBase):
 #------------------------------------------------------------------------------
 # init datasets - for stage 4, the input is a dataset produced at stage 3
 #------------------------------------------------------------------------------        
-        self.add_dataset(Dataset('dig.mu2e.cele0b1s41r0000.ePlus2024.art','cele0b1s41r0000','local'));
+        self.add_dataset(Dataset('dig.mu2e.cele0b1s41r0000.HelixAna.art','cele0b1s41r0000','local'));
 
 
     def __init__(self,idsid=None):
         familyID                     = 'cele0b1'
         
-        ProjectBase.__init__(self,project='ePlus2024',family_id='cele0b1',idsid=idsid);
+        ProjectBase.__init__(self,project='HelixAna',family_id='cele0b1',idsid=idsid);
         self.init_datasets();
 
 #------------------------------------------------------------------------------
-# s5:reco: 
+# s5:reco_stn: 
 #------------------------------------------------------------------------------
         s                            = self.new_stage('s5');
         job                          = s.new_job('reco_stn','cele0b1s41r0000'); #idsid);
@@ -27,7 +27,7 @@ class Project(ProjectBase):
         job.fMaxInputFilesPerSegment =  10                      # MC generator
         # job.fNEventsPerSegment       =  -1                    # defined by the input dataset
         job.fResample                = 'no'                     # yes/no
-        job.fMaxMemory               = '30000MB'
+        job.fMaxMemory               = '3000MB'
         job.fRequestedTime           = '12h'
         job.fIfdh                    = 'ifdh'                   # ifdh/xrootd
         job.fOutputPath              = [ 'out' ]

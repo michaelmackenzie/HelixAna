@@ -15,6 +15,7 @@ namespace HelixAna {
     TH1F*    fPt;
     TH1F*    fGenMom;
     TH1F*    fGenID;
+    TH2F*    fGenRZ;
     TH1F*    fLambda;   //dz/dphi
     TH1F*    fTanDip;
     TH1F*    fT0;
@@ -27,6 +28,7 @@ namespace HelixAna {
     TH1F*    fTZSlope;
     TH1F*    fTZSlopeErr;
     TH1F*    fTZSlopeSig;
+    TH1F*    fTZSlopeSigCDF[2]; //two CDF directions
   };
 
 }

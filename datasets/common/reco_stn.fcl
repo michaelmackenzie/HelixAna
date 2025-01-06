@@ -1,0 +1,159 @@
+#------------------------------------------------------------------------------
+# S4 Sim file s- inputs for mixing
+#------------------------------------------------------------------------------
+
+#include "HelixAna/datasets/common/stn_cemix_default_trig.fcl"
+
+physics.analyzers.InitStntuple.SelectEvents : []
+physics.analyzers.StntupleMakerTrig.SelectEvents : []
+physics.analyzers.FillStntuple.SelectEvents : []
+
+physics.filters.recoFilterDe : {
+   kalSeedCollection: "KKDeApr"
+   module_type: "KalSeedFilter"
+   minNTrks: 1
+   KalSeedCuts : [
+      {
+         doParticleTypeCheck: false
+         doZPropDirCheck: false
+         fitdirection: 0
+         fitparticle: 11
+         maxChi2DOF: 100
+         maxD0: 500
+         maxMomErr: 10
+         maxMomentum: 500
+         maxTanDip: 100
+         minD0: -500
+         minFitCons: -1
+         minMomentum: 70
+         minNStrawHits: 15
+         minT0: 0
+         minTanDip: 0
+         requireCaloCluster: false
+      }
+   ]
+}
+
+
+physics.filters.recoFilterDeLeg : {
+   kalSeedCollection: "KKDe"
+   module_type: "KalSeedFilter"
+   minNTrks: 1
+   KalSeedCuts : [
+      {
+         doParticleTypeCheck: false
+         doZPropDirCheck: false
+         fitdirection: 0
+         fitparticle: 11
+         maxChi2DOF: 100
+         maxD0: 500
+         maxMomErr: 10
+         maxMomentum: 500
+         maxTanDip: 100
+         minD0: -500
+         minFitCons: -1
+         minMomentum: 70
+         minNStrawHits: 15
+         minT0: 0
+         minTanDip: 0
+         requireCaloCluster: false
+      }
+   ]
+}
+
+physics.producers.CalHelixFinderDe.doSingleOutput : true
+physics.producers.MHDeApr : {
+   @table::TrkReco.producers.MergeHelices
+   HelixFinders  : [ "AgnosticHelixFinder" , "CalHelixFinderDe"  ]
+}
+
+
+physics.recoDe : [
+   PBTFSD, makeSH, makePH, DeltaFinder,
+   CaloRecoDigiMaker, CaloHitMaker, CaloProtoClusterMaker, CaloClusterMaker,
+   TZClusterFinder, AgnosticHelixFinder, #APR
+   CalTimePeakFinderDe, CalHelixFinderDe,  # CalPatRec
+   MHDeApr,  # helix merging
+   KKDeApr,
+   recoFilterDe
+]
+
+physics.recoDeLeg  : [
+   PBTFSD, makeSH, makePH, DeltaFinder,
+   CaloRecoDigiMaker, CaloHitMaker, CaloProtoClusterMaker, CaloClusterMaker,
+   @sequence::Reconstruction.DeReco,  recoFilterDeLeg  ]
+
+
+physics.filters.Triggerable.MinParticleMom : 70.0
+physics.filters.Triggerable.MaxParticleMom : 20000.0
+physics.filters.Triggerable.particleTypes  : [ 11, -11] #, -13, 13, 211, -211] 
+physics.filters.Triggerable.MinNParticles  : 1
+physics.filters.Triggerable.MinNDigis      : 15 
+
+physics.trigger_paths[100] : "1:p1"
+physics.trigger_paths[101] : "2:recoDe"
+# physics.trigger_paths[102] : "3:recoDeLeg"
+
+physics.producers.KKDe.UsePDGCharge : false
+physics.producers.KKDeP.UsePDGCharge : false
+physics.producers.MHDe.HelixFinders : [ "AgnosticHelixFinder", "CalHelixFinderDe"]
+physics.producers.MHDeP.HelixFinders : [ "AgnosticHelixFinder", "CalHelixFinderDe"]
+
+physics.producers.EWMProducer.SpillType : 1
+
+physics.producers.makeSD.StrawGasStepModules : ["compressDigiMCs"]
+physics.producers.CaloShowerROMaker.caloShowerStepCollection : ["compressDigiMCs"]
+
+services.DbService.purpose: MDC2020_best
+services.DbService.version: v1_3
+services.DbService.verbose : 2
+
+services.TFileService.fileName              : "nts.user.dddddb1s5r0000.helixana.001210_00000000.root"
+physics.analyzers.InitStntuple.histFileName : "nts.user.dddddb1s5r0000.helixana.001210_00000000.stn"
+outputs.defaultOutput.fileName              : "sim.user.dddddb1s5r0000.helixana.001210_00000000.art"
+
+physics.producers.KKDe.Extrapolation.ToOPA           : false
+physics.producers.KKDe.Extrapolation.Upstream        : false
+physics.producers.KKDe.ModuleSettings.SampleSurfaces : ["TT_Mid"]
+
+physics.producers.KKDeApr.Extrapolation.ToOPA           : false
+physics.producers.KKDeApr.Extrapolation.Upstream        : false
+physics.producers.KKDeApr.ModuleSettings.SampleSurfaces : ["TT_Mid"]
+
+physics.producers.aprHelixTriggerInfoMerger.doDeepCopy                : 1
+physics.producers.aprHighPStopTargTriggerInfoMerger.doDeepCopy        : 1
+physics.producers.aprHighPTriggerInfoMerger.doDeepCopy                : 1
+physics.producers.aprLowPStopTargMultiTrkTriggerInfoMerger.doDeepCopy : 1
+physics.producers.aprLowPStopTargTriggerInfoMerger.doDeepCopy         : 1
+physics.producers.aprHelixTriggerInfoMerger.doDeepCopy                : 1
+physics.producers.aprLowPMultiTrkTriggerInfoMerger.doDeepCopy         : 1
+physics.producers.aprHighPMultiTrkTriggerInfoMerger.doDeepCopy        : 1
+
+physics.producers.cprDeHighPStopTargTriggerInfoMerger.doDeepCopy : 1
+physics.producers.cprDeHighPTriggerInfoMerger.doDeepCopy         : 1
+physics.producers.cprDeLowPStopTargTriggerInfoMerger.doDeepCopy  : 1
+physics.producers.cprHelixDeTriggerInfoMerger.doDeepCopy         : 1
+physics.producers.cprHelixUeTriggerInfoMerger.doDeepCopy         : 1
+
+physics.producers.tprDeHighPStopTargTriggerInfoMerger.doDeepCopy       : 1
+physics.producers.tprDeHighPTriggerInfoMerger.doDeepCopy               : 1
+physics.producers.tprDeLowPStopTargTriggerInfoMerger.doDeepCopy        : 1
+physics.producers.tprHelixDeTriggerInfoMerger.doDeepCopy               : 1
+physics.producers.tprHelixUeTriggerInfoMerger.doDeepCopy               : 1
+physics.producers.tprHelixDeIPATriggerInfoMerger.doDeepCopy            : 1
+physics.producers.tprHelixDeIPAPhisScaledTriggerInfoMerger.doDeepCopy  : 1
+
+# Set the merged helix/track blocks to use the APR+CPR merging
+physics.analyzers.StntupleMakerTrigTot.helixCollTag[0] : "MHDeApr"
+physics.analyzers.StntupleMakerTrigTot.trackCollTag[0] : "KKDeApr"
+
+# To only run one helix/track block for debugging:
+# physics.analyzers.StntupleMakerTrigTot.timeClusterBlockName : ["TZClusterFinder"]
+# physics.analyzers.StntupleMakerTrigTot.timeClusterCollTag   : ["TZClusterFinder"]
+# physics.analyzers.StntupleMakerTrigTot.helixBlockName       : ["HelixBlockDe"]
+# physics.analyzers.StntupleMakerTrigTot.helixCollTag         : ["MHDeApr"]
+# physics.analyzers.StntupleMakerTrigTot.helixKsCollTag       : [""]
+# physics.analyzers.StntupleMakerTrigTot.trackBlockName       : ["TrackBlockDe"]
+# physics.analyzers.StntupleMakerTrigTot.trackCollTag         : ["KKDeApr"]
+# physics.analyzers.InitStntuple.chCollTag : "makePH"
+# physics.analyzers.InitStntuple.shCollTag : "makeSH"

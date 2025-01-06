@@ -7,13 +7,13 @@ class Project(ProjectBase):
 #------------------------------------------------------------------------------
 # init datasets - for stage 4, the input is a dataset produced at stage 3
 #------------------------------------------------------------------------------        
-        self.add_dataset(Dataset('dig.mu2e.mnbs0b1s41r0000.ePlus2024.art','mnbs0b1s41r0000','local'));
+        self.add_dataset(Dataset('dig.mu2e.mnbs0b1s41r0000.HelixAna.art','mnbs0b1s41r0000','local'));
 
 
     def __init__(self,idsid=None):
         familyID                     = 'mnbs0b1'
         
-        ProjectBase.__init__(self,project='ePlus2024',family_id='mnbs0b1',idsid=idsid);
+        ProjectBase.__init__(self,project='HelixAna',family_id='mnbs0b1',idsid=idsid);
         self.init_datasets();
 #------------------------------------------------------------------------------
 # s5:reco: 

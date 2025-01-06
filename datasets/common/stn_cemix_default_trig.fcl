@@ -43,7 +43,7 @@ physics : {
       Triggerable : {
 	 module_type : StrawDigiMCFilter
 	 MinNDigis : 15
-	 MinParticleMom : 100.0
+	 MinParticleMom : 70.0
 	 MaxParticleMom : 2000.0
 	 StrawDigiMCCollection : compressDigiMCs
 	 particleTypes : [ 11] 
@@ -53,7 +53,7 @@ physics : {
       Triggerable2 : {
 	 module_type : StrawDigiMCFilter
 	 MinNDigis : 15
-	 MinParticleMom : 100.0
+	 MinParticleMom : 40.0
 	 MaxParticleMom : 2000.0
 	 StrawDigiMCCollection : compressDigiMCs
 	 particleTypes : [ 11] 
@@ -66,12 +66,12 @@ physics : {
    
    @table::stntuple.paths
    
-   p1 : [ Triggerable  ]
-   p2 : [ Triggerable2  ]
+   p1 : [ Triggerable   ] # Single track candidate
+   p2 : [ Triggerable2  ] # Two track candidate
    
    #trigger_paths : [ MixPath ]
    out           : [ ]                                  # [defaultOutput]/[]
-   e1            : [ @sequence::stntuple.paths.p3 ]
+   e1            : [ @sequence::stntuple.paths.p4 ]
    #end_paths     : [ e1 , out ]
    end_paths     : [ e1 ]
 }
@@ -118,17 +118,35 @@ physics.analyzers.FillStntuple.SelectEvents : [
    "p1"
 ]
 
+# physics.trigger_paths :  []
 physics.trigger_paths :  [@sequence::Trig_physMenu.trigger_paths]
 
 #include "mu2e_trig_config/core/trigDigiInputsEpilog.fcl"
-physics.trigger_paths[100] : "1:p1"
 
 physics.producers.TTmakeSH.FilterHits             : false
 physics.producers.TTmakePH.FilterHits             : false
 physics.producers.TTmakePH.TestFlag               : true
-physics.producers.TTmakePH.StrawHitSelectionBits : ["EnergySelection","TimeSelection","RadiusSelection"]
-physics.producers.TTmakePH.StrawHitMask          : ["Dead"]
+physics.producers.TTmakePH.StrawHitSelectionBits  : ["EnergySelection","TimeSelection","RadiusSelection"]
+physics.producers.TTmakePH.StrawHitMask           : ["Dead"]
 
 # physics.producers.TTmakePH.StrawHitSelectionBits : ["TimeSelection"] 
 # physics.producers.TTmakePH.MinimumEnergy         : 0.0001 # MeV
 # physics.producers.TTmakePH.MaximumEnergy         : 0.005 # MeV
+
+physics.producers.KKDe.Extrapolation.ToOPA           : false
+physics.producers.KKDe.Extrapolation.Upstream        : false
+physics.producers.KKDe.ModuleSettings.SampleSurfaces : ["TT_Mid"]
+
+physics.producers.KKDeApr : {
+   @table::Mu2eKinKal.producers.KKDe
+   ModuleSettings : {
+      @table::Mu2eKinKal.producers.KKDe.ModuleSettings
+      @table::Mu2eKinKal.KKPrecursors
+      HelixSeedCollections : [ "MHDeApr" ]
+   }
+   UsePDGCharge : false
+}
+
+physics.producers.KKDeApr.Extrapolation.ToOPA           : false
+physics.producers.KKDeApr.Extrapolation.Upstream        : false
+physics.producers.KKDeApr.ModuleSettings.SampleSurfaces : ["TT_Mid"]

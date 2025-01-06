@@ -115,8 +115,10 @@ public:
 // other methods
 //-----------------------------------------------------------------------------
   void    BookHelixCompHistograms(HelixAna::HelixCompHist_t* Hist, const char* Folder);
+  void    BookHelixHistograms(HelixAna::HelixHist_t* Hist, const char* Folder);
   void    BookHistograms();
   void    FillHelixCompHistograms(HelixAna::HelixCompHist_t* Hist, HelixPair_t& Match);
+  void    FillHelixHistograms(HelixAna::HelixHist_t* Hist, HelixAna::HelixPar_t*  HlxPar);
   void    FillHistograms();
 
 //-----------------------------------------------------------------------------

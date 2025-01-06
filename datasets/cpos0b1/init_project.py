@@ -6,14 +6,14 @@ class Project(ProjectBase):
     def init_datasets(self):
 #------------------------------------------------------------------------------
 # init datasets - for stage 4, the input is a dataset produced at stage 3
-#------------------------------------------------------------------------------        
-        self.add_dataset(Dataset('dig.mu2e.cpos0b1s41r0000.ePlus2024.art','cpos0b1s41r0000','local'));
+#------------------------------------------------------------------------------
+        self.add_dataset(Dataset('dig.mu2e.cpos0b1s41r0000.HelixAna.art','cpos0b1s41r0000','local'));
 
 
     def __init__(self,idsid=None):
         familyID                     = 'cpos0b1'
         
-        ProjectBase.__init__(self,project='ePlus2024',family_id='cpos0b1',idsid=idsid);
+        ProjectBase.__init__(self,project='HelixAna',family_id='cpos0b1',idsid=idsid);
         self.init_datasets();
 #------------------------------------------------------------------------------
 # s5:reco: 
@@ -34,7 +34,7 @@ class Project(ProjectBase):
         job.fOutputStream            = [ 'defaultOutput'                ]
         job.fOutputDsID              = [ familyID+s.name()+'r0000'      ]
         job.fOutputFnPattern         = [ 'dig.mu2e.'+job.fOutputDsID[0] ]
-        job.fOutputFormat            = [ 'art'                          ]
+        job.fOutputFormat            = [ 'stn:root'                     ]
 #------------------------------------------------------------------------------
 # end
 #------------------------------------------------------------------------------

@@ -128,11 +128,12 @@ void TAnaModule::BookHelixHistograms(HelixHist_t* Hist, const char* Folder) {
   HBook1F(Hist->fClusterTime   ,"clusterTime",Form("%s: cluster time; t_{cluster}[ns]",Folder),  400,     0, 2000,Folder);
   HBook1F(Hist->fClusterEnergy ,"clusterE"   ,Form("%s: cluster energy; E [MeV]      ",Folder),  400,     0,  200,Folder);
   HBook1F(Hist->fRadius        ,"radius"     ,Form("%s: helix radius; r [mm]"         ,Folder),  500,     0,  500,Folder);
+  HBook1F(Hist->fRMax          ,"rmax"       ,Form("%s: helix R(max); R(max) [mm]"    ,Folder),  200,     0,  800,Folder);
   HBook1F(Hist->fMom           ,"p"          ,Form("%s: momentum; p [MeV/c]"          ,Folder),  300,    50,  200,Folder);
   HBook1F(Hist->fPt            ,"pT"         ,Form("%s: pT; pT [MeV/c]"               ,Folder),  600,     0,  150,Folder);
   HBook1F(Hist->fGenMom        ,"simMom"     ,Form("%s: Sim particle P"               ,Folder),  400,     0,  200,Folder);
   HBook1F(Hist->fGenID         ,"simPDG"     ,Form("%s: Sim particle PDG type"        ,Folder),   60,   -30,   30,Folder);
-  HBook2F(Hist->fGenRZ         ,"simRZ"      ,Form("%s: Sim particle origin; Z (mm); R (mm)",Folder),  200, 5000., 15000., 200, 0, 600., Folder);
+  HBook2F(Hist->fGenRZ         ,"simRZ"      ,Form("%s: Sim particle origin; Z (mm); R (mm)",Folder),  200, 5000., 15000., 200, 0, 1000., Folder);
   HBook1F(Hist->fLambda        ,"lambda"     ,Form("%s: lambda; #lambda"              ,Folder),  200, -1000, 1000,Folder);
   HBook1F(Hist->fTanDip        ,"tanDip"     ,Form("%s: tanDip"                       ,Folder),  200,  -2.0,  2.0,Folder);
   HBook1F(Hist->fT0            ,"t0"         ,Form("%s: t0; t0[ns]"                   ,Folder),  400,     0, 2000,Folder);
@@ -249,6 +250,7 @@ void TAnaModule::FillHelixHistograms(HelixHist_t* Hist, HelixPar_t* HlxPar) {
   Hist->fClusterEnergy ->Fill(clusterE);
 
   Hist->fRadius        ->Fill(radius);
+  Hist->fRMax          ->Fill(HlxPar->fRMax);
   Hist->fMom           ->Fill(p);
   Hist->fPt            ->Fill(pT);
   Hist->fLambda        ->Fill(lambda);
@@ -290,6 +292,8 @@ void TAnaModule::InitHelixPar(TStnHelix* Hlx, HelixAna::HelixPar_t* HlxPar) {
   // compute parameters not contained in TStnHelix
   HlxPar->fRMax = Hlx->D0() + 2.*Hlx->Radius();
 
+  // truth-level info
+  HlxPar->fIsMCDownstream = Hlx->fMom1.Pz() > 0.; //sim particle with most hits is moving downstream
 }
 
 }

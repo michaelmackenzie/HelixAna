@@ -11,6 +11,7 @@ namespace HelixAna {
     TH1F*    fClusterTime;
     TH1F*    fClusterEnergy;
     TH1F*    fRadius;    // fabs(1/omega)
+    TH1F*    fRMax;
     TH1F*    fMom;
     TH1F*    fPt;
     TH1F*    fGenMom;

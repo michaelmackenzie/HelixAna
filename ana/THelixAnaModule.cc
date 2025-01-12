@@ -13,7 +13,8 @@ namespace HelixAna {
     // fCprHelixBlockName      =  "HelixBlockDeCpr";
     // fMergedHelixBlockName   =  "HelixBlockDe";
     fAprHelixBlockName      =  "HelixBlockAprHighP";
-    fCprHelixBlockName      =  "HelixBlockCprDeHighP";
+    fCprDeHelixBlockName    =  "HelixBlockCprDeHighP";
+    fCprUeHelixBlockName    =  "HelixBlockUeCpr";
     fMergedHelixBlockName   =  "HelixBlockDe";
     fAprTrackBlockName      =  "TrackBlockAprHighP";
     fCprTrackBlockName      =  "TrackBlockCprDeHighP";
@@ -34,7 +35,8 @@ namespace HelixAna {
     // register data blocks
     //-----------------------------------------------------------------------------
     RegisterDataBlock(fAprHelixBlockName,     "TStnHelixBlock"  , &fAprHelixBlock     );
-    RegisterDataBlock(fCprHelixBlockName,     "TStnHelixBlock"  , &fCprHelixBlock     );
+    RegisterDataBlock(fCprDeHelixBlockName,   "TStnHelixBlock"  , &fCprDeHelixBlock   );
+    RegisterDataBlock(fCprUeHelixBlockName,   "TStnHelixBlock"  , &fCprUeHelixBlock   );
     RegisterDataBlock(fMergedHelixBlockName,  "TStnHelixBlock"  , &fMergedHelixBlock  );
     RegisterDataBlock(fAprTrackBlockName,     "TStnTrackBlock"  , &fAprTrackBlock     );
     RegisterDataBlock(fCprTrackBlockName,     "TStnTrackBlock"  , &fCprTrackBlock     );
@@ -132,7 +134,7 @@ namespace HelixAna {
     for(int ibin = bin; ibin <= nbins+1; ++ibin) { //cut on low end efficiency
       Hist->fTZSlopeSigCDF[0]->SetBinContent(ibin, Hist->fTZSlopeSigCDF[0]->GetBinContent(ibin) + 1);
     }
-    for(int ibin = 0; ibin <= nbins; ++ibin) { //cut on high end efficiency
+    for(int ibin = 0; ibin <= bin; ++ibin) { //cut on high end efficiency
       Hist->fTZSlopeSigCDF[1]->SetBinContent(ibin, Hist->fTZSlopeSigCDF[1]->GetBinContent(ibin) + 1);
     }
   }
@@ -243,19 +245,21 @@ namespace HelixAna {
     helix_selection[14] = new TString("high |TrackDeltaP| CPR helices");
     helix_selection[15] = new TString("high |TrackDeltaP| Merged helices");
 
-    helix_selection[50] = new TString("APR 80<P<110 helices");
-    helix_selection[51] = new TString("APR 80<P<110 helices with clusters");
-    helix_selection[52] = new TString("APR 80<P<110 helices without clusters");
-    helix_selection[53] = new TString("APR 80<P<110, sig > 5");
-    helix_selection[54] = new TString("APR 80<P<110, sig < -5");
-    helix_selection[55] = new TString("APR 80<P<110,  1 hel");
-    helix_selection[56] = new TString("APR 80<P<110, -1 hel");
+    helix_selection[50] = new TString("APR 70<P<130 helices");
+    helix_selection[51] = new TString("APR 70<P<130 helices with clusters");
+    helix_selection[52] = new TString("APR 70<P<130 helices without clusters");
+    helix_selection[53] = new TString("APR 70<P<130, sig > 5 right");
+    helix_selection[54] = new TString("APR 70<P<130, sig < -5 wrong");
+    helix_selection[55] = new TString("APR 70<P<130,  1 hel");
+    helix_selection[56] = new TString("APR 70<P<130, -1 hel");
+    helix_selection[57] = new TString("APR 70<P<130, true downstream");
+    helix_selection[58] = new TString("APR 70<P<130, true upstream");
 
-    helix_selection[60] = new TString("CPR P>80 helices");
-    helix_selection[61] = new TString("CPR P>80 helices with clusters");
-    helix_selection[62] = new TString("CPR P>80 helices without clusters");
-    helix_selection[63] = new TString("CPR 80<P<110, sig > 5");
-    helix_selection[64] = new TString("CPR 80<P<110, sig < -5");
+    helix_selection[60] = new TString("CPR 70<P<130 helices");
+    helix_selection[61] = new TString("CPR 70<P<130 helices with clusters");
+    helix_selection[62] = new TString("CPR 70<P<130 helices without clusters");
+    helix_selection[63] = new TString("CPR 70<P<130, sig > 5");
+    helix_selection[64] = new TString("CPR 70<P<130, sig < -5");
 
     helix_selection[70] = new TString("Merged P>80 helices");
     helix_selection[71] = new TString("Merged P>80 helices with clusters");
@@ -371,18 +375,19 @@ namespace HelixAna {
       fHelix = fAprHelixBlock->Helix(i);
       InitHelixPar(fHelix,&fHlxPar);
       FillHelixHistograms(fHist.fHelix[0],&fHlxPar);
-      //FIXME: Add real truth matching to only look at non-pileup tracks
-      const float r_origin(std::sqrt(std::pow(fHelix->fOrigin1.X()+3904., 2) + std::pow(fHelix->fOrigin1.Y(), 2))), z_origin(fHelix->fOrigin1.Z());
-      const bool truth_match = fSimpBlock->NParticles() == 1 && fHelix->fMom1.P() > 80. && fHelix->fSimpPDG1 == fSimpBlock->Particle(0)->fPdgCode && r_origin < 70. && z_origin < 6400. && z_origin > 5400.;
-      if(fHelix->P() > 70.f && fHelix->P() < 120.f && truth_match) { //remove most pileup helices
+      const bool is_downstream = fHlxPar.fIsMCDownstream;
+      const int ID = HelixID(fHelix, &fHlxPar);
+      if(ID == 0) { //remove most pileup helices
         FillHelixHistograms(fHist.fHelix[50],&fHlxPar);
         if(fHelix->ClusterEnergy() > 0.) FillHelixHistograms(fHist.fHelix[51],&fHlxPar);
         else                             FillHelixHistograms(fHist.fHelix[52],&fHlxPar);
-        const float tz_sig = fHelix->fTZSlope/fHelix->fTZSlopeError;
-        if(tz_sig >  5.f) FillHelixHistograms(fHist.fHelix[53],&fHlxPar);
-        if(tz_sig < -5.f) FillHelixHistograms(fHist.fHelix[54],&fHlxPar);
+        const float tz_sig = fHlxPar.fTZSigMC; //dz/dt slope significance signed by MC particle direction
+        if(tz_sig >  5.f) FillHelixHistograms(fHist.fHelix[53],&fHlxPar); //high significance correct
+        if(tz_sig < -5.f) FillHelixHistograms(fHist.fHelix[54],&fHlxPar); //high significance wrong
         if(fHelix->Helicity() > 0) FillHelixHistograms(fHist.fHelix[55],&fHlxPar);
         else                       FillHelixHistograms(fHist.fHelix[56],&fHlxPar);
+        if(is_downstream)          FillHelixHistograms(fHist.fHelix[57],&fHlxPar);
+        else                       FillHelixHistograms(fHist.fHelix[58],&fHlxPar);
       }
     }
 
@@ -390,13 +395,12 @@ namespace HelixAna {
     // fill cpr helix histograms
     //-----------------------------------------------------------------------------
     for (int i=0; i<fEvtPar.fNCprHelices; i++) {
-      fHelix = fCprHelixBlock->Helix(i);
+      fHelix = fCprDeHelixBlock->Helix(i);
       InitHelixPar(fHelix,&fHlxPar);
       FillHelixHistograms(fHist.fHelix[1],&fHlxPar);
-      //FIXME: Add real truth matching to only look at non-pileup tracks
-      const float r_origin(std::sqrt(std::pow(fHelix->fOrigin1.X()+3904., 2) + std::pow(fHelix->fOrigin1.Y(), 2))), z_origin(fHelix->fOrigin1.Z());
-      const bool truth_match = fSimpBlock->NParticles() == 1 && fHelix->fMom1.P() > 80. && fHelix->fSimpPDG1 == fSimpBlock->Particle(0)->fPdgCode && r_origin < 70. && z_origin < 6400. && z_origin > 5400.;
-      if(fHelix->P() > 70.f && fHelix->P() < 120.f && truth_match) { //remove most pileup helices
+      // const bool is_downstream = fHlxPar.fIsMCDownstream;
+      const int ID = HelixID(fHelix, &fHlxPar);
+      if(ID == 0) { //remove most pileup helices
         FillHelixHistograms(fHist.fHelix[60],&fHlxPar);
         if(fHelix->ClusterEnergy() > 0.) FillHelixHistograms(fHist.fHelix[61],&fHlxPar);
         else                             FillHelixHistograms(fHist.fHelix[62],&fHlxPar); //shouldn't have helices without clusters
@@ -413,10 +417,9 @@ namespace HelixAna {
       fHelix = fMergedHelixBlock->Helix(i);
       InitHelixPar(fHelix,&fHlxPar);
       FillHelixHistograms(fHist.fHelix[2],&fHlxPar);
-      //FIXME: Add real truth matching to only look at non-pileup tracks
-      const float r_origin(std::sqrt(std::pow(fHelix->fOrigin1.X()+3904., 2) + std::pow(fHelix->fOrigin1.Y(), 2))), z_origin(fHelix->fOrigin1.Z());
-      const bool truth_match = fSimpBlock->NParticles() == 1 && fHelix->fMom1.P() > 70. && fHelix->fSimpPDG1 == fSimpBlock->Particle(0)->fPdgCode && r_origin < 70. && z_origin < 6400. && z_origin > 5400.;
-      if(fHelix->P() > 70.f && fHelix->P() < 120.f && truth_match) { //remove most pileup helices
+      // const bool is_downstream = fHlxPar.fIsMCDownstream;
+      const int ID = HelixID(fHelix, &fHlxPar);
+      if(ID == 0) { //remove most pileup helices
         FillHelixHistograms(fHist.fHelix[70],&fHlxPar);
         if(fHelix->ClusterEnergy() > 0.) FillHelixHistograms(fHist.fHelix[71],&fHlxPar);
         else                             FillHelixHistograms(fHist.fHelix[72],&fHlxPar);
@@ -475,7 +478,8 @@ namespace HelixAna {
 
     // get entry for the ith event for each data block
     fAprHelixBlock->GetEntry(ientry);
-    fCprHelixBlock->GetEntry(ientry);
+    fCprDeHelixBlock->GetEntry(ientry);
+    fCprUeHelixBlock->GetEntry(ientry);
     fMergedHelixBlock->GetEntry(ientry);
     fAprTrackBlock->GetEntry(ientry);
     fCprTrackBlock->GetEntry(ientry);
@@ -487,7 +491,7 @@ namespace HelixAna {
     // get/set event parameters
     fEvtPar.fInstLum  = GetHeaderBlock()->fInstLum;
     fEvtPar.fNAprHelices = fAprHelixBlock->NHelices();
-    fEvtPar.fNCprHelices = fCprHelixBlock->NHelices();
+    fEvtPar.fNCprHelices = fCprDeHelixBlock->NHelices();
     fEvtPar.fNMergedHelices = fMergedHelixBlock->NHelices();
     fEvtPar.fNAprTracks = fAprTrackBlock->NTracks();
     fEvtPar.fNCprTracks = fCprTrackBlock->NTracks();
@@ -550,7 +554,7 @@ namespace HelixAna {
       for(int icpr = 0; icpr < fEvtPar.fNCprHelices; ++icpr) {
         // check if the two helices match
         auto apr_helix = fAprHelixBlock->Helix(iapr);
-        auto cpr_helix = fCprHelixBlock->Helix(iapr);
+        auto cpr_helix = fCprDeHelixBlock->Helix(iapr);
         if(CompareHelices(apr_helix, cpr_helix)) {
           ++fEvtPar.fNMatchedHelices;
           if(fEvtPar.fNMatchedHelices > kMaxHelices) {
@@ -569,15 +573,43 @@ namespace HelixAna {
   }
 
   //_____________________________________________________________________________
+  // Apply selection cuts to the helix
+  int THelixAnaModule::HelixID(TStnHelix* h, HelixPar_t* hpar) {
+    int ID(0);
+    const float p(h->P()), t(h->T0()), r(hpar->fRMax);//, pmc(h->fMom1.P());
+    if(p <= 80.f || p >= 130.f)   ID |= 1 << kHelixID_P;
+    if(t <= 500.f || t >= 1650.f) ID |= 1 << kHelixID_T;
+    if(r <= 450.f || r >= 680.f)  ID |= 1 << kHelixID_R;
+    // if(std::fabs(pmc - p) > 10.f) ID |= 1 << kHelixID_MCP;
+
+    // FIXME: Truth-matching needs improvement
+    const int mc_proc((fSimpBlock->NParticles() >= 1) ? fSimpBlock->Particle(0)->fGeneratorID : 0);
+    const bool is_cosmic = fSimpBlock->NParticles() == 1 && mc_proc == 56;
+    const float r_origin(std::sqrt(std::pow(fHelix->fOrigin1.X()+3904., 2) + std::pow(fHelix->fOrigin1.Y(), 2))), z_origin(fHelix->fOrigin1.Z());
+    bool truth_match = true;
+    if(is_cosmic) {
+        truth_match &= z_origin < 6400. || z_origin > 8000.; // avoid the IPA DIOs
+    } else if(mc_proc > 163) { //general Mu2e primaries FIXME: Add process specific tests
+      truth_match &= fHelix->fSimpPDG1 == fSimpBlock->Particle(0)->fPdgCode && r_origin < 70. && z_origin < 6400. && z_origin > 5400.; // CE test: ST origin
+    }
+
+    if(!truth_match) ID |= 1 << kHelixID_MCMatch;
+
+    return ID;
+  }
+
+  //_____________________________________________________________________________
   void THelixAnaModule::Debug() {
     int n_high_p_apr_hel(0), n_high_apr_sig(0);
     for (int i=0; i<fEvtPar.fNAprHelices; i++) {
       const auto helix = fAprHelixBlock->Helix(i);
+      InitHelixPar(helix,&fHlxPar);
       const auto simp = (fSimpBlock->NParticles() == 1) ? fSimpBlock->Particle(0) : nullptr;
       if(helix->P() > 70.f) ++n_high_p_apr_hel;
+      const bool is_downstream = fHlxPar.fIsMCDownstream;
       //FIXME: Add real truth matching to only look at non-pileup tracks
       const bool truth_match = simp && helix->fSimpPDG1 == simp->fPdgCode;
-      if(truth_match && simp && abs(simp->fPdgCode) < 14 && helix->fTZSlope/helix->fTZSlopeError*simp->fPdgCode/abs(simp->fPdgCode) > 5.f) ++n_high_apr_sig;
+      if(truth_match && simp && abs(simp->fPdgCode) < 14 && helix->fTZSlope/helix->fTZSlopeError*((is_downstream) ? -1. : 1.) > 5.f) ++n_high_apr_sig;
     }
 
     const bool print_event = ((GetDebugBit(0)) //all events
@@ -599,19 +631,20 @@ namespace HelixAna {
       fAprHelixBlock->Print();
       printf(" More APR helix info:\n");
       printf("--------------------------------------------------------------------------------------------------------------------------------\n");
-      printf(" i  p(sim_1) ID(sim_1) nh(sim_1)  p(sim_2) ID(sim_2)  nh(sim_2)   dZdT    sig(dZdT)\n");
-      //       1  206.67     2212        1       151.09    2212         1     7.07e-03    0.00
+      printf(" i  p(sim_1) pz(sim_1) ID(sim_1) nh(sim_1)  p(sim_2) ID(sim_2)  nh(sim_2)   dZdT    sig(dZdT)\n");
+      //       0  112.94   -104.82     -11        5       164.16    2212         2     -3.36e-03   -3.43
 
       printf("--------------------------------------------------------------------------------------------------------------------------------\n");
       for (int i=0; i<fEvtPar.fNAprHelices; i++) {
         const auto helix = fAprHelixBlock->Helix(i);
-        printf("%2i  %6.2f     %4i      %3i       %6.2f    %4i       %3i     %8.2e   %4.2f\n",
-               i, helix->fMom1.P(), helix->fSimpPDG1, helix->fSimpId1Hits,
+        InitHelixPar(helix,&fHlxPar);
+        printf("%2i  %6.2f   %7.2f    %4i      %3i       %6.2f    %4i       %3i     %9.2e   %5.2f\n",
+               i, helix->fMom1.P(), helix->fMom1.Pz(), helix->fSimpPDG1, helix->fSimpId1Hits,
                (helix->fSimpId2Hits > 0) ? helix->fMom2.P() : -1.f, helix->fSimpPDG2, helix->fSimpId2Hits,
                helix->TZSlope(), helix->TZSlope()/helix->TZSlopeError());
       }
       printf(" CPR helices:\n");
-      fCprHelixBlock->Print();
+      fCprDeHelixBlock->Print();
       printf(" APR tracks:\n");
       fAprTrackBlock->Print();
       for(int itrack = 0; itrack < fEvtPar.fNAprTracks; ++itrack) printf(" %2i: helix index = %2i\n", itrack, fAprTrackBlock->Track(itrack)->fHelixIndex);

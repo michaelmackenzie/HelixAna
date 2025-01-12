@@ -11,6 +11,9 @@ namespace HelixAna {
 
     float fRMax;
 
+    // truth-level info
+    bool fIsMCDownstream;
+    float fTZSigMC; //TZ slope significance, signed by the MC true particle direction
   };
 }
 #endif

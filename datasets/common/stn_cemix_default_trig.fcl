@@ -137,6 +137,10 @@ physics.producers.KKDe.Extrapolation.ToOPA           : false
 physics.producers.KKDe.Extrapolation.Upstream        : false
 physics.producers.KKDe.ModuleSettings.SampleSurfaces : ["TT_Mid"]
 
+physics.producers.KKUe.Extrapolation.ToOPA           : false
+physics.producers.KKUe.Extrapolation.Upstream        : false
+physics.producers.KKUe.ModuleSettings.SampleSurfaces : ["TT_Mid"]
+
 physics.producers.KKDeApr : {
    @table::Mu2eKinKal.producers.KKDe
    ModuleSettings : {
@@ -147,6 +151,20 @@ physics.producers.KKDeApr : {
    UsePDGCharge : false
 }
 
+physics.producers.KKUeApr : {
+   @table::Mu2eKinKal.producers.KKUe
+   ModuleSettings : {
+      @table::Mu2eKinKal.producers.KKUe.ModuleSettings
+      @table::Mu2eKinKal.KKPrecursors
+      HelixSeedCollections : [ "MHUeApr" ]
+   }
+   UsePDGCharge : false
+}
+
 physics.producers.KKDeApr.Extrapolation.ToOPA           : false
 physics.producers.KKDeApr.Extrapolation.Upstream        : false
 physics.producers.KKDeApr.ModuleSettings.SampleSurfaces : ["TT_Mid"]
+
+physics.producers.KKUeApr.Extrapolation.ToOPA           : false
+physics.producers.KKUeApr.Extrapolation.Upstream        : false
+physics.producers.KKUeApr.ModuleSettings.SampleSurfaces : ["TT_Mid"]

@@ -36,6 +36,7 @@ public:
   enum { kNHelixHistSets          = 100};
   enum { kNHelixCompHistSets      = 100};
   enum { kMaxHelices              =  10}; //maximum helices matched in an event
+  enum { kHelixID_P, kHelixID_T, kHelixID_R, kHelixID_MCP, kHelixID_MCMatch}; //Helix ID selections
 
   struct Hist_t {
     HelixAna::EventHist_t*     fEvent[kNEventHistSets];
@@ -71,13 +72,15 @@ public:
   TString                  fSimpBlockName;
 
   TStnHelixBlock*          fAprHelixBlock;
-  TStnHelixBlock*          fCprHelixBlock;
+  TStnHelixBlock*          fCprDeHelixBlock;
+  TStnHelixBlock*          fCprUeHelixBlock;
   TStnHelixBlock*          fMergedHelixBlock;
   TStnTrackBlock*          fAprTrackBlock;
   TStnTrackBlock*          fCprTrackBlock;
   TStnTrackBlock*          fMergedTrackBlock;
   TString                  fAprHelixBlockName;
-  TString                  fCprHelixBlockName;
+  TString                  fCprDeHelixBlockName;
+  TString                  fCprUeHelixBlockName;
   TString                  fMergedHelixBlockName;
   TString                  fAprTrackBlockName;
   TString                  fCprTrackBlockName;
@@ -128,6 +131,7 @@ public:
   void MatchHelices();
   bool CompareHelices(TStnHelix* h1, TStnHelix* h2);
   TStnTrack* GetMatchingTrack(TStnHelix* h, int h_index, TStnTrackBlock* block);
+  int HelixID(TStnHelix* h, HelixPar_t* hpar);
 
   void Debug();
 

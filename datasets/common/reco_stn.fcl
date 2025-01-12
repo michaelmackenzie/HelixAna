@@ -2,6 +2,10 @@
 # S4 Sim file s- inputs for mixing
 #------------------------------------------------------------------------------
 
+BEGIN_PROLOG
+  artFragmentsGenMC @protect_ignore: []
+END_PROLOG
+
 #include "HelixAna/datasets/common/stn_cemix_default_trig.fcl"
 
 physics.analyzers.InitStntuple.SelectEvents : []
@@ -34,7 +38,6 @@ physics.filters.recoFilterDe : {
    ]
 }
 
-
 physics.filters.recoFilterDeLeg : {
    kalSeedCollection: "KKDe"
    module_type: "KalSeedFilter"
@@ -61,10 +64,41 @@ physics.filters.recoFilterDeLeg : {
    ]
 }
 
+physics.filters.recoFilterUe : {
+   kalSeedCollection: "KKUeApr"
+   module_type: "KalSeedFilter"
+   minNTrks: 1
+   KalSeedCuts : [
+      {
+         doParticleTypeCheck: false
+         doZPropDirCheck: false
+         fitdirection: 1
+         fitparticle: 11
+         maxChi2DOF: 100
+         maxD0: 500
+         maxMomErr: 10
+         maxMomentum: 500
+         maxTanDip: 100
+         minD0: -500
+         minFitCons: -1
+         minMomentum: 70
+         minNStrawHits: 15
+         minT0: 0
+         minTanDip: 0
+         requireCaloCluster: false
+      }
+   ]
+}
+
 physics.producers.CalHelixFinderDe.doSingleOutput : true
+physics.producers.CalHelixFinderUe.doSingleOutput : true
 physics.producers.MHDeApr : {
    @table::TrkReco.producers.MergeHelices
    HelixFinders  : [ "AgnosticHelixFinder" , "CalHelixFinderDe"  ]
+}
+physics.producers.MHUeApr : {
+   @table::TrkReco.producers.MergeHelices
+   HelixFinders  : [ "AgnosticHelixFinder" , "CalHelixFinderUe"  ]
 }
 
 
@@ -84,6 +118,16 @@ physics.recoDeLeg  : [
    @sequence::Reconstruction.DeReco,  recoFilterDeLeg  ]
 
 
+physics.recoUe : [
+   PBTFSD, makeSH, makePH, DeltaFinder,
+   CaloRecoDigiMaker, CaloHitMaker, CaloProtoClusterMaker, CaloClusterMaker,
+   TZClusterFinder, AgnosticHelixFinder, #APR
+   CalTimePeakFinderUe, CalHelixFinderUe,  # CalPatRec
+   MHUeApr,  # helix merging
+   KKUeApr,
+   recoFilterUe
+]
+
 physics.filters.Triggerable.MinParticleMom : 70.0
 physics.filters.Triggerable.MaxParticleMom : 20000.0
 physics.filters.Triggerable.particleTypes  : [ 11, -11] #, -13, 13, 211, -211] 
@@ -92,12 +136,13 @@ physics.filters.Triggerable.MinNDigis      : 15
 
 physics.trigger_paths[100] : "1:p1"
 physics.trigger_paths[101] : "2:recoDe"
+physics.trigger_paths[102] : "3:recoUe"
 # physics.trigger_paths[102] : "3:recoDeLeg"
 
 physics.producers.KKDe.UsePDGCharge : false
-physics.producers.KKDeP.UsePDGCharge : false
+physics.producers.KKUe.UsePDGCharge : false
 physics.producers.MHDe.HelixFinders : [ "AgnosticHelixFinder", "CalHelixFinderDe"]
-physics.producers.MHDeP.HelixFinders : [ "AgnosticHelixFinder", "CalHelixFinderDe"]
+physics.producers.MHUe.HelixFinders : [ "AgnosticHelixFinder", "CalHelixFinderUe"]
 
 physics.producers.EWMProducer.SpillType : 1
 
@@ -115,10 +160,16 @@ outputs.defaultOutput.fileName              : "sim.user.dddddb1s5r0000.helixana.
 physics.producers.KKDe.Extrapolation.ToOPA           : false
 physics.producers.KKDe.Extrapolation.Upstream        : false
 physics.producers.KKDe.ModuleSettings.SampleSurfaces : ["TT_Mid"]
+physics.producers.KKUe.Extrapolation.ToOPA           : false
+physics.producers.KKUe.Extrapolation.Upstream        : false
+physics.producers.KKUe.ModuleSettings.SampleSurfaces : ["TT_Mid"]
 
 physics.producers.KKDeApr.Extrapolation.ToOPA           : false
 physics.producers.KKDeApr.Extrapolation.Upstream        : false
 physics.producers.KKDeApr.ModuleSettings.SampleSurfaces : ["TT_Mid"]
+physics.producers.KKUeApr.Extrapolation.ToOPA           : false
+physics.producers.KKUeApr.Extrapolation.Upstream        : false
+physics.producers.KKUeApr.ModuleSettings.SampleSurfaces : ["TT_Mid"]
 
 physics.producers.aprHelixTriggerInfoMerger.doDeepCopy                : 1
 physics.producers.aprHighPStopTargTriggerInfoMerger.doDeepCopy        : 1
@@ -147,7 +198,21 @@ physics.producers.tprHelixDeIPAPhisScaledTriggerInfoMerger.doDeepCopy  : 1
 physics.analyzers.StntupleMakerTrigTot.helixCollTag[0] : "MHDeApr"
 physics.analyzers.StntupleMakerTrigTot.trackCollTag[0] : "KKDeApr"
 
-# To only run one helix/track block for debugging:
+# Add upstream reco data blocks
+physics.analyzers.StntupleMakerTrigTot.timeClusterBlockName : [@sequence::physics.analyzers.StntupleMakerTrigTot.timeClusterBlockName, "TimeClusterBlock", "TimeClusterBlockUeCpr" ]
+physics.analyzers.StntupleMakerTrigTot.timeClusterCollTag   : [@sequence::physics.analyzers.StntupleMakerTrigTot.timeClusterCollTag  , "TZClusterFinder" , "CalTimePeakFinderUe"   ]
+physics.analyzers.StntupleMakerTrigTot.helixBlockName       : [@sequence::physics.analyzers.StntupleMakerTrigTot.helixBlockName      , "HelixBlockUe"    , "HelixBlockUeCpr"       ]
+physics.analyzers.StntupleMakerTrigTot.helixCollTag         : [@sequence::physics.analyzers.StntupleMakerTrigTot.helixCollTag        , "MHUeApr"         , "CalHelixFinderUe"      ]
+physics.analyzers.StntupleMakerTrigTot.helixCollKsTag       : [@sequence::physics.analyzers.StntupleMakerTrigTot.helixKsCollTag      , ""                , ""                      ]
+physics.analyzers.StntupleMakerTrigTot.trackBlockName       : [@sequence::physics.analyzers.StntupleMakerTrigTot.trackBlockName      , "TrackBlockUe"    , "TrackBlockUeCpr"       ]
+physics.analyzers.StntupleMakerTrigTot.trackCollTag         : [@sequence::physics.analyzers.StntupleMakerTrigTot.trackCollTag        , "KKUeApr"         , "KKUeM"                 ]
+physics.analyzers.StntupleMakerTrigTot.trackHsBlockName     : [@sequence::physics.analyzers.StntupleMakerTrigTot.trackHsBlockName    , "HelixBlockUe"    , "HelixBlockUeCpr"       ]
+physics.analyzers.StntupleMakerTrigTot.tciCollTag           : [@sequence::physics.analyzers.StntupleMakerTrigTot.tciCollTag          , ""                , ""                      ]
+physics.analyzers.StntupleMakerTrigTot.tcmCollTag           : [@sequence::physics.analyzers.StntupleMakerTrigTot.tcmCollTag          , ""                , ""                      ]
+physics.analyzers.StntupleMakerTrigTot.pidCollTag           : [@sequence::physics.analyzers.StntupleMakerTrigTot.pidCollTag          , ""                , ""                      ]
+physics.analyzers.StntupleMakerTrigTot.trkQualCollTag       : [@sequence::physics.analyzers.StntupleMakerTrigTot.trkQualCollTag      , ""                , ""                      ]
+
+# To only run one helix/track block for debugging: Offline De reco
 # physics.analyzers.StntupleMakerTrigTot.timeClusterBlockName : ["TZClusterFinder"]
 # physics.analyzers.StntupleMakerTrigTot.timeClusterCollTag   : ["TZClusterFinder"]
 # physics.analyzers.StntupleMakerTrigTot.helixBlockName       : ["HelixBlockDe"]
@@ -157,3 +222,53 @@ physics.analyzers.StntupleMakerTrigTot.trackCollTag[0] : "KKDeApr"
 # physics.analyzers.StntupleMakerTrigTot.trackCollTag         : ["KKDeApr"]
 # physics.analyzers.InitStntuple.chCollTag : "makePH"
 # physics.analyzers.InitStntuple.shCollTag : "makeSH"
+# physics.trigger_paths : [recoDe]
+
+# To only run one helix/track block for debugging: Online apr_highP
+# TrkReco.PrintUtils.strawHitCollTag : "TTmakeSH"
+# physics.analyzers.StntupleMakerTrigTot.timeClusterBlockName : ["TimeClusterBlockAprHighP" ]
+# physics.analyzers.StntupleMakerTrigTot.timeClusterCollTag   : ["aprHighPTriggerInfoMerger"]
+# physics.analyzers.StntupleMakerTrigTot.helixBlockName       : ["HelixBlockAprHighP"       ]
+# physics.analyzers.StntupleMakerTrigTot.helixCollTag         : ["aprHighPTriggerInfoMerger"]
+# physics.analyzers.StntupleMakerTrigTot.helixKsCollTag       : [""                         ]
+# physics.analyzers.StntupleMakerTrigTot.trackBlockName       : ["TrackBlockAprHighP"       ]
+# physics.analyzers.StntupleMakerTrigTot.trackHsBlockName     : ["HelixBlockAprHighP"       ]
+# physics.analyzers.StntupleMakerTrigTot.trackCollTag         : ["aprHighPTriggerInfoMerger"]
+# physics.analyzers.StntupleMakerTrigTot.makeGenp        : 0
+# physics.analyzers.StntupleMakerTrigTot.makeSimp        : 0
+# physics.analyzers.StntupleMakerTrigTot.makePid         : 0
+# physics.analyzers.StntupleMakerTrigTot.makeStepPointMC : 0
+# physics.analyzers.StntupleMakerTrigTot.makeTrigger     : 0
+# physics.analyzers.StntupleMakerTrigTot.makeCrvClusters : 0
+# physics.analyzers.StntupleMakerTrigTot.makeClusters    : 0
+# physics.analyzers.StntupleMakerTrigTot.makeCalData     : 0
+# physics.analyzers.StntupleMakerTrigTot.shCollTag : "TTmakeSH"
+# physics.analyzers.StntupleMakerTrigTot.chCollTag : "TTmakePH"
+# physics.analyzers.InitStntuple.shCollTag         : "TTmakeSH"
+# physics.analyzers.InitStntuple.chCollTag         : "TTmakePH"
+# physics.analyzers.InitStntuple.comboHitCollTag   : "TTmakePH"
+# physics.analyzers.InitStntuple.strawHitCollTag   : "TTmakeSH"
+# physics.analyzers.InitStntuple.makeClusters      : 0
+# physics.analyzers.StntupleMakerTrigTot.chCollTag : "TTmakePH"
+# physics.analyzers.StntupleMakerTrigTot.TAnaDump.printUtils.strawHitCollTag : "TTmakeSH"
+# physics.analyzers.StntupleMakerTrigTot.TAnaDump.printUtils.mcUtils.comboHitCollTag: "TTmakeSH"
+# physics.analyzers.StntupleMakerTrigTot.tcShCollTag : [ "TTmakeSH" ]
+# physics.analyzers.StntupleMakerTrigTot.tcChCollTag : [ "TTmakePH" ]
+# physics.analyzers.InitStntuple.TAnaDump.printUtils.strawHitCollTag : "TTmakeSH"
+# physics.analyzers.InitStntuple.TAnaDump.printUtils.mcTruth : 0
+# physics.analyzers.InitStntuple.TAnaDump.printUtils.mcUtils.comboHitCollTag: "TTmakeSH"
+# physics.analyzers.FillStntuple.TAnaDump.printUtils.mcUtils.comboHitCollTag: "TTmakeSH"
+# physics.analyzers.FillStntuple.TAnaDump.printUtils.strawHitCollTag        : "TTmakeSH"
+# physics.producers.TTTZClusterFinder.diagPlugin.mcUtils.comboHitCollTag : "TTmakeSH"
+# physics.trigger_paths : [apr_highP]
+# physics.apr_highP: [aprHighPPS, CaloHitMakerFast, CaloClusterFast,
+#  		    TTmakeSH, TTmakePH, TTDeltaFinder, TTTZClusterFinder, aprHighPTCFilter, TTAprHelixFinder, TTAprHelixMerger,
+# 		    aprHighPHSFilter, TTAprKSF, aprHighPKSFilter, aprHighPTriggerInfoMerger
+# 		   ]
+
+# physics.e1 : [InitStntuple, StntupleMakerTrigTot, FillStntuple]
+physics.analyzers.InitStntuple.SelectEvents : []
+# Test switching trigger makeSH and makePH with Offline
+physics.producers.TTmakeSH : @local::physics.producers.makeSH
+physics.producers.TTmakePH : @local::physics.producers.makePH
+physics.producers.TTmakePH.ComboHitCollection : "TTmakeSH"

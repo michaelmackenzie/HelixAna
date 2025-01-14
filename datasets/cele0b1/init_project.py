@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 from local_classes import *
+import os
 
 class Project(ProjectBase):
     def init_datasets(self):
@@ -27,15 +28,15 @@ class Project(ProjectBase):
         job.fMaxInputFilesPerSegment =  10                      # MC generator
         # job.fNEventsPerSegment       =  -1                    # defined by the input dataset
         job.fResample                = 'no'                     # yes/no
-        job.fMaxMemory               = '3000MB'
+        job.fMaxMemory               = '30000MB'
         job.fRequestedTime           = '12h'
         job.fIfdh                    = 'ifdh'                   # ifdh/xrootd
         job.fOutputPath              = [ 'out' ]
 
         job.fOutputStream            = [ 'defaultOutput'                ]
         job.fOutputDsID              = [ familyID+s.name()+'r0000'      ]
-        job.fOutputFnPattern         = [ 'dig.mu2e.'+job.fOutputDsID[0] ]
-        job.fOutputFormat            = [ 'art'                          ]
+        job.fOutputFnPattern         = [ 'nts.'+os.getenv('USER')+'.'+job.fOutputDsID[0] ]
+        job.fOutputFormat            = [ 'stn'                          ]
 #------------------------------------------------------------------------------
 # end
 #------------------------------------------------------------------------------

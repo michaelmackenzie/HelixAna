@@ -159,14 +159,14 @@ outputs.defaultOutput.fileName              : "sim.user.dddddb1s5r0000.helixana.
 
 physics.producers.KKDe.Extrapolation.ToOPA           : false
 physics.producers.KKDe.Extrapolation.Upstream        : false
-physics.producers.KKDe.ModuleSettings.SampleSurfaces : ["TT_Mid"]
+physics.producers.KKDe.ModuleSettings.SampleSurfaces : ["TT_Front", "TT_Mid", "TT_Back"]
 physics.producers.KKUe.Extrapolation.ToOPA           : false
 physics.producers.KKUe.Extrapolation.Upstream        : false
 physics.producers.KKUe.ModuleSettings.SampleSurfaces : ["TT_Mid"]
 
 physics.producers.KKDeApr.Extrapolation.ToOPA           : false
 physics.producers.KKDeApr.Extrapolation.Upstream        : false
-physics.producers.KKDeApr.ModuleSettings.SampleSurfaces : ["TT_Mid"]
+physics.producers.KKDeApr.ModuleSettings.SampleSurfaces : ["TT_Front", "TT_Mid", "TT_Back"]
 physics.producers.KKUeApr.Extrapolation.ToOPA           : false
 physics.producers.KKUeApr.Extrapolation.Upstream        : false
 physics.producers.KKUeApr.ModuleSettings.SampleSurfaces : ["TT_Mid"]
@@ -224,6 +224,29 @@ physics.analyzers.StntupleMakerTrigTot.trkQualCollTag       : [@sequence::physic
 # physics.analyzers.InitStntuple.shCollTag : "makeSH"
 # physics.trigger_paths : [recoDe]
 
+# To only run one helix/track block for debugging: Offline Ue reco
+# physics.analyzers.StntupleMakerTrigTot.timeClusterBlockName : ["TZClusterFinder"]
+# physics.analyzers.StntupleMakerTrigTot.timeClusterCollTag   : ["TZClusterFinder"]
+# physics.analyzers.StntupleMakerTrigTot.helixBlockName       : ["HelixBlockUe"]
+# physics.analyzers.StntupleMakerTrigTot.helixCollTag         : ["MHUeApr"]
+# physics.analyzers.StntupleMakerTrigTot.helixKsCollTag       : [""]
+# physics.analyzers.StntupleMakerTrigTot.trackBlockName       : ["TrackBlockUe"]
+# physics.analyzers.StntupleMakerTrigTot.trackCollTag         : ["KKUeApr"]
+# physics.analyzers.InitStntuple.chCollTag : "makePH"
+# physics.analyzers.InitStntuple.shCollTag : "makeSH"
+# physics.producers.TZClusterFinder.tcCollLabel: "TimeClusterFinderUe"
+# physics.recoUe : [
+# 		  PBTFSD, makeSH, makePH, DeltaFinder,
+# 		  CaloRecoDigiMaker, CaloHitMaker, CaloProtoClusterMaker, CaloClusterMaker,
+# 		  CalTimePeakFinderUe, CalHelixFinderUe,  # CalPatRec
+# 		  KKUeApr,
+# 		  recoFilterUe
+# 		 ]
+# physics.producers.MHUeApr.HelixFinders : [ "CalHelixFinderUe"]
+# physics.producers.KKUeApr.ModuleSettings.HelixSeedCollections : ["CalHelixFinderUe"]
+# physics.trigger_paths : [recoUe]
+# physics.end_paths : []
+
 # To only run one helix/track block for debugging: Online apr_highP
 # TrkReco.PrintUtils.strawHitCollTag : "TTmakeSH"
 # physics.analyzers.StntupleMakerTrigTot.timeClusterBlockName : ["TimeClusterBlockAprHighP" ]
@@ -267,8 +290,9 @@ physics.analyzers.StntupleMakerTrigTot.trkQualCollTag       : [@sequence::physic
 # 		   ]
 
 # physics.e1 : [InitStntuple, StntupleMakerTrigTot, FillStntuple]
-physics.analyzers.InitStntuple.SelectEvents : []
+# physics.analyzers.InitStntuple.SelectEvents : []
+
 # Test switching trigger makeSH and makePH with Offline
-physics.producers.TTmakeSH : @local::physics.producers.makeSH
-physics.producers.TTmakePH : @local::physics.producers.makePH
-physics.producers.TTmakePH.ComboHitCollection : "TTmakeSH"
+# physics.producers.TTmakeSH : @local::physics.producers.makeSH
+# physics.producers.TTmakePH : @local::physics.producers.makePH
+# physics.producers.TTmakePH.ComboHitCollection : "TTmakeSH"

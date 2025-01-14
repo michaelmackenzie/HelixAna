@@ -218,6 +218,10 @@ namespace HelixAna {
     track_selection[1] = new TString("CPR tracks");
     track_selection[2] = new TString("Merged tracks");
 
+    track_selection[50] = new TString("APR, track ID");
+    track_selection[60] = new TString("CPR, track ID");
+    track_selection[70] = new TString("Merged, track ID");
+
     for (int i=0; i<kNTrackHistSets; i++) {
       if (track_selection[i]) {
         sprintf(folder_name,"trk_%i",i);
@@ -348,6 +352,10 @@ namespace HelixAna {
       fTrack = fAprTrackBlock->Track(i);
       InitTrackPar(fTrack,&fTrkPar);
       FillTrackHistograms(fHist.fTrack[0],&fTrkPar);
+      const int ID = TrackID(fTrack, &fTrkPar);
+      if(ID == 0) {
+        FillTrackHistograms(fHist.fTrack[50],&fTrkPar);
+      }
     }
 
     //-----------------------------------------------------------------------------
@@ -357,6 +365,10 @@ namespace HelixAna {
       fTrack = fCprTrackBlock->Track(i);
       InitTrackPar(fTrack,&fTrkPar);
       FillTrackHistograms(fHist.fTrack[1],&fTrkPar);
+      const int ID = TrackID(fTrack, &fTrkPar);
+      if(ID == 0) {
+        FillTrackHistograms(fHist.fTrack[60],&fTrkPar);
+      }
     }
 
     //-----------------------------------------------------------------------------
@@ -366,6 +378,10 @@ namespace HelixAna {
       fTrack = fMergedTrackBlock->Track(i);
       InitTrackPar(fTrack,&fTrkPar);
       FillTrackHistograms(fHist.fTrack[2],&fTrkPar);
+      const int ID = TrackID(fTrack, &fTrkPar);
+      if(ID == 0) {
+        FillTrackHistograms(fHist.fTrack[70],&fTrkPar);
+      }
     }
 
     //-----------------------------------------------------------------------------
@@ -383,7 +399,10 @@ namespace HelixAna {
         else                             FillHelixHistograms(fHist.fHelix[52],&fHlxPar);
         const float tz_sig = fHlxPar.fTZSigMC; //dz/dt slope significance signed by MC particle direction
         if(tz_sig >  5.f) FillHelixHistograms(fHist.fHelix[53],&fHlxPar); //high significance correct
-        if(tz_sig < -5.f) FillHelixHistograms(fHist.fHelix[54],&fHlxPar); //high significance wrong
+        if(tz_sig < -5.f) {
+          FillHelixHistograms(fHist.fHelix[54],&fHlxPar); //high significance wrong
+          // GetHeaderBlock()->Print();
+        }
         if(fHelix->Helicity() > 0) FillHelixHistograms(fHist.fHelix[55],&fHlxPar);
         else                       FillHelixHistograms(fHist.fHelix[56],&fHlxPar);
         if(is_downstream)          FillHelixHistograms(fHist.fHelix[57],&fHlxPar);
@@ -589,11 +608,42 @@ namespace HelixAna {
     bool truth_match = true;
     if(is_cosmic) {
         truth_match &= z_origin < 6400. || z_origin > 8000.; // avoid the IPA DIOs
+        truth_match &= h->fMom1.P() > 70.f;
     } else if(mc_proc > 163) { //general Mu2e primaries FIXME: Add process specific tests
       truth_match &= fHelix->fSimpPDG1 == fSimpBlock->Particle(0)->fPdgCode && r_origin < 70. && z_origin < 6400. && z_origin > 5400.; // CE test: ST origin
+      truth_match &= h->fMom1.P() > 70.f;
     }
 
     if(!truth_match) ID |= 1 << kHelixID_MCMatch;
+
+    return ID;
+  }
+
+  //_____________________________________________________________________________
+  // Apply selection cuts to a track
+  int THelixAnaModule::TrackID(TStnTrack* track, TrackPar_t* tpar) {
+    int ID(0);
+    // Use the HelixID bits
+    const float p(track->P()), t(track->T0()), r(tpar->fRMax);//, pmc(h->fMom1.P());
+    if(p <= 80.f || p >= 130.f)   ID |= 1 << kHelixID_P;
+    if(t <= 500.f || t >= 1650.f) ID |= 1 << kHelixID_T;
+    if(r <= 450.f || r >= 680.f)  ID |= 1 << kHelixID_R;
+    // if(std::fabs(pmc - p) > 10.f) ID |= 1 << kHelixID_MCP;
+
+    // // FIXME: Truth-matching needs improvement
+    // const int mc_proc((fSimpBlock->NParticles() >= 1) ? fSimpBlock->Particle(0)->fGeneratorID : 0);
+    // const bool is_cosmic = fSimpBlock->NParticles() == 1 && mc_proc == 56;
+    // const float r_origin(std::sqrt(std::pow(fHelix->fOrigin1.X()+3904., 2) + std::pow(fHelix->fOrigin1.Y(), 2))), z_origin(fHelix->fOrigin1.Z());
+    // bool truth_match = true;
+    // if(is_cosmic) {
+    //     truth_match &= z_origin < 6400. || z_origin > 8000.; // avoid the IPA DIOs
+    //     truth_match &= h->fMom1.P() > 70.f;
+    // } else if(mc_proc > 163) { //general Mu2e primaries FIXME: Add process specific tests
+    //   truth_match &= fHelix->fSimpPDG1 == fSimpBlock->Particle(0)->fPdgCode && r_origin < 70. && z_origin < 6400. && z_origin > 5400.; // CE test: ST origin
+    //   truth_match &= h->fMom1.P() > 70.f;
+    // }
+
+    // if(!truth_match) ID |= 1 << kHelixID_MCMatch;
 
     return ID;
   }

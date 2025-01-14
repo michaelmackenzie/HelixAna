@@ -132,6 +132,7 @@ public:
   bool CompareHelices(TStnHelix* h1, TStnHelix* h2);
   TStnTrack* GetMatchingTrack(TStnHelix* h, int h_index, TStnTrackBlock* block);
   int HelixID(TStnHelix* h, HelixPar_t* hpar);
+  int TrackID(TStnTrack* t, TrackPar_t* tpar);
 
   void Debug();
 

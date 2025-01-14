@@ -110,13 +110,25 @@ void TAnaModule::BookTrackHistograms(TrackHist_t* Hist, const char* Folder) {
 
   HBook1F(Hist->fP,"p",Form("%s: track momentum",Folder), 600,  -300.0, 300.0, Folder);
   HBook1F(Hist->fPt,"pt",Form("%s: track transverse momentum",Folder), 600,  -300.0, 300.0, Folder);
+  HBook1F(Hist->fPCenter,"pCenter",Form("%s: track momentum at tracker center",Folder), 600,  -300.0, 300.0, Folder);
+  HBook1F(Hist->fPExit,"pExit",Form("%s: track momentum at tracker exit",Folder), 600,  -300.0, 300.0, Folder);
+  HBook1F(Hist->fPST,"pST",Form("%s: track momentum at ST exit",Folder), 600,  -300.0, 300.0, Folder);
   HBook1F(Hist->fD0,"d0",Form("%s: track d0",Folder), 200, -200.0, 200.0, Folder);
   HBook1F(Hist->fDP,"dP",Form("%s: track p_reco - p_mc",Folder), 400, -200.0, 200.0, Folder);
   HBook1F(Hist->fChi2NDof,"chi2NDof",Form("%s: track chi2/ndof",Folder), 200, 0.0, 10.0, Folder);
+  HBook1F(Hist->fFitCons,"fitCons",Form("%s: track p(chi2,ndof)",Folder), 200, 0.0, 1.0, Folder);
+  HBook1F(Hist->fFitMomErr,"fitMomErr",Form("%s: track momentum uncertainty",Folder), 200, 0.0, 5.0, Folder);
   HBook1F(Hist->fTanDip,"tanDip",Form("%s: track tanDip",Folder), 200,  0.0, 2.0, Folder);
   HBook1F(Hist->fRadius,"radius",Form("%s: track radius",Folder), 1000,  0.0, 1000, Folder);
   HBook1F(Hist->fRMax,"rMax",Form("%s: track rMax",Folder), 2000,  0.0, 2000, Folder);
   HBook1F(Hist->fNActive,"nActive",Form("%s: nHits used in fit",Folder), 150, 0.0, 150.0, Folder);
+  HBook1F(Hist->fTrkQual,"trkQual",Form("%s: track MVA score",Folder), 200,-1.0, 1.0, Folder);
+  HBook1F(Hist->fClusterE,"clusterE",Form("%s: track's cluster energy",Folder), 600,0.,300. , Folder);
+  HBook1F(Hist->fDt,"dt",Form("%s: track - cluster time",Folder), 200,-10.,10. , Folder);
+  HBook1F(Hist->fEp,"ep",Form("%s: cluster E / track P",Folder), 200,0.,2. , Folder);
+
+  HBook1F(Hist->fMCPFront,"mcPFront",Form("%s: MC track P(tracker front)",Folder), 600,-300.,300. , Folder);
+  HBook1F(Hist->fMCPStOut,"mcPSTOut",Form("%s: MC track P(ST exit)",Folder), 600,-300.,300. , Folder);
 
 }
 
@@ -211,14 +223,25 @@ void TAnaModule::FillTrackHistograms(TrackHist_t* Hist, TrackPar_t* TrkPar) {
 
   Hist->fP->Fill((TrkPar->fTrack->fP)*(TrkPar->fTrack->fCharge));
   Hist->fPt->Fill((TrkPar->fTrack->fPt)*(TrkPar->fTrack->fCharge));
+  Hist->fPCenter->Fill((TrkPar->fTrack->fPTrackerMiddle)*(TrkPar->fTrack->fCharge));
+  Hist->fPExit->Fill((TrkPar->fTrack->fPTrackerExit)*(TrkPar->fTrack->fCharge));
+  Hist->fPST->Fill((TrkPar->fTrack->fPST)*(TrkPar->fTrack->fCharge));
   Hist->fD0->Fill(TrkPar->fTrack->fD0);
   Hist->fDP->Fill((TrkPar->fTrack->fP)-(TrkPar->fTrack->fPFront));
   Hist->fChi2NDof->Fill(TrkPar->fTrack->Chi2Dof());
+  Hist->fFitCons->Fill(TrkPar->fTrack->fFitCons);
+  Hist->fFitMomErr->Fill(TrkPar->fTrack->fFitMomErr);
   Hist->fTanDip->Fill(TrkPar->fTrack->fTanDip);
   Hist->fRadius->Fill(TrkPar->fRadius);
   Hist->fRMax->Fill(TrkPar->fRMax);
   Hist->fNActive->Fill(TrkPar->fTrack->NActive());
+  Hist->fTrkQual->Fill(TrkPar->fTrack->fTrkQual);
+  Hist->fClusterE->Fill(TrkPar->fTrack->fClusterE);
+  Hist->fDt->Fill(TrkPar->fTrack->fDt);
+  Hist->fEp->Fill(TrkPar->fTrack->fEp);
 
+  Hist->fMCPFront->Fill(TrkPar->fTrack->fPFront);
+  Hist->fMCPStOut->Fill(TrkPar->fTrack->fPStOut);
 }
 
 //-----------------------------------------------------------------------------
@@ -294,6 +317,7 @@ void TAnaModule::InitHelixPar(TStnHelix* Hlx, HelixAna::HelixPar_t* HlxPar) {
 
   // truth-level info
   HlxPar->fIsMCDownstream = Hlx->fMom1.Pz() > 0.; //sim particle with most hits is moving downstream
+  HlxPar->fTZSigMC = (Hlx->fTZSlope/Hlx->fTZSlopeError) * ((HlxPar->fIsMCDownstream) ? 1.f : -1.f);
 }
 
 }

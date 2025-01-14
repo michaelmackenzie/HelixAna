@@ -225,7 +225,7 @@ void TAnaModule::FillTrackHistograms(TrackHist_t* Hist, TrackPar_t* TrkPar) {
   Hist->fPt->Fill((TrkPar->fTrack->fPt)*(TrkPar->fTrack->fCharge));
   Hist->fPCenter->Fill((TrkPar->fTrack->fPTrackerMiddle)*(TrkPar->fTrack->fCharge));
   Hist->fPExit->Fill((TrkPar->fTrack->fPTrackerExit)*(TrkPar->fTrack->fCharge));
-  Hist->fPST->Fill((TrkPar->fTrack->fPST)*(TrkPar->fTrack->fCharge));
+  Hist->fPST->Fill((TrkPar->fTrack->fPSTBack)*(TrkPar->fTrack->fCharge));
   Hist->fD0->Fill(TrkPar->fTrack->fD0);
   Hist->fDP->Fill((TrkPar->fTrack->fP)-(TrkPar->fTrack->fPFront));
   Hist->fChi2NDof->Fill(TrkPar->fTrack->Chi2Dof());

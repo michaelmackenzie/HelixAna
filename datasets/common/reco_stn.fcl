@@ -4,6 +4,7 @@
 
 BEGIN_PROLOG
   artFragmentsGenMC @protect_ignore: []
+  TrackSurfaces : ["ST_Back", "ST_Front", "TT_Front", "TT_Mid", "TT_Back"]
 END_PROLOG
 
 #include "HelixAna/datasets/common/stn_cemix_default_trig.fcl"
@@ -158,18 +159,18 @@ physics.analyzers.InitStntuple.histFileName : "nts.user.dddddb1s5r0000.helixana.
 outputs.defaultOutput.fileName              : "sim.user.dddddb1s5r0000.helixana.001210_00000000.art"
 
 physics.producers.KKDe.Extrapolation.ToOPA           : false
-physics.producers.KKDe.Extrapolation.Upstream        : false
-physics.producers.KKDe.ModuleSettings.SampleSurfaces : ["TT_Front", "TT_Mid", "TT_Back"]
+physics.producers.KKDe.Extrapolation.Upstream        : true
+physics.producers.KKDe.ModuleSettings.SampleSurfaces : [@sequence::TrackSurfaces]
 physics.producers.KKUe.Extrapolation.ToOPA           : false
-physics.producers.KKUe.Extrapolation.Upstream        : false
-physics.producers.KKUe.ModuleSettings.SampleSurfaces : ["TT_Mid"]
+physics.producers.KKUe.Extrapolation.Upstream        : true
+physics.producers.KKUe.ModuleSettings.SampleSurfaces : [@sequence::TrackSurfaces]
 
 physics.producers.KKDeApr.Extrapolation.ToOPA           : false
-physics.producers.KKDeApr.Extrapolation.Upstream        : false
-physics.producers.KKDeApr.ModuleSettings.SampleSurfaces : ["TT_Front", "TT_Mid", "TT_Back"]
+physics.producers.KKDeApr.Extrapolation.Upstream        : true
+physics.producers.KKDeApr.ModuleSettings.SampleSurfaces : [@sequence::TrackSurfaces]
 physics.producers.KKUeApr.Extrapolation.ToOPA           : false
-physics.producers.KKUeApr.Extrapolation.Upstream        : false
-physics.producers.KKUeApr.ModuleSettings.SampleSurfaces : ["TT_Mid"]
+physics.producers.KKUeApr.Extrapolation.Upstream        : true
+physics.producers.KKUeApr.ModuleSettings.SampleSurfaces : [@sequence::TrackSurfaces]
 
 physics.producers.aprHelixTriggerInfoMerger.doDeepCopy                : 1
 physics.producers.aprHighPStopTargTriggerInfoMerger.doDeepCopy        : 1

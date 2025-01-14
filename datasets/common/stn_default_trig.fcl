@@ -13,11 +13,11 @@ END_PROLOG
 #include "mu2e_trig_config/gen/trig_physMenuPSConfig_OnSpill.fcl"
 #include "mu2e_trig_config/gen/trig_physMenu_OnSpill.fcl"
 
-# Offline paths
-#include "Production/JobConfig/reco/prolog.fcl"
-
 # Stntuple paths
 #include "Stntuple/fcl/stntuple.fcl"
+
+# Offline paths
+# #include "Production/JobConfig/reco/prolog.fcl"
 
 physics : { 
     @table::TrigSequences
@@ -166,16 +166,20 @@ physics.producers.tprHelixDeIPAPhisScaledTriggerInfoMerger.doDeepCopy  : 1
 #------------------------------------------------------------------------------
 physics.analyzers.InitStntuple.makeClusters               : 0
 physics.analyzers.StntupleMakerTrigTot.makeClusters       : 0
-physics.analyzers.StntupleMakerTrigTot.makeSimp           : 0
+physics.analyzers.StntupleMakerTrigTot.makeSimp           : 1
 physics.analyzers.StntupleMakerTrigTot.makeCrvClusters    : 0
 physics.analyzers.StntupleMakerTrigTot.makeGenp           : 1
 physics.analyzers.StntupleMakerTrigTot.makeTracks         : 1
 physics.analyzers.StntupleMakerTrigTot.makeStepPointMC    : 0
-physics.analyzers.FillStntuple.makeClusters            : 0
-physics.analyzers.InitStntuple.shCollTag      : "TTmakeSH"
-physics.analyzers.StntupleMakerTrigTot.shCollTag : "TTmakeSH"
-physics.analyzers.InitStntuple.chCollTag      : "TTflagBkgHits"
-physics.analyzers.StntupleMakerTrigTot.chCollTag : "TTflagBkgHits"
+physics.analyzers.FillStntuple.makeClusters               : 1
+physics.analyzers.InitStntuple.shCollTag                  :   "makeSH"
+physics.analyzers.InitStntuple.chCollTag                  :   "makePH"
+physics.analyzers.InitStntuple.comboHitCollTag            :   "makePH"
+physics.analyzers.InitStntuple.strawHitCollTag            :   "makeSH"
+physics.analyzers.StntupleMakerTrigTot.shCollTag          :   "makeSH"
+physics.analyzers.StntupleMakerTrigTot.chCollTag          :   "makePH"
+physics.analyzers.StntupleMakerTrigTot.tcShCollTag        : [ "makeSH" ]
+physics.analyzers.StntupleMakerTrigTot.tcChCollTag        : [ "makePH" ]
 physics.analyzers.StntupleMakerTrigTot.triggerResultsTag  : "TriggerResults::S5Stn"
 physics.analyzers.StntupleMakerTrigTot.nTriggerBits       : 500
 physics.analyzers.StntupleMakerTrigTot.strawDigiMCCollTag : "compressDigiMCs"
@@ -233,11 +237,12 @@ physics.analyzers.StntupleMakerTrigTot.trkQualCollTag       : [@sequence::Offlin
 #------------------------------------------------------------------------------
 #include "mu2e_trig_config/core/trigDigiInputsEpilog.fcl"
 
-# physics.producers.TTmakeSH.FilterHits             : false
-# physics.producers.TTmakePH.FilterHits             : false
-# physics.producers.TTmakePH.TestFlag               : true
-# physics.producers.TTmakePH.StrawHitSelectionBits  : ["EnergySelection","TimeSelection","RadiusSelection"]
-# physics.producers.TTmakePH.StrawHitMask           : ["Dead"]
+# In order to match hits between online/offline, don't filter out bad hits
+physics.producers.TTmakeSH.FilterHits             : false
+physics.producers.TTmakePH.FilterHits             : false
+physics.producers.TTmakePH.TestFlag               : true
+physics.producers.TTmakePH.StrawHitSelectionBits  : ["EnergySelection","TimeSelection","RadiusSelection"]
+physics.producers.TTmakePH.StrawHitMask           : ["Dead"]
 
 # physics.producers.TTmakePH.StrawHitSelectionBits : ["TimeSelection"] 
 # physics.producers.TTmakePH.MinimumEnergy         : 0.0001 # MeV

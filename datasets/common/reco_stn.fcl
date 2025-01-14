@@ -32,36 +32,27 @@ outputs.defaultOutput.fileName              : "sim.user.dddddb1s5r0000.helixana.
 # physics.analyzers.StntupleMakerTrigTot.timeClusterBlockName : ["TZClusterFinder"]
 # physics.analyzers.StntupleMakerTrigTot.timeClusterCollTag   : ["TZClusterFinder"]
 # physics.analyzers.StntupleMakerTrigTot.helixBlockName       : ["HelixBlockDe"]
-# physics.analyzers.StntupleMakerTrigTot.helixCollTag         : ["MHDeApr"]
+# physics.analyzers.StntupleMakerTrigTot.helixCollTag         : ["MHDe"]
 # physics.analyzers.StntupleMakerTrigTot.helixKsCollTag       : [""]
 # physics.analyzers.StntupleMakerTrigTot.trackBlockName       : ["TrackBlockDe"]
-# physics.analyzers.StntupleMakerTrigTot.trackCollTag         : ["KKDeApr"]
+# physics.analyzers.StntupleMakerTrigTot.trackCollTag         : ["KKDe"]
 # physics.analyzers.InitStntuple.chCollTag : "makePH"
 # physics.analyzers.InitStntuple.shCollTag : "makeSH"
-# physics.trigger_paths : [recoDe]
+# physics.producers.TZClusterFinder.tcCollLabel: "TimeClusterFinderDe"
+# physics.trigger_paths : [RecoDe]
 
 # To only run one helix/track block for debugging: Offline Ue reco
 # physics.analyzers.StntupleMakerTrigTot.timeClusterBlockName : ["TZClusterFinder"]
 # physics.analyzers.StntupleMakerTrigTot.timeClusterCollTag   : ["TZClusterFinder"]
 # physics.analyzers.StntupleMakerTrigTot.helixBlockName       : ["HelixBlockUe"]
-# physics.analyzers.StntupleMakerTrigTot.helixCollTag         : ["MHUeApr"]
+# physics.analyzers.StntupleMakerTrigTot.helixCollTag         : ["MHUe"]
 # physics.analyzers.StntupleMakerTrigTot.helixKsCollTag       : [""]
 # physics.analyzers.StntupleMakerTrigTot.trackBlockName       : ["TrackBlockUe"]
-# physics.analyzers.StntupleMakerTrigTot.trackCollTag         : ["KKUeApr"]
+# physics.analyzers.StntupleMakerTrigTot.trackCollTag         : ["KKUe"]
 # physics.analyzers.InitStntuple.chCollTag : "makePH"
 # physics.analyzers.InitStntuple.shCollTag : "makeSH"
 # physics.producers.TZClusterFinder.tcCollLabel: "TimeClusterFinderUe"
-# physics.recoUe : [
-# 		  PBTFSD, makeSH, makePH, DeltaFinder,
-# 		  CaloRecoDigiMaker, CaloHitMaker, CaloProtoClusterMaker, CaloClusterMaker,
-# 		  CalTimePeakFinderUe, CalHelixFinderUe,  # CalPatRec
-# 		  KKUeApr,
-# 		  recoFilterUe
-# 		 ]
-# physics.producers.MHUeApr.HelixFinders : [ "CalHelixFinderUe"]
-# physics.producers.KKUeApr.ModuleSettings.HelixSeedCollections : ["CalHelixFinderUe"]
-# physics.trigger_paths : [recoUe]
-# physics.end_paths : []
+# physics.trigger_paths : [RecoUe]
 
 # To only run one helix/track block for debugging: Online apr_highP
 # TrkReco.PrintUtils.strawHitCollTag : "TTmakeSH"

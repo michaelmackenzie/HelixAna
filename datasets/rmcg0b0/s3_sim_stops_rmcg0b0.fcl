@@ -1,0 +1,9 @@
+#include "Production/JobConfig/primary/RMCFlatGammaStops.fcl"
+
+services.TFileService.fileName              : "nts.user.rmcg0b0s31r0000.HelixAna.001210_00000000.root"
+outputs.defaultOutput.fileName              : "sim.user.rmcg0b0s31r0000.HelixAna.001210_00000000.art"
+physics.filters.TargetStopResampler.fileNames : [
+"/pnfs/mu2e/persistent/datasets/phy-sim/sim/mu2e/MuminusStopsCat/MDC2020p/art/6d/cf/sim.mu2e.MuminusStopsCat.MDC2020p.001201_00000000.art"]
+
+source.firstRun: 1210
+physics.filters.TargetStopResampler.mu2e.MaxEventsToSkip: 0

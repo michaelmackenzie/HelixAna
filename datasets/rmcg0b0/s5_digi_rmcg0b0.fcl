@@ -1,0 +1,7 @@
+#include "HelixAna/datasets/common/digi.fcl"
+
+
+outputs.TriggeredOutput.fileName   : "dig.user.rmcg0b0s51r0000-Triggered.version.sequencer.art"
+outputs.TriggerableOutput.fileName : "dig.user.rmcg0b0s51r0000-Triggerable.version.sequencer.art"
+services.TFileService.fileName     : "nts.user.rmcg0b0s51r0000.HelixAna.001210_00000000.root"
+

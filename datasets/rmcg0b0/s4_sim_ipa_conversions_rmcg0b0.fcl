@@ -1,0 +1,16 @@
+#include "Production/JobConfig/primary/RMCIPAFlatGammaResampling.fcl"
+
+services.TFileService.fileName            : "nts.user.rmcg0b0s43r0000.HelixAna.001210_00000000.root"
+outputs.defaultOutput.fileName            : "sim.user.rmcg0b0s43r0000.HelixAna.001210_00000000.art"
+physics.producers.generate.makeHistograms : true
+
+# Keep low energy conversions out
+physics.filters.GenFilter.filterEnergy : false
+physics.filters.GenFilter.emin : 0.
+physics.filters.GenFilter.emax : 1000.
+physics.filters.PrimaryFilter.MinimumPartMom : 30. #less than half the minimum photon energy, at least one should pass this
+
+source.firstRun: 1210
+physics.filters.GammaConversionResampler.fileNames : [
+"/pnfs/mu2e/resilient/users/mmackenz/gammastops/sim.owner.RMCFlatIPAGammaStops.300k.sequencer.art"]
+physics.filters.GammaConversionResampler.mu2e.MaxEventsToSkip: 0

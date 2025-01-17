@@ -1,0 +1,9 @@
+# Process on-spill digitization
+#include "Production/JobConfig/digitize/OnSpill.fcl"
+
+services.DbService.purpose: MDC2020_best
+services.DbService.version: v1_3
+services.DbService.verbose : 2
+
+outputs.TriggeredOutput.fileName   : "dig.user.dddddb0s4r0000-Triggered.version.sequencer.art"
+outputs.TriggerableOutput.fileName : "dig.user.dddddb0s4r0000-Triggerable.version.sequencer.art"

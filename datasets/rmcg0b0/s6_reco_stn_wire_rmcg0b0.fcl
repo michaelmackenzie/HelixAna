@@ -1,0 +1,63 @@
+#include "HelixAna/datasets/common/reco_stn.fcl"
+
+services.TFileService.fileName              : "nts.user.rmcg0b0s62r0000.HelixAna.001210_00000000.root"
+physics.analyzers.InitStntuple.histFileName : "nts.user.rmcg0b0s62r0000.HelixAna.001210_00000000.stn"
+outputs.defaultOutput.fileName              : "sim.user.rmcg0b0s62r0000.HelixAna.001210_00000000.art"
+
+# Adjust the APR helix finder to be more inclusive
+physics.producers.TTAprHelixFinder.minHelixMomentum     : 30
+physics.producers.TTAprHelixFinder.minHelixPerpMomentum : 10
+physics.producers.AprHelixFinder.minHelixMomentum       : 30
+physics.producers.AprHelixFinder.minHelixPerpMomentum   : 10
+physics.producers.TTAprHelixFinder.diagLevel            : 1
+physics.producers.TTAprHelixFinder.findMultipleHelices  : true
+
+# Adjust the APR helix trigger path parameters to be more inclusive
+physics.filters.aprHelixHSFilter.posHelicitySelection.minMomentum : 30.
+physics.filters.aprHelixHSFilter.negHelicitySelection.minMomentum : 30.
+physics.filters.aprHelixHSFilter.negHelicitySelection.minD0 : -600
+physics.filters.aprHelixHSFilter.negHelicitySelection.maxD0 :  600
+physics.filters.aprHelixHSFilter.minNHelices : 0
+
+# Adjust the multi-track trigger path parameters
+physics.filters.aprLowPStopTargMultiTrkHSFilter.posHelicitySelection.minMomentum : 30.
+physics.filters.aprLowPStopTargMultiTrkHSFilter.negHelicitySelection.minMomentum : 30.
+physics.filters.aprLowPStopTargMultiTrkHSFilter.negHelicitySelection.minD0 : -600
+physics.filters.aprLowPStopTargMultiTrkHSFilter.negHelicitySelection.maxD0 :  600
+physics.filters.aprLowPStopTargMultiTrkHSFilter.minNHelices : 2
+physics.filters.aprLowPStopTargMultiTrkKSFilter.KalSeedCuts[1].minMomentum : 0.
+physics.filters.aprLowPStopTargMultiTrkKSFilter.KalSeedCuts[0].minMomentum : 0.
+physics.filters.aprLowPStopTargMultiTrkKSFilter.KalSeedCuts[0].minD0 : -600
+physics.filters.aprLowPStopTargMultiTrkKSFilter.KalSeedCuts[0].maxD0 :  600
+physics.filters.aprLowPStopTargMultiTrkKSFilter.minNTrks : 1
+
+physics.trigger_paths : [aprHelix, apr_lowP_stopTarg_multiTrk, RecoDe]
+
+# Add data blocks for the APR helices
+StudyNames_timeClusterBlockName: [ "TimeClusterBlockAprHelix"  ]
+StudyNames_timeClusterCollTag  : [ "aprHelixTriggerInfoMerger" ]
+StudyNames_helixBlockName      : [ "HelixBlockAprHelix"        ]
+StudyNames_helixCollTag        : [ "aprHelixTriggerInfoMerger" ]
+StudyNames_helixKsCollTag      : [ "" ]
+StudyNames_trackBlockName      : [  ]
+StudyNames_trackCollTag        : [  ]
+StudyNames_trackHsBlockName    : [  ]
+StudyNames_tciCollTag          : [  ]
+StudyNames_tcmCollTag          : [  ]
+StudyNames_trackSHBlockName    : [  ]
+StudyNames_pidBlockName        : [  ]
+StudyNames_pidCollTag          : [  ]
+StudyNames_trkQualCollTag      : [  ]
+
+physics.analyzers.StntupleMakerTrigTot.timeClusterBlockName : [@sequence::OfflineNames_timeClusterBlockName, @sequence::TrigNames_timeClusterBlockName, @sequence::StudyNames_timeClusterBlockName]
+physics.analyzers.StntupleMakerTrigTot.timeClusterCollTag   : [@sequence::OfflineNames_timeClusterCollTag  , @sequence::TrigNames_timeClusterCollTag  , @sequence::StudyNames_timeClusterCollTag  ]
+physics.analyzers.StntupleMakerTrigTot.helixBlockName       : [@sequence::OfflineNames_helixBlockName      , @sequence::TrigNames_helixBlockName      , @sequence::StudyNames_helixBlockName      ]
+physics.analyzers.StntupleMakerTrigTot.helixCollTag         : [@sequence::OfflineNames_helixCollTag        , @sequence::TrigNames_helixCollTag        , @sequence::StudyNames_helixCollTag        ]
+physics.analyzers.StntupleMakerTrigTot.helixCollKsTag       : [@sequence::OfflineNames_helixKsCollTag      , @sequence::TrigNames_helixKsCollTag      , @sequence::StudyNames_helixKsCollTag      ]
+physics.analyzers.StntupleMakerTrigTot.trackBlockName       : [@sequence::OfflineNames_trackBlockName      , @sequence::TrigNames_trackBlockName      , @sequence::StudyNames_trackBlockName      ]
+physics.analyzers.StntupleMakerTrigTot.trackCollTag         : [@sequence::OfflineNames_trackCollTag        , @sequence::TrigNames_trackCollTag        , @sequence::StudyNames_trackCollTag        ]
+physics.analyzers.StntupleMakerTrigTot.trackHsBlockName     : [@sequence::OfflineNames_trackHsBlockName    , @sequence::TrigNames_trackHsBlockName    , @sequence::StudyNames_trackHsBlockName    ]
+physics.analyzers.StntupleMakerTrigTot.tciCollTag           : [@sequence::OfflineNames_tciCollTag          , @sequence::TrigNames_tciCollTag          , @sequence::StudyNames_tciCollTag          ]
+physics.analyzers.StntupleMakerTrigTot.tcmCollTag           : [@sequence::OfflineNames_tcmCollTag          , @sequence::TrigNames_tcmCollTag          , @sequence::StudyNames_tcmCollTag          ]
+physics.analyzers.StntupleMakerTrigTot.pidCollTag           : [@sequence::OfflineNames_pidCollTag          , @sequence::TrigNames_pidCollTag          , @sequence::StudyNames_pidCollTag          ]
+physics.analyzers.StntupleMakerTrigTot.trkQualCollTag       : [@sequence::OfflineNames_trkQualCollTag      , @sequence::TrigNames_trkQualCollTag      , @sequence::StudyNames_trkQualCollTag      ]

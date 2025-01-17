@@ -1,0 +1,5 @@
+#include "HelixAna/datasets/rmcg0b0/s6_reco_stn_wire_rmcg0b0.fcl"
+
+services.TFileService.fileName              : "nts.user.rmcg0b0s63r0000.HelixAna.001210_00000000.root"
+physics.analyzers.InitStntuple.histFileName : "nts.user.rmcg0b0s63r0000.HelixAna.001210_00000000.stn"
+outputs.defaultOutput.fileName              : "sim.user.rmcg0b0s63r0000.HelixAna.001210_00000000.art"

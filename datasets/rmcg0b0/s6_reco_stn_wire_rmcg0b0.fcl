@@ -5,19 +5,21 @@ physics.analyzers.InitStntuple.histFileName : "nts.user.rmcg0b0s62r0000.HelixAna
 outputs.defaultOutput.fileName              : "sim.user.rmcg0b0s62r0000.HelixAna.001210_00000000.art"
 
 # Adjust the APR helix finder to be more inclusive
-physics.producers.TTAprHelixFinder.minHelixMomentum     : 30
-physics.producers.TTAprHelixFinder.minHelixPerpMomentum : 10
 physics.producers.AprHelixFinder.minHelixMomentum       : 30
 physics.producers.AprHelixFinder.minHelixPerpMomentum   : 10
+physics.producers.AprHelixFinder.useStoppingTarget      : false
+physics.producers.TTAprHelixFinder.minHelixMomentum     : 30
+physics.producers.TTAprHelixFinder.minHelixPerpMomentum : 10
 physics.producers.TTAprHelixFinder.diagLevel            : 1
 physics.producers.TTAprHelixFinder.findMultipleHelices  : true
+physics.producers.TTAprHelixFinder.useStoppingTarget    : false
 
 # Adjust the APR helix trigger path parameters to be more inclusive
 physics.filters.aprHelixHSFilter.posHelicitySelection.minMomentum : 30.
 physics.filters.aprHelixHSFilter.negHelicitySelection.minMomentum : 30.
 physics.filters.aprHelixHSFilter.negHelicitySelection.minD0 : -600
 physics.filters.aprHelixHSFilter.negHelicitySelection.maxD0 :  600
-physics.filters.aprHelixHSFilter.minNHelices : 0
+physics.filters.aprHelixHSFilter.minNHelices : 0 #FIXME: Not currently requiring a helix for debugging
 
 # Adjust the multi-track trigger path parameters
 physics.filters.aprLowPStopTargMultiTrkHSFilter.posHelicitySelection.minMomentum : 30.

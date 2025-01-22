@@ -11,5 +11,5 @@ physics.filters.GenFilter.emax : 1000.
 
 source.firstRun: 1210
 physics.filters.GammaConversionResampler.fileNames : [
-"/pnfs/mu2e/resilient/users/mmackenz/gammastops/sim.owner.RMCFlatGammaStops.300k.sequencer.art"]
+"/pnfs/mu2e/resilient/users/mmackenz/gammastops/sim.owner.RMCFlatGammaStops.100M.sequencer.art"]
 physics.filters.GammaConversionResampler.mu2e.MaxEventsToSkip: 0

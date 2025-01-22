@@ -12,5 +12,5 @@ physics.filters.PrimaryFilter.MinimumPartMom : 30. #less than half the minimum p
 
 source.firstRun: 1210
 physics.filters.GammaConversionResampler.fileNames : [
-"/pnfs/mu2e/resilient/users/mmackenz/gammastops/sim.owner.RMCFlatIPAGammaStops.300k.sequencer.art"]
+"/pnfs/mu2e/resilient/users/mmackenz/gammastops/sim.owner.RMCFlatIPAGammaStops.100M.sequencer.art"]
 physics.filters.GammaConversionResampler.mu2e.MaxEventsToSkip: 0

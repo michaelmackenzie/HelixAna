@@ -303,7 +303,8 @@ void TAnaModule::InitTrackPar(TStnTrack* Trk, HelixAna::TrackPar_t* TrkPar) {
 
   // compute parameters not contained in TStnTrack
   TrkPar->fRadius = Trk->fPt / (mmTconversion*bz0);
-  TrkPar->fRMax = Trk->fD0 + 2*TrkPar->fRadius;
+
+  TrkPar->fRMax = -1*Trk->fCharge*Trk->fD0 + 2*TrkPar->fRadius;
 
 }
 

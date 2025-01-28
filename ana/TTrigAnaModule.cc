@@ -9,10 +9,11 @@ namespace HelixAna {
 TTrigAnaModule::TTrigAnaModule(const char* name, const char* title):
   TAnaModule(name,title)
 {
-  fAprTrackBlockName      =  "TrackBlockAprHighP";
-  fCprTrackBlockName      =  "TrackBlockCprDeHighP";
-  fOfflineTrackBlockName  =  "TrackBlockDe";
-  fTriggerBlockName       =  "TriggerBlock";
+  fSimpBlockName          = "SimpBlock";
+  fAprTrackBlockName      = "TrackBlockAprHighP";
+  fCprTrackBlockName      = "TrackBlockCprDeHighP";
+  fOfflineTrackBlockName  = "TrackBlockDe";
+  fTriggerBlockName       = "TriggerBlock";
 }
 
 //-----------------------------------------------------------------------------
@@ -29,6 +30,7 @@ int TTrigAnaModule::BeginJob() {
   RegisterDataBlock(fCprTrackBlockName,     "TStnTrackBlock"  , &fCprTrackBlock     );
   RegisterDataBlock(fOfflineTrackBlockName, "TStnTrackBlock"  , &fOfflineTrackBlock );
   RegisterDataBlock(fTriggerBlockName,      "TStnTriggerBlock", &fTriggerBlock      );
+  RegisterDataBlock(fSimpBlockName,         "TSimpBlock"      , &fSimpBlock         );
 
   //-----------------------------------------------------------------------------
   // book histograms
@@ -57,6 +59,7 @@ void TTrigAnaModule::BookHistograms() {
 
   event_selection[0] = new TString("all events");
   event_selection[1] = new TString("events where valid Offline track exists");
+  event_selection[2] = new TString("events without a valid Offline track");
 
   for (int i=0; i<kNEventHistSets; i++) {
     if (event_selection[i] != 0) {
@@ -81,6 +84,7 @@ void TTrigAnaModule::BookHistograms() {
   track_selection[3] = new TString("Best Offline track if track is good");
   track_selection[4] = new TString("Best Offline track if track is good and apr or cpr triggered");
   track_selection[5] = new TString("Best Offline track if track is good and neither apr or cpr trigger");
+  track_selection[6] = new TString("Offline tracks that fail ID");
 
   for (int i=0; i<kNTrackHistSets; i++) {
     if (track_selection[i] != 0) {
@@ -109,7 +113,8 @@ void TTrigAnaModule::FillHistograms() {
   // 1. fill event histograms
   //-----------------------------------------------------------------------------
   FillEventHistograms(fHist.fEvent[0],&fEvtPar);
-  if (fGoodOfflineTrackExists) FillEventHistograms(fHist.fEvent[1],&fEvtPar);
+  if (fNGoodOfflineTracks > 0) FillEventHistograms(fHist.fEvent[1],&fEvtPar);
+  else                         FillEventHistograms(fHist.fEvent[2],&fEvtPar);
 
   //-----------------------------------------------------------------------------
   // 2. fill apr track histograms
@@ -135,9 +140,10 @@ void TTrigAnaModule::FillHistograms() {
   for (int i=0; i<fEvtPar.fNTracks; i++) {
     fTrack = fOfflineTrackBlock->Track(i);
     InitTrackPar(fTrack,&fTrkPar);
-    FillTrackHistograms(fHist.fTrack[2],&fTrkPar);
+    FillTrackHistograms(fHist.fTrack[2],&fTrkPar); // all tracks
+    const bool is_good_track = GoodOfflineTrack(fTrack);
     // fill folder 3 with best offline track, if a good one exists
-    if (fGoodOfflineTrackExists && i==fGoodOfflineTrackIndex) {
+    if (is_good_track) {
       FillTrackHistograms(fHist.fTrack[3],&fTrkPar);
       // fill folder 4 with best offline track if apr or cpr triggered
       if (fEvtPar.fPassedCprPath || fEvtPar.fPassedAprPath) {
@@ -147,40 +153,40 @@ void TTrigAnaModule::FillHistograms() {
       if (!fEvtPar.fPassedCprPath && !fEvtPar.fPassedAprPath) {
         FillTrackHistograms(fHist.fTrack[5],&fTrkPar);
       }
+    } else { // tracks that fail the Offline ID
+      FillTrackHistograms(fHist.fTrack[6],&fTrkPar);
     }
   }
 
 }
 
 //-----------------------------------------------------------------------------
-bool TTrigAnaModule::GoodOfflineTrackExists() {
+bool TTrigAnaModule::GoodOfflineTrack(TStnTrack* track) {
+  if(!track) return false;
+  HelixAna::TrackPar_t TrkPar;
+  InitTrackPar(track, &TrkPar);
 
-  // specify momentum range and particle charge
-  int   charge = 1;
-  float minP   = 90.0;
-  float maxP   = 95.0;
+  // specify the track selection
+  const int   charge   =   0 ;
+  const float minP     =  80.; //flat samples as default
+  const float maxP     = 110.;
+  const float chi2     =   5.; //quality selection
+  const int nActiveMin =  10 ;
+  const float rmax_min = 450.; //fiducial volume
+  const float rmax_max = 780.;
 
-  // specify minimum number of active hits
-  int nActiveMin = 20;
 
-  // check that at least one track exists to begin with
-  if (fEvtPar.fNTracks == 0) return false;
+  // check that the track matches some criteria to be considered "good"
+  if(track->NActive() < nActiveMin) return false;
+  if(track->Chi2Dof() > chi2) return false;
+  if(TrkPar.fRMax < rmax_min) return false;
+  if(TrkPar.fRMax > rmax_max) return false;
+  if(charge != 0 && track->fCharge != charge) return false;
+  if(track->fP < minP) return false;
+  if(track->fP > maxP) return false;
 
-  // check that a track matches some criteria to be considered "good"
-  // TODO : make selection cuts more precise
-  for (int i=0; i<fEvtPar.fNTracks; i++) {
-    fTrack = fOfflineTrackBlock->Track(i);
-    if (fTrack->NActive() < nActiveMin) continue;
-    if (fTrack->fCharge != charge) continue;
-    if (fTrack->fP < minP) continue;
-    if (fTrack->fP > maxP) continue;
-    fGoodOfflineTrackIndex = i; // set the index of this good track
-    return true;
-  }
-
-  // if no good track was found above then we return false
-  return false;
-
+  // passes all checks
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -191,6 +197,7 @@ int TTrigAnaModule::Event(int ientry) {
   fCprTrackBlock->GetEntry(ientry);
   fOfflineTrackBlock->GetEntry(ientry);
   fTriggerBlock->GetEntry(ientry);
+  fSimpBlock->GetEntry(ientry);
 
   // get/set event parameters
   fEvtPar.fInstLum  = GetHeaderBlock()->fInstLum;
@@ -202,8 +209,10 @@ int TTrigAnaModule::Event(int ientry) {
   if (fTriggerBlock->PathPassed(150)) { fEvtPar.fPassedCprPath = true; }
   if (fTriggerBlock->PathPassed(180)) { fEvtPar.fPassedAprPath = true; }
 
-  // determine whether a good offline track exists
-  fGoodOfflineTrackExists = GoodOfflineTrackExists();
+  // count the number of good tracks
+  fNGoodOfflineTracks = 0;
+  for(int itrk = 0; itrk < fOfflineTrackBlock->NTracks(); ++itrk)
+    if(GoodOfflineTrack(fOfflineTrackBlock->Track(itrk))) ++fNGoodOfflineTracks;
 
   FillHistograms();
 

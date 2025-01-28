@@ -8,16 +8,18 @@
 #include "HelixAna/ana/TrackPar_t.hh"
 #include "HelixAna/ana/TAnaModule.hh"
 
+#include "Stntuple/obj/TSimParticle.hh"
 #include "Stntuple/obj/TStnHeaderBlock.hh"
 #include "Stntuple/obj/TStnTrackBlock.hh"
 #include "Stntuple/obj/TStnTriggerBlock.hh"
+#include "Stntuple/obj/TSimpBlock.hh"
 
 namespace HelixAna {
 class TTrigAnaModule: public TAnaModule {
 public:
 
-  enum { kNEventHistSets          =   2 };
-  enum { kNTrackHistSets          =   6 };
+  enum { kNEventHistSets          =  10 };
+  enum { kNTrackHistSets          = 100 };
 
   struct Hist_t {
     HelixAna::EventHist_t*    fEvent[kNEventHistSets];
@@ -31,6 +33,8 @@ public:
 
   TStnTriggerBlock*        fTriggerBlock;
   TString                  fTriggerBlockName;
+  TSimpBlock*              fSimpBlock = nullptr;
+  TString                  fSimpBlockName;
 
   TStnTrackBlock*          fAprTrackBlock;
   TStnTrackBlock*          fCprTrackBlock;
@@ -40,8 +44,7 @@ public:
   TString                  fOfflineTrackBlockName;
   TStnTrack*               fTrack;
 
-  bool                     fGoodOfflineTrackExists;
-  int                      fGoodOfflineTrackIndex;
+  int                      fNGoodOfflineTracks;
 
   HelixAna::EventPar_t    fEvtPar;
   HelixAna::TrackPar_t    fTrkPar;
@@ -75,8 +78,8 @@ public:
 //-----------------------------------------------------------------------------
 // custom functions
 //-----------------------------------------------------------------------------
-  // function used to set fGoodOfflineTrackExists as well as fGoodOfflineTrackIndex
-  bool    GoodOfflineTrackExists();
+  // function to apply an ID to Offline tracks
+  bool    GoodOfflineTrack(TStnTrack* track);
 
 };
 }

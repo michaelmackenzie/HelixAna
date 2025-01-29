@@ -78,13 +78,17 @@ void TTrigAnaModule::BookHistograms() {
   TString* track_selection[kNTrackHistSets];
   for (int i=0; i<kNTrackHistSets; i++) track_selection[i] = 0;
 
-  track_selection[0] = new TString("apr tracks");
-  track_selection[1] = new TString("cpr tracks");
-  track_selection[2] = new TString("Offline tracks");
-  track_selection[3] = new TString("Best Offline track if track is good");
-  track_selection[4] = new TString("Best Offline track if track is good and apr or cpr triggered");
-  track_selection[5] = new TString("Best Offline track if track is good and neither apr or cpr trigger");
-  track_selection[6] = new TString("Offline tracks that fail ID");
+  track_selection[ 0] = new TString("apr tracks");
+  track_selection[ 1] = new TString("cpr tracks");
+  track_selection[ 2] = new TString("Offline tracks");
+  track_selection[ 3] = new TString("Best Offline track if track is good");
+  track_selection[ 4] = new TString("Best Offline track if track is good and apr or cpr triggered");
+  track_selection[ 5] = new TString("Best Offline track if track is good and neither apr or cpr trigger");
+  track_selection[ 6] = new TString("Best Offline track if track is good and apr triggered");
+  track_selection[ 7] = new TString("Best Offline track if track is good and cpr triggered");
+  track_selection[10] = new TString("apr tracks, Offline track ID found");
+  track_selection[11] = new TString("cpr tracks, Offline track ID found");
+  track_selection[20] = new TString("Offline tracks that fail ID");
 
   for (int i=0; i<kNTrackHistSets; i++) {
     if (track_selection[i] != 0) {
@@ -123,6 +127,7 @@ void TTrigAnaModule::FillHistograms() {
     fTrack = fAprTrackBlock->Track(i);
     InitTrackPar(fTrack,&fTrkPar);
     FillTrackHistograms(fHist.fTrack[0],&fTrkPar);
+    if(fNGoodOfflineTracks > 0) FillTrackHistograms(fHist.fTrack[10],&fTrkPar);
   }
 
   //-----------------------------------------------------------------------------
@@ -132,6 +137,7 @@ void TTrigAnaModule::FillHistograms() {
     fTrack = fCprTrackBlock->Track(i);
     InitTrackPar(fTrack,&fTrkPar);
     FillTrackHistograms(fHist.fTrack[1],&fTrkPar);
+    if(fNGoodOfflineTracks > 0) FillTrackHistograms(fHist.fTrack[11],&fTrkPar);
   }
 
   //-----------------------------------------------------------------------------
@@ -139,9 +145,9 @@ void TTrigAnaModule::FillHistograms() {
   //-----------------------------------------------------------------------------
   for (int i=0; i<fEvtPar.fNTracks; i++) {
     fTrack = fOfflineTrackBlock->Track(i);
+    const bool is_good_track = GoodOfflineTrack(fTrack);
     InitTrackPar(fTrack,&fTrkPar);
     FillTrackHistograms(fHist.fTrack[2],&fTrkPar); // all tracks
-    const bool is_good_track = GoodOfflineTrack(fTrack);
     // fill folder 3 with best offline track, if a good one exists
     if (is_good_track) {
       FillTrackHistograms(fHist.fTrack[3],&fTrkPar);
@@ -153,8 +159,12 @@ void TTrigAnaModule::FillHistograms() {
       if (!fEvtPar.fPassedCprPath && !fEvtPar.fPassedAprPath) {
         FillTrackHistograms(fHist.fTrack[5],&fTrkPar);
       }
+      // passes APR
+      if(fEvtPar.fPassedAprPath) FillTrackHistograms(fHist.fTrack[6],&fTrkPar);
+      // passes CPR
+      if(fEvtPar.fPassedCprPath) FillTrackHistograms(fHist.fTrack[7],&fTrkPar);
     } else { // tracks that fail the Offline ID
-      FillTrackHistograms(fHist.fTrack[6],&fTrkPar);
+      FillTrackHistograms(fHist.fTrack[20],&fTrkPar);
     }
   }
 
@@ -167,7 +177,7 @@ bool TTrigAnaModule::GoodOfflineTrack(TStnTrack* track) {
   InitTrackPar(track, &TrkPar);
 
   // specify the track selection
-  const int   charge   =   0 ;
+  int   charge   =   0 ;
   const float minP     =  80.; //flat samples as default
   const float maxP     = 110.;
   const float chi2     =   5.; //quality selection
@@ -175,6 +185,15 @@ bool TTrigAnaModule::GoodOfflineTrack(TStnTrack* track) {
   const float rmax_min = 450.; //fiducial volume
   const float rmax_max = 780.;
 
+  // Check if this is a primary sample to check for a charge requirement and apply MC cuts to reject pileup
+  bool mc_cut = true;
+  if(fSimpBlock && fSimpBlock->NParticles() == 1) {
+    auto simp = fSimpBlock->Particle(0);
+    if     (simp->fPdgCode == -11) charge =  1;
+    else if(simp->fPdgCode ==  11) charge = -1;
+    mc_cut &= track->fPFront > 70.f;
+  }
+  if(!mc_cut) return false;
 
   // check that the track matches some criteria to be considered "good"
   if(track->NActive() < nActiveMin) return false;

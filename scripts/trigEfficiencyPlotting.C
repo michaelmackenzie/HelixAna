@@ -7,8 +7,154 @@ TString _figDir = "figures/trigger_rates/";
 TFile* _inputFile;
 
 //----------------------------------------------------------------------------------------------------------
+struct PlotData_t {
+  TString _title;
+  float   _xmin;
+  float   _xmax;
+  float   _ymin;
+  float   _ymax;
+  int     _rebin;
+  PlotData_t(TString title = "",
+             double xmin = 1., double xmax = -1.,
+             double ymin = 1., double ymax = -1.,
+             int rebin = 1) : _title(title), _xmin(xmin), _xmax(xmax),
+                              _ymin(ymin), _ymax(ymax), _rebin(rebin) {}
+};
+
+//----------------------------------------------------------------------------------------------------------
 void load_input_file(TString filename) {
   _inputFile = TFile::Open(filename.Data(), "READ");
+}
+
+//----------------------------------------------------------------------------------------------------------
+void set_style(TH1* h, int color) {
+  if(!h) return;
+  h->SetLineWidth(2);
+  h->SetLineStyle(kSolid);
+  h->SetLineColor(color);
+  h->SetMarkerColor(color);
+  h->SetMarkerStyle(20);
+  h->SetMarkerSize(0.6);
+  h->SetFillStyle(0);
+  h->SetFillColor(0);
+}
+
+//----------------------------------------------------------------------------------------------------------
+int plot_param_and_ratio(const char* name, const char* param, PlotData_t plot_data = PlotData_t()) {
+  gStyle->SetOptStat(0);
+
+  // Retrieve the input distributions
+  TH1* apr     = (TH1*) _inputFile->Get(Form("Ana/HelixAna_TrigAna/Hist/trk_10/%s", param)); //Online APR, good Offline track found
+  TH1* cpr     = (TH1*) _inputFile->Get(Form("Ana/HelixAna_TrigAna/Hist/trk_11/%s", param)); //Online CPR, good Offline track found
+  TH1* num_apr = (TH1*) _inputFile->Get(Form("Ana/HelixAna_TrigAna/Hist/trk_6/%s" , param)); //Offline + passes APR
+  TH1* num_cpr = (TH1*) _inputFile->Get(Form("Ana/HelixAna_TrigAna/Hist/trk_7/%s" , param)); //Offline + passes CPR
+  TH1* num_tot = (TH1*) _inputFile->Get(Form("Ana/HelixAna_TrigAna/Hist/trk_4/%s" , param)); //Offline + passes APR || CPR
+  TH1* den_tot = (TH1*) _inputFile->Get(Form("Ana/HelixAna_TrigAna/Hist/trk_3/%s" , param)); //Offline
+  if(!apr || !cpr || !num_apr || !num_cpr || !num_tot || !den_tot) {
+    printf("%s: Histograms for %s not found!\n", __func__, param);
+    return 1;
+  }
+
+  // Clone the histograms to not change the data
+  apr     = (TH1*) apr    ->Clone("apr_tmp");
+  cpr     = (TH1*) cpr    ->Clone("cpr_tmp");
+  num_apr = (TH1*) num_apr->Clone("num_apr_tmp");
+  num_cpr = (TH1*) num_cpr->Clone("num_cpr_tmp");
+  num_tot = (TH1*) num_tot->Clone("num_tot_tmp");
+  den_tot = (TH1*) den_tot->Clone("den_tot_tmp");
+
+  // Create the canvas
+  TCanvas* c = new TCanvas(param, param, 1200, 600);
+  c->Divide(2,1);
+
+  // Draw the distributions
+  auto pad = c->cd(1);
+  pad->SetRightMargin(0.03);
+  set_style(num_tot, kViolet);
+  set_style(den_tot, kViolet);
+  set_style(apr    , kRed   );
+  set_style(cpr    , kCyan  );
+
+  den_tot->Draw("E1");
+  apr->Draw("E1 SAME");
+  cpr->Draw("E1 SAME");
+  c->Update();
+  if(plot_data._xmin < plot_data._xmax) den_tot->GetXaxis()->SetRangeUser(plot_data._xmin, plot_data._xmax);
+  if(plot_data._ymin < plot_data._ymax) den_tot->GetYaxis()->SetRangeUser(plot_data._ymin, plot_data._ymax);
+  else                                  den_tot->GetYaxis()->SetRangeUser(0.1, 1.2*max(max(den_tot->GetMaximum(), apr->GetMaximum()), cpr->GetMaximum()));
+  if(plot_data._title != "") den_tot->SetTitle(Form("Track %s distributions;%s;Entries", plot_data._title.Data(), plot_data._title.Data()));
+
+  // Add a legend
+  TLegend *leg = new TLegend(0.10, 0.80, 0.97, 0.90);
+  leg->SetFillStyle(1001);
+  leg->SetFillColor(kWhite);
+  leg->SetBorderSize(1);
+  leg->SetShadowColor(0);
+  leg->SetNColumns(3);
+  leg->SetTextSize(0.04);
+  leg->AddEntry(apr    , "APR"    , "lpe");
+  leg->AddEntry(cpr    , "CPR"    , "lpe");
+  leg->AddEntry(den_tot, "Offline", "lpe");
+  leg->Draw();
+
+  // Draw the ratios
+  pad = c->cd(2);
+  pad->SetRightMargin(0.03);
+  TEfficiency* apr_eff = new TEfficiency(*num_apr, *den_tot);
+  apr_eff->SetLineColor(apr->GetLineColor());
+  apr_eff->SetLineWidth(apr->GetLineWidth());
+  TEfficiency* cpr_eff = new TEfficiency(*num_cpr, *den_tot);
+  cpr_eff->SetLineColor(cpr->GetLineColor());
+  cpr_eff->SetLineWidth(cpr->GetLineWidth());
+  TEfficiency* tot_eff = new TEfficiency(*num_tot, *den_tot);
+  tot_eff->SetLineColor(num_tot->GetLineColor());
+  tot_eff->SetLineWidth(num_tot->GetLineWidth());
+
+  // TGraph axes don't cooperate as well
+  auto haxis = (TH1*) num_tot->Clone("tmp_axis");
+  for(int ibin = 0; ibin <= haxis->GetNbinsX(); ++ibin) haxis->SetBinContent(ibin, 0.);
+  haxis->SetLineColor(0);
+  haxis->SetMarkerColor(0);
+  haxis->SetFillColor(0);
+  haxis->SetFillStyle(0);
+  haxis->Draw("hist");
+  tot_eff->Draw("E1 SAME");
+  apr_eff->Draw("E1 SAME");
+  cpr_eff->Draw("E1 SAME");
+
+  pad->Update();
+  if(plot_data._xmin < plot_data._xmax) haxis->GetXaxis()->SetRangeUser(plot_data._xmin, plot_data._xmax);
+  if(plot_data._ymin < plot_data._ymax) haxis->GetYaxis()->SetRangeUser(plot_data._ymin, plot_data._ymax);
+  else                                  haxis->GetYaxis()->SetRangeUser(0.65, 1.10);
+  if(plot_data._title != "") haxis->SetTitle(Form("Online track reconstruction efficiency;%s;#epsilon;", plot_data._title.Data()));
+
+  leg = new TLegend(0.10, 0.80, 0.97, 0.90);
+  leg->SetFillStyle(1001);
+  leg->SetFillColor(kWhite);
+  leg->SetBorderSize(1);
+  leg->SetShadowColor(0);
+  leg->SetNColumns(3);
+  leg->SetTextSize(0.04);
+  leg->AddEntry(apr    , "APR"    , "lpe");
+  leg->AddEntry(cpr    , "CPR"    , "lpe");
+  leg->AddEntry(num_tot, "APR+CPR", "lpe");
+  leg->Draw();
+
+  c->SaveAs(Form("%s%s_%s_and_eff.png", _figDir.Data(), name, param));
+
+  // Cleanup the memory
+  delete c;
+  delete tot_eff;
+  delete apr_eff;
+  delete cpr_eff;
+  delete apr    ;
+  delete cpr    ;
+  delete num_apr;
+  delete num_cpr;
+  delete num_tot;
+  delete den_tot;
+
+  return 0;
 }
 
 //----------------------------------------------------------------------------------------------------------
@@ -159,9 +305,15 @@ int trigEfficiencyPlotting(int Dataset = -1) {
 
   // mu- --> e- plots
   if(Dataset < 0 || Dataset == 0) {
-    load_input_file(_histDir + "HelixAna.TrigAna.cele0b1s5r0000.hist");
+    load_input_file(_histDir + "HelixAna.trg_ana.cele0b1s5r0000.hist");
     if(!_inputFile) return 1;
 
+    plot_param_and_ratio      ("cele", "d0"     , PlotData_t("d_{0}"    , -100.,  150.));
+    plot_param_and_ratio      ("cele", "p"      , PlotData_t("p"        , -106., -100.));
+    plot_param_and_ratio      ("cele", "pt"     , PlotData_t("p_{T}"    ,  -95.,  -75.));
+    plot_param_and_ratio      ("cele", "nActive", PlotData_t("N(active)",   20.,   80.));
+    plot_param_and_ratio      ("cele", "rMax"   , PlotData_t("R(max)"   ,  450.,  800.));
+    plot_param_and_ratio      ("cele", "radius" , PlotData_t("Radius"   ,  200.,  300.));
     efficiency_vs_pot         ("cele_eff_vs_pot");
     efficiency_vs_pot         ("cele_norm_eff_vs_pot", 1);
     efficiency_vs_track_params("cele");
@@ -171,9 +323,15 @@ int trigEfficiencyPlotting(int Dataset = -1) {
 
   // mu- --> e+ plots
   if(Dataset < 0 || Dataset == 1) {
-    load_input_file(_histDir + "HelixAna.TrigAna.cpos0b1s5r0000.hist");
+    load_input_file(_histDir + "HelixAna.trg_ana.cpos0b1s5r0000.hist");
     if(!_inputFile) return 1;
 
+    plot_param_and_ratio      ("cpos", "d0"     , PlotData_t("d_{0}"    , -150.,  100.));
+    plot_param_and_ratio      ("cpos", "p"      , PlotData_t("p"        ,   85.,   93.));
+    plot_param_and_ratio      ("cpos", "pt"     , PlotData_t("p_{T}"    ,   60.,   80.));
+    plot_param_and_ratio      ("cpos", "nActive", PlotData_t("N(active)",   20.,   80.));
+    plot_param_and_ratio      ("cpos", "rMax"   , PlotData_t("R(max)"   ,  450.,  800.));
+    plot_param_and_ratio      ("cpos", "radius" , PlotData_t("Radius"   ,  180.,  270.));
     efficiency_vs_pot         ("cpos_eff_vs_pot");
     efficiency_vs_pot         ("cpos_norm_eff_vs_pot", 1);
     efficiency_vs_track_params("cpos");

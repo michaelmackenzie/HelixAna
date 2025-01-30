@@ -4,20 +4,28 @@ BEGIN_PROLOG
   TrackSurfaces : ["ST_Back", "ST_Front", "TT_Front", "TT_Mid", "TT_Back"]
 END_PROLOG
 
-# Trigger info
+# Stntuple prologs
+#include "Stntuple/fcl/stntuple_prologs.fcl"
+#include "pbar2m/fcl/prolog.fcl"
+
+# Trigger info, replacing the changes made in includes above
 #include "mu2e_trig_config/core/trigProducers.fcl"
 #include "mu2e_trig_config/core/trigFilters.fcl"
 #include "mu2e_trig_config/core/trigRecoSequences.fcl"
+
+BEGIN_PROLOG
+# override the trigger digitization sequence (must be before trigSequences)
+TrigRecoSequences.artFragmentsGen : []
+END_PROLOG
+
 #include "mu2e_trig_config/core/trigSequences.fcl"
 
 #include "mu2e_trig_config/gen/trig_physMenuPSConfig_OnSpill.fcl"
 #include "mu2e_trig_config/gen/trig_physMenu_OnSpill.fcl"
 
-# Stntuple paths
-#include "Stntuple/fcl/stntuple.fcl"
 
-# Offline paths
-# #include "Production/JobConfig/reco/prolog.fcl"
+# Stntuple paths
+#include "Stntuple/fcl/stntuple_templates.fcl"
 
 physics : { 
     @table::TrigSequences
@@ -42,7 +50,7 @@ physics : {
         }
 
         # For two track paths
-        Triggerable2 : {
+        TriggerableTwo : {
             module_type : StrawDigiMCFilter
             MinNDigis : 15
             MinParticleMom : 40.0
@@ -58,9 +66,10 @@ physics : {
     
     @table::stntuple.paths
     
-    p1 : [ Triggerable   ] # Single track candidate
-    p2 : [ Triggerable2  ] # Two track candidate
+    p1 : [ Triggerable     ] # Single track candidate
+    p2 : [ TriggerableTwo  ] # Two track candidate
 
+    # Reco paths for single fit direction / particle species hypotheses
     RecoDe : [  @sequence::Reconstruction.CaloReco,
 		@sequence::Reconstruction.TrkReco,
 		@sequence::Reconstruction.CrvReco,
@@ -80,27 +89,6 @@ physics : {
 		 @sequence::Reconstruction.TrkReco,
 		 @sequence::Reconstruction.CrvReco,
 		 @sequence::Reconstruction.UmuReco ]
-
-    # Versions with track filter requirements
-    RecoDeCut : [  @sequence::Reconstruction.CaloReco,
-		   @sequence::Reconstruction.TrkReco,
-		   @sequence::Reconstruction.CrvReco,
-		   @sequence::Reconstruction.DeReco, RecoFilterDe ]
-
-    RecoUeCut : [  @sequence::Reconstruction.CaloReco,
-		   @sequence::Reconstruction.TrkReco,
-		   @sequence::Reconstruction.CrvReco,
-		   @sequence::Reconstruction.UeReco, RecoFilterUe ]
-
-    RecoDmuCut : [  @sequence::Reconstruction.CaloReco,
-		    @sequence::Reconstruction.TrkReco,
-		    @sequence::Reconstruction.CrvReco,
-		    @sequence::Reconstruction.DmuReco, RecoFilterDmu ]
-
-    RecoUmuCut : [  @sequence::Reconstruction.CaloReco,
-		    @sequence::Reconstruction.TrkReco,
-		    @sequence::Reconstruction.CrvReco,
-		    @sequence::Reconstruction.UmuReco, RecoFilterUmu ]
 
     out           : [ ]                                  # [defaultOutput]/[]
     e1            : [ @sequence::stntuple.paths.p4 ]
@@ -160,29 +148,36 @@ physics.filters.RecoFilterUmu.kalSeedCollection: "KKUmu"
 physics.filters.RecoFilterUmu.KalSeedCuts[0].fitdirection: 1
 physics.filters.RecoFilterUmu.KalSeedCuts[0].fitparticle: 13
 
+# Versions with track filter requirements
+physics.RecoDeCut  : [  @sequence::physics.RecoDe , RecoFilterDe  ]
+physics.RecoUeCut  : [  @sequence::physics.RecoUe , RecoFilterUe  ]
+physics.RecoDmuCut : [  @sequence::physics.RecoDmu, RecoFilterDmu ]
+physics.RecoUmuCut : [  @sequence::physics.RecoUmu, RecoFilterUmu ]
+
+
 #------------------------------------------------------------------------------
-physics.producers.aprHelixTriggerInfoMerger.doDeepCopy                : 1
-physics.producers.aprHighPStopTargTriggerInfoMerger.doDeepCopy        : 1
-physics.producers.aprHighPTriggerInfoMerger.doDeepCopy                : 1
-physics.producers.aprLowPStopTargMultiTrkTriggerInfoMerger.doDeepCopy : 1
-physics.producers.aprLowPStopTargTriggerInfoMerger.doDeepCopy         : 1
-physics.producers.aprHelixTriggerInfoMerger.doDeepCopy                : 1
-physics.producers.aprLowPMultiTrkTriggerInfoMerger.doDeepCopy         : 1
-physics.producers.aprHighPMultiTrkTriggerInfoMerger.doDeepCopy        : 1
+# physics.producers.aprHelixTriggerInfoMerger.doDeepCopy                : 1
+# physics.producers.aprHighPStopTargTriggerInfoMerger.doDeepCopy        : 1
+# physics.producers.aprHighPTriggerInfoMerger.doDeepCopy                : 1
+# physics.producers.aprLowPStopTargMultiTrkTriggerInfoMerger.doDeepCopy : 1
+# physics.producers.aprLowPStopTargTriggerInfoMerger.doDeepCopy         : 1
+# physics.producers.aprHelixTriggerInfoMerger.doDeepCopy                : 1
+# physics.producers.aprLowPMultiTrkTriggerInfoMerger.doDeepCopy         : 1
+# physics.producers.aprHighPMultiTrkTriggerInfoMerger.doDeepCopy        : 1
 
-physics.producers.cprDeHighPStopTargTriggerInfoMerger.doDeepCopy : 1
-physics.producers.cprDeHighPTriggerInfoMerger.doDeepCopy         : 1
-physics.producers.cprDeLowPStopTargTriggerInfoMerger.doDeepCopy  : 1
-physics.producers.cprHelixDeTriggerInfoMerger.doDeepCopy         : 1
-physics.producers.cprHelixUeTriggerInfoMerger.doDeepCopy         : 1
+# physics.producers.cprDeHighPStopTargTriggerInfoMerger.doDeepCopy : 1
+# physics.producers.cprDeHighPTriggerInfoMerger.doDeepCopy         : 1
+# physics.producers.cprDeLowPStopTargTriggerInfoMerger.doDeepCopy  : 1
+# physics.producers.cprHelixDeTriggerInfoMerger.doDeepCopy         : 1
+# physics.producers.cprHelixUeTriggerInfoMerger.doDeepCopy         : 1
 
-physics.producers.tprDeHighPStopTargTriggerInfoMerger.doDeepCopy       : 1
-physics.producers.tprDeHighPTriggerInfoMerger.doDeepCopy               : 1
-physics.producers.tprDeLowPStopTargTriggerInfoMerger.doDeepCopy        : 1
-physics.producers.tprHelixDeTriggerInfoMerger.doDeepCopy               : 1
-physics.producers.tprHelixUeTriggerInfoMerger.doDeepCopy               : 1
-physics.producers.tprHelixDeIPATriggerInfoMerger.doDeepCopy            : 1
-physics.producers.tprHelixDeIPAPhisScaledTriggerInfoMerger.doDeepCopy  : 1
+# physics.producers.tprDeHighPStopTargTriggerInfoMerger.doDeepCopy       : 1
+# physics.producers.tprDeHighPTriggerInfoMerger.doDeepCopy               : 1
+# physics.producers.tprDeLowPStopTargTriggerInfoMerger.doDeepCopy        : 1
+# physics.producers.tprHelixDeTriggerInfoMerger.doDeepCopy               : 1
+# physics.producers.tprHelixUeTriggerInfoMerger.doDeepCopy               : 1
+# physics.producers.tprHelixDeIPATriggerInfoMerger.doDeepCopy            : 1
+# physics.producers.tprHelixDeIPAPhisScaledTriggerInfoMerger.doDeepCopy  : 1
 
 #------------------------------------------------------------------------------
 physics.analyzers.InitStntuple.makeClusters               : 0
@@ -263,8 +258,8 @@ physics.analyzers.StntupleMakerTrigTot.trkQualCollTag       : [@sequence::Offlin
 physics.producers.TTmakeSH.FilterHits             : false
 physics.producers.TTmakePH.FilterHits             : false
 physics.producers.TTmakePH.TestFlag               : true
-physics.producers.TTmakePH.StrawHitSelectionBits  : ["EnergySelection","TimeSelection","RadiusSelection"]
-physics.producers.TTmakePH.StrawHitMask           : ["Dead"]
+physics.producers.TTmakePH.StrawHitSelectionBits  : @local::TrkHitReco.makePH.StrawHitSelectionBits
+physics.producers.TTmakePH.StrawHitMask           : @local::TrkHitReco.makePH.StrawHitMask
 
 # physics.producers.TTmakePH.StrawHitSelectionBits : ["TimeSelection"] 
 # physics.producers.TTmakePH.MinimumEnergy         : 0.0001 # MeV
@@ -289,3 +284,9 @@ physics.producers.EWMProducer.SpillType : 1
 services.DbService.purpose: MDC2020_best
 services.DbService.version: v1_3
 services.DbService.verbose : 2
+
+
+#------------------------------------------------------------------------------
+# Include epilogs to add trigger-MC matching, keep hits, etc.
+#include "Production/JobConfig/digitize/epilog.fcl"
+#include "Production/JobConfig/digitize/OnSpill_epilog.fcl"

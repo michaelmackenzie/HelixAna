@@ -191,7 +191,7 @@ bool TTrigAnaModule::GoodOfflineTrack(TStnTrack* track) {
     auto simp = fSimpBlock->Particle(0);
     if     (simp->fPdgCode == -11) charge =  1;
     else if(simp->fPdgCode ==  11) charge = -1;
-    mc_cut &= track->fPFront > 70.f;
+    if(track->SimID() == int(simp->GetUniqueID())) mc_cut = true;
   }
   if(!mc_cut) return false;
 

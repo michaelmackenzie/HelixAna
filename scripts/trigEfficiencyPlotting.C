@@ -309,11 +309,12 @@ int trigEfficiencyPlotting(int Dataset = -1) {
     if(!_inputFile) return 1;
 
     plot_param_and_ratio      ("cele", "d0"     , PlotData_t("d_{0}"    , -100.,  150.));
-    plot_param_and_ratio      ("cele", "p"      , PlotData_t("p"        , -106., -100.));
+    plot_param_and_ratio      ("cele", "p_2"    , PlotData_t("p"        ,  100.,  105.));
     plot_param_and_ratio      ("cele", "pt"     , PlotData_t("p_{T}"    ,  -95.,  -75.));
     plot_param_and_ratio      ("cele", "nActive", PlotData_t("N(active)",   20.,   80.));
     plot_param_and_ratio      ("cele", "rMax"   , PlotData_t("R(max)"   ,  450.,  800.));
     plot_param_and_ratio      ("cele", "radius" , PlotData_t("Radius"   ,  200.,  300.));
+    plot_param_and_ratio      ("cele", "dP"     , PlotData_t("p - p(MC)",   -5.,    5.));
     efficiency_vs_pot         ("cele_eff_vs_pot");
     efficiency_vs_pot         ("cele_norm_eff_vs_pot", 1);
     efficiency_vs_track_params("cele");
@@ -327,11 +328,12 @@ int trigEfficiencyPlotting(int Dataset = -1) {
     if(!_inputFile) return 1;
 
     plot_param_and_ratio      ("cpos", "d0"     , PlotData_t("d_{0}"    , -150.,  100.));
-    plot_param_and_ratio      ("cpos", "p"      , PlotData_t("p"        ,   85.,   93.));
+    plot_param_and_ratio      ("cpos", "p_2"    , PlotData_t("p"        ,   85.,   93.));
     plot_param_and_ratio      ("cpos", "pt"     , PlotData_t("p_{T}"    ,   60.,   80.));
     plot_param_and_ratio      ("cpos", "nActive", PlotData_t("N(active)",   20.,   80.));
     plot_param_and_ratio      ("cpos", "rMax"   , PlotData_t("R(max)"   ,  450.,  800.));
     plot_param_and_ratio      ("cpos", "radius" , PlotData_t("Radius"   ,  180.,  270.));
+    plot_param_and_ratio      ("cpos", "dP"     , PlotData_t("p - p(MC)",   -5.,    5.));
     efficiency_vs_pot         ("cpos_eff_vs_pot");
     efficiency_vs_pot         ("cpos_norm_eff_vs_pot", 1);
     efficiency_vs_track_params("cpos");

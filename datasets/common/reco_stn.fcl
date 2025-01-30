@@ -16,6 +16,7 @@ source       : { module_type : RootInput
 		      "drop *ComboHitCollection_*_*_*"]
 }
 
+# Add the paths of interest, Triggerable + single hypothesis reco paths
 physics.trigger_paths[100] : "1:p1"
 physics.trigger_paths[101] : "2:RecoDe"
 physics.trigger_paths[102] : "3:RecoUe"

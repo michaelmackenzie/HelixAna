@@ -6,7 +6,7 @@
 namespace HelixAna {
 
   struct TrackHist_t {
-    TH1F*    fP;
+    TH1F*    fP[2];
     TH1F*    fPt;
     TH1F*    fPCenter;
     TH1F*    fPExit;

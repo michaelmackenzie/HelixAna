@@ -108,13 +108,14 @@ void TAnaModule::BookSimpHistograms(SimpHist_t* Hist, const char* Folder) {
 //-----------------------------------------------------------------------------
 void TAnaModule::BookTrackHistograms(TrackHist_t* Hist, const char* Folder) {
 
-  HBook1F(Hist->fP,"p",Form("%s: track momentum",Folder), 600,  -300.0, 300.0, Folder);
+  HBook1F(Hist->fP[0],"p",Form("%s: track momentum",Folder), 600,  -300.0, 300.0, Folder);
+  HBook1F(Hist->fP[1],"p_2",Form("%s: track momentum",Folder), 600,  80., 110., Folder);
   HBook1F(Hist->fPt,"pt",Form("%s: track transverse momentum",Folder), 600,  -300.0, 300.0, Folder);
   HBook1F(Hist->fPCenter,"pCenter",Form("%s: track momentum at tracker center",Folder), 600,  -300.0, 300.0, Folder);
   HBook1F(Hist->fPExit,"pExit",Form("%s: track momentum at tracker exit",Folder), 600,  -300.0, 300.0, Folder);
   HBook1F(Hist->fPST,"pST",Form("%s: track momentum at ST exit",Folder), 600,  -300.0, 300.0, Folder);
   HBook1F(Hist->fD0,"d0",Form("%s: track d0",Folder), 200, -200.0, 200.0, Folder);
-  HBook1F(Hist->fDP,"dP",Form("%s: track p_reco - p_mc",Folder), 400, -200.0, 200.0, Folder);
+  HBook1F(Hist->fDP,"dP",Form("%s: track p_reco - p_mc",Folder), 400, -20.0, 20.0, Folder);
   HBook1F(Hist->fChi2NDof,"chi2NDof",Form("%s: track chi2/ndof",Folder), 200, 0.0, 10.0, Folder);
   HBook1F(Hist->fFitCons,"fitCons",Form("%s: track p(chi2,ndof)",Folder), 200, 0.0, 1.0, Folder);
   HBook1F(Hist->fFitMomErr,"fitMomErr",Form("%s: track momentum uncertainty",Folder), 200, 0.0, 5.0, Folder);
@@ -221,7 +222,8 @@ void TAnaModule::FillSimpHistograms(SimpHist_t* Hist, TSimParticle* Simp) {
 //-----------------------------------------------------------------------------
 void TAnaModule::FillTrackHistograms(TrackHist_t* Hist, TrackPar_t* TrkPar) {
 
-  Hist->fP->Fill((TrkPar->fTrack->fP)*(TrkPar->fTrack->fCharge));
+  Hist->fP[0]->Fill((TrkPar->fTrack->fP)*(TrkPar->fTrack->fCharge));
+  Hist->fP[1]->Fill(TrkPar->fTrack->fP);
   Hist->fPt->Fill((TrkPar->fTrack->fPt)*(TrkPar->fTrack->fCharge));
   Hist->fPCenter->Fill((TrkPar->fTrack->fPTrackerMiddle)*(TrkPar->fTrack->fCharge));
   Hist->fPExit->Fill((TrkPar->fTrack->fPTrackerExit)*(TrkPar->fTrack->fCharge));

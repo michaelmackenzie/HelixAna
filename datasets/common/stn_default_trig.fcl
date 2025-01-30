@@ -156,28 +156,36 @@ physics.RecoUmuCut : [  @sequence::physics.RecoUmu, RecoFilterUmu ]
 
 
 #------------------------------------------------------------------------------
-# physics.producers.aprHelixTriggerInfoMerger.doDeepCopy                : 1
-# physics.producers.aprHighPStopTargTriggerInfoMerger.doDeepCopy        : 1
-# physics.producers.aprHighPTriggerInfoMerger.doDeepCopy                : 1
-# physics.producers.aprLowPStopTargMultiTrkTriggerInfoMerger.doDeepCopy : 1
-# physics.producers.aprLowPStopTargTriggerInfoMerger.doDeepCopy         : 1
-# physics.producers.aprHelixTriggerInfoMerger.doDeepCopy                : 1
-# physics.producers.aprLowPMultiTrkTriggerInfoMerger.doDeepCopy         : 1
-# physics.producers.aprHighPMultiTrkTriggerInfoMerger.doDeepCopy        : 1
+# Clone track/helix/cluster collections specific to each relevant trigger path
 
-# physics.producers.cprDeHighPStopTargTriggerInfoMerger.doDeepCopy : 1
-# physics.producers.cprDeHighPTriggerInfoMerger.doDeepCopy         : 1
-# physics.producers.cprDeLowPStopTargTriggerInfoMerger.doDeepCopy  : 1
-# physics.producers.cprHelixDeTriggerInfoMerger.doDeepCopy         : 1
-# physics.producers.cprHelixUeTriggerInfoMerger.doDeepCopy         : 1
+# Turn off MC-matching in the trigger which doesn't work with cloning
+physics.producers.TTAprKSFMC : { module_type: NullProducer }
+physics.producers.aprHelixTriggerInfoMerger.doDeepCopy                : 1
+physics.producers.aprHighPStopTargTriggerInfoMerger.doDeepCopy        : 1
+physics.producers.aprHighPTriggerInfoMerger.doDeepCopy                : 1
+physics.producers.aprLowPStopTargMultiTrkTriggerInfoMerger.doDeepCopy : 1
+physics.producers.aprLowPStopTargTriggerInfoMerger.doDeepCopy         : 1
+physics.producers.aprHelixTriggerInfoMerger.doDeepCopy                : 1
+physics.producers.aprLowPMultiTrkTriggerInfoMerger.doDeepCopy         : 1
+physics.producers.aprHighPMultiTrkTriggerInfoMerger.doDeepCopy        : 1
 
-# physics.producers.tprDeHighPStopTargTriggerInfoMerger.doDeepCopy       : 1
-# physics.producers.tprDeHighPTriggerInfoMerger.doDeepCopy               : 1
-# physics.producers.tprDeLowPStopTargTriggerInfoMerger.doDeepCopy        : 1
-# physics.producers.tprHelixDeTriggerInfoMerger.doDeepCopy               : 1
-# physics.producers.tprHelixUeTriggerInfoMerger.doDeepCopy               : 1
-# physics.producers.tprHelixDeIPATriggerInfoMerger.doDeepCopy            : 1
-# physics.producers.tprHelixDeIPAPhisScaledTriggerInfoMerger.doDeepCopy  : 1
+# Turn off MC-matching in the trigger which doesn't work with cloning
+physics.producers.TTCprDeKSFMC : { module_type: NullProducer }
+physics.producers.cprDeHighPStopTargTriggerInfoMerger.doDeepCopy : 1
+physics.producers.cprDeHighPTriggerInfoMerger.doDeepCopy         : 1
+physics.producers.cprDeLowPStopTargTriggerInfoMerger.doDeepCopy  : 1
+physics.producers.cprHelixDeTriggerInfoMerger.doDeepCopy         : 1
+physics.producers.cprHelixUeTriggerInfoMerger.doDeepCopy         : 1
+
+# Turn off MC-matching in the trigger which doesn't work with cloning
+physics.producers.TTTprDeKSFMC : { module_type: NullProducer }
+physics.producers.tprDeHighPStopTargTriggerInfoMerger.doDeepCopy       : 1
+physics.producers.tprDeHighPTriggerInfoMerger.doDeepCopy               : 1
+physics.producers.tprDeLowPStopTargTriggerInfoMerger.doDeepCopy        : 1
+physics.producers.tprHelixDeTriggerInfoMerger.doDeepCopy               : 1
+physics.producers.tprHelixUeTriggerInfoMerger.doDeepCopy               : 1
+physics.producers.tprHelixDeIPATriggerInfoMerger.doDeepCopy            : 1
+physics.producers.tprHelixDeIPAPhisScaledTriggerInfoMerger.doDeepCopy  : 1
 
 #------------------------------------------------------------------------------
 physics.analyzers.InitStntuple.makeClusters               : 0
@@ -265,7 +273,7 @@ physics.producers.TTmakePH.StrawHitMask           : @local::TrkHitReco.makePH.St
 # physics.producers.TTmakePH.MinimumEnergy         : 0.0001 # MeV
 # physics.producers.TTmakePH.MaximumEnergy         : 0.005 # MeV
 
-
+# Add extrapolations to Offline tracks
 physics.producers.KKDe.Extrapolation.ToOPA            : false
 physics.producers.KKDe.Extrapolation.Upstream         : true
 physics.producers.KKDe.ModuleSettings.SampleSurfaces  : [@sequence::TrackSurfaces]
@@ -278,6 +286,13 @@ physics.producers.KKDmu.ModuleSettings.SampleSurfaces : [@sequence::TrackSurface
 physics.producers.KKUmu.Extrapolation.ToOPA           : false
 physics.producers.KKUmu.Extrapolation.Upstream        : true
 physics.producers.KKUmu.ModuleSettings.SampleSurfaces : [@sequence::TrackSurfaces]
+
+# Add extrapolation to Online tracks
+physics.producers.TTAprKSF.Extrapolation : @local::physics.producers.KKDe.Extrapolation
+physics.producers.TTAprKSF.ModuleSettings.SampleSurfaces  : [@sequence::TrackSurfaces]
+physics.producers.TTCalSeedFitDe.Extrapolation : @local::physics.producers.KKDe.Extrapolation
+physics.producers.TTCalSeedFitDe.ModuleSettings.SampleSurfaces  : [@sequence::TrackSurfaces]
+
 
 #------------------------------------------------------------------------------
 physics.producers.EWMProducer.SpillType : 1

@@ -8,6 +8,7 @@
 #include "HelixAna/ana/TrackPar_t.hh"
 #include "HelixAna/ana/TAnaModule.hh"
 
+#include "Stntuple/obj/TStnEvent.hh"
 #include "Stntuple/obj/TSimParticle.hh"
 #include "Stntuple/obj/TStnHeaderBlock.hh"
 #include "Stntuple/obj/TStnTrackBlock.hh"
@@ -74,6 +75,7 @@ public:
 //-----------------------------------------------------------------------------
   void    BookHistograms();
   void    FillHistograms();
+  void    Debug();
 
 //-----------------------------------------------------------------------------
 // custom functions

@@ -13,6 +13,7 @@
 // Stntuple includes
 #include "Stntuple/loop/TStnModule.hh"
 #include "Stntuple/alg/TStntuple.hh"
+#include "Stntuple/obj/TStnEvent.hh"
 #include "Stntuple/obj/TStnTrack.hh"
 #include "Stntuple/obj/TGenParticle.hh"
 #include "Stntuple/obj/TSimParticle.hh"
@@ -74,6 +75,8 @@ public:
 
   void    InitTrackPar            (TStnTrack* Trk, HelixAna::TrackPar_t* TrkPar);
   void    InitHelixPar            (TStnHelix* Hlx, HelixAna::HelixPar_t* HlxPar);
+
+  void    Debug();
 
   ClassDef(TAnaModule,0)
 };

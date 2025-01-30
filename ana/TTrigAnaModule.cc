@@ -223,19 +223,36 @@ int TTrigAnaModule::Event(int ientry) {
   fEvtPar.fNAprTracks = fAprTrackBlock->NTracks();
   fEvtPar.fNCprTracks = fCprTrackBlock->NTracks();
   fEvtPar.fNTracks = fOfflineTrackBlock->NTracks();
-  fEvtPar.fPassedCprPath = false;
-  fEvtPar.fPassedAprPath = false;
-  if (fTriggerBlock->PathPassed(150)) { fEvtPar.fPassedCprPath = true; }
-  if (fTriggerBlock->PathPassed(180)) { fEvtPar.fPassedAprPath = true; }
+  fEvtPar.fPassedCprPath = fTriggerBlock->PathPassed(150);
+  fEvtPar.fPassedAprPath = fTriggerBlock->PathPassed(180);
 
   // count the number of good tracks
   fNGoodOfflineTracks = 0;
   for(int itrk = 0; itrk < fOfflineTrackBlock->NTracks(); ++itrk)
     if(GoodOfflineTrack(fOfflineTrackBlock->Track(itrk))) ++fNGoodOfflineTracks;
 
+  Debug();
+
   FillHistograms();
 
   return 0;
+}
+
+
+//_____________________________________________________________________________
+void TTrigAnaModule::Debug() {
+  bool debug = GetDebugBit(0);
+  debug |= GetDebugBit(1) && (fEvtPar.fPassedAprPath);
+  debug |= GetDebugBit(2) && (fEvtPar.fPassedCprPath);
+  debug |= GetDebugBit(3) && (fEvtPar.fPassedAprPath && !fEvtPar.fNAprTracks);
+  debug |= GetDebugBit(3) && (fEvtPar.fPassedCprPath && !fEvtPar.fNCprTracks);
+  if(debug) {
+    auto event = GetEvent();
+    printf(">>> TTrigAnaModule::%s: Event %5i:%5i:%6i:\n", __func__, event->fRunNumber, event->fSectionNumber, event->fEventNumber);
+    printf(" Passed APR = %o, Passed CPR = %o\n", fEvtPar.fPassedAprPath, fEvtPar.fPassedCprPath);
+    printf(" N(APR tracks) = %2i, N(CPR tracks) = %2i, N(Offline tracks) = %i\n",
+           fEvtPar.fNAprTracks, fEvtPar.fNCprTracks, fEvtPar.fNTracks);
+  }
 }
 
 //_____________________________________________________________________________

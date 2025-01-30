@@ -323,4 +323,12 @@ void TAnaModule::InitHelixPar(TStnHelix* Hlx, HelixAna::HelixPar_t* HlxPar) {
   HlxPar->fTZSigMC = (Hlx->fTZSlope/Hlx->fTZSlopeError) * ((HlxPar->fIsMCDownstream) ? 1.f : -1.f);
 }
 
+  //_____________________________________________________________________________
+  void TAnaModule::Debug() {
+    if(GetDebugBit(0)) {
+      auto event = GetEvent();
+      printf(">>> Event %5i/%5i/%6i:\n", event->fRunNumber, event->fSectionNumber, event->fEventNumber);
+    }
+  }
+
 }

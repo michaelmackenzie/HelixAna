@@ -15,26 +15,27 @@ class Project(ProjectBase):
         
         ProjectBase.__init__(self,project='HelixAna',family_id='mnbs0b1',idsid=idsid);
         self.init_datasets();
+
 #------------------------------------------------------------------------------
-# s5:reco: 
+# s5:reco_stn:
 #------------------------------------------------------------------------------
         s                            = self.new_stage('s5');
         job                          = s.new_job('reco_stn','mnbs0b1s41r0000'); #idsid);
 
         job.fNInputFiles             = 250                       # number of the job segments
 
-        job.fMaxInputFilesPerSegment =  1                        # MC generator
+        job.fMaxInputFilesPerSegment =  5                        #
         # job.fNEventsPerSegment       =  -1                     # defined by the input dataset
         job.fResample                = 'no'                      # yes/no
-        job.fMaxMemory               = '10000MB'
+        job.fMaxMemory               = '30000MB'
         job.fRequestedTime           = '12h'
-        job.fIfdh                    = 'ifdh'                    # ifdh/xrootd
+        job.fIfdh                    = 'xrootd'                  # ifdh/xrootd
         job.fOutputPath              = [ 'out' ]
 
         job.fOutputStream            = [ 'defaultOutput'                ]
         job.fOutputDsID              = [ familyID+s.name()+'r0000'      ]
-        job.fOutputFnPattern         = [ 'dig.mu2e.'+job.fOutputDsID[0] ]
-        job.fOutputFormat            = [ 'art'                          ]
+        job.fOutputFnPattern         = [ 'nts.'+os.getenv('USER')+job.fOutputDsID[0] ]
+        job.fOutputFormat            = [ 'stn'                          ]
 #------------------------------------------------------------------------------
 # end
 #------------------------------------------------------------------------------

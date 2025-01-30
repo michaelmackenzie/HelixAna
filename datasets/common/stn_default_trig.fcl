@@ -186,7 +186,7 @@ physics.analyzers.StntupleMakerTrigTot.makeSimp           : 1
 physics.analyzers.StntupleMakerTrigTot.makeCrvClusters    : 0
 physics.analyzers.StntupleMakerTrigTot.makeGenp           : 1
 physics.analyzers.StntupleMakerTrigTot.makeTracks         : 1
-physics.analyzers.StntupleMakerTrigTot.makeTimeClusters   : 1
+physics.analyzers.StntupleMakerTrigTot.makeTimeClusters   : 0
 physics.analyzers.StntupleMakerTrigTot.makeStepPointMC    : 0
 physics.analyzers.FillStntuple.makeClusters               : 1
 physics.analyzers.InitStntuple.shCollTag                  :   "makeSH"

@@ -1,12 +1,4 @@
-#include "HelixAna/datasets/cele0b1/s5_reco_stn_cele0b1.fcl"
-
-
-physics.filters.Triggerable.MinParticleMom : 80.0
-physics.filters.Triggerable.MaxParticleMom : 20000.0
-physics.filters.Triggerable.particleTypes  : [ 11, -11]
-physics.filters.Triggerable.MinNParticles  : 1
-physics.filters.Triggerable.MinNDigis      : 15 
-
+#include "HelixAna/datasets/common/reco_stn.fcl"
 
 services.TFileService.fileName              : "nts.user.mnbs0b1s5r0000.HelixAna.001210_00000000.root"
 physics.analyzers.InitStntuple.histFileName : "nts.user.mnbs0b1s5r0000.HelixAna.001210_00000000.stn"

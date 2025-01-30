@@ -1,0 +1,87 @@
+# File for debug configurations in reco+stn
+
+#include "HelixAna/datasets/common/reco_stn.fcl"
+
+#----------------------------------------------------------------------------------------------------
+# To only run one helix/track block for debugging: Offline De reco
+
+# physics.analyzers.StntupleMakerTrigTot.timeClusterBlockName : ["TZClusterFinder"]
+# physics.analyzers.StntupleMakerTrigTot.timeClusterCollTag   : ["TZClusterFinder"]
+# physics.analyzers.StntupleMakerTrigTot.helixBlockName       : ["HelixBlockDe"]
+# physics.analyzers.StntupleMakerTrigTot.helixCollTag         : ["MHDe"]
+# physics.analyzers.StntupleMakerTrigTot.helixKsCollTag       : [""]
+# physics.analyzers.StntupleMakerTrigTot.trackBlockName       : ["TrackBlockDe"]
+# physics.analyzers.StntupleMakerTrigTot.trackCollTag         : ["KKDe"]
+# physics.analyzers.InitStntuple.chCollTag : "makePH"
+# physics.analyzers.InitStntuple.shCollTag : "makeSH"
+# physics.producers.TZClusterFinder.tcCollLabel: "TimeClusterFinderDe"
+# physics.trigger_paths : [RecoDe]
+
+#----------------------------------------------------------------------------------------------------
+# To only run one helix/track block for debugging: Offline Ue reco
+
+# physics.analyzers.StntupleMakerTrigTot.timeClusterBlockName : ["TZClusterFinder"]
+# physics.analyzers.StntupleMakerTrigTot.timeClusterCollTag   : ["TZClusterFinder"]
+# physics.analyzers.StntupleMakerTrigTot.helixBlockName       : ["HelixBlockUe"]
+# physics.analyzers.StntupleMakerTrigTot.helixCollTag         : ["MHUe"]
+# physics.analyzers.StntupleMakerTrigTot.helixKsCollTag       : [""]
+# physics.analyzers.StntupleMakerTrigTot.trackBlockName       : ["TrackBlockUe"]
+# physics.analyzers.StntupleMakerTrigTot.trackCollTag         : ["KKUe"]
+# physics.analyzers.InitStntuple.chCollTag : "makePH"
+# physics.analyzers.InitStntuple.shCollTag : "makeSH"
+# physics.producers.TZClusterFinder.tcCollLabel: "TimeClusterFinderUe"
+# physics.trigger_paths : [RecoUe]
+
+#----------------------------------------------------------------------------------------------------
+# To only run one helix/track block for debugging: Online apr_highP
+
+# TrkReco.PrintUtils.strawHitCollTag : "TTmakeSH"
+# physics.analyzers.StntupleMakerTrigTot.timeClusterBlockName : ["TimeClusterBlockAprHighP" ]
+# physics.analyzers.StntupleMakerTrigTot.timeClusterCollTag   : ["aprHighPTriggerInfoMerger"]
+# physics.analyzers.StntupleMakerTrigTot.helixBlockName       : ["HelixBlockAprHighP"       ]
+# physics.analyzers.StntupleMakerTrigTot.helixCollTag         : ["aprHighPTriggerInfoMerger"]
+# physics.analyzers.StntupleMakerTrigTot.helixKsCollTag       : [""                         ]
+# physics.analyzers.StntupleMakerTrigTot.trackBlockName       : ["TrackBlockAprHighP"       ]
+# physics.analyzers.StntupleMakerTrigTot.trackHsBlockName     : ["HelixBlockAprHighP"       ]
+# physics.analyzers.StntupleMakerTrigTot.trackCollTag         : ["aprHighPTriggerInfoMerger"]
+# physics.analyzers.StntupleMakerTrigTot.makeGenp        : 0
+# physics.analyzers.StntupleMakerTrigTot.makeSimp        : 0
+# physics.analyzers.StntupleMakerTrigTot.makePid         : 0
+# physics.analyzers.StntupleMakerTrigTot.makeStepPointMC : 0
+# physics.analyzers.StntupleMakerTrigTot.makeTrigger     : 0
+# physics.analyzers.StntupleMakerTrigTot.makeCrvClusters : 0
+# physics.analyzers.StntupleMakerTrigTot.makeClusters    : 0
+# physics.analyzers.StntupleMakerTrigTot.makeCalData     : 0
+# physics.analyzers.StntupleMakerTrigTot.shCollTag : "TTmakeSH"
+# physics.analyzers.StntupleMakerTrigTot.chCollTag : "TTmakePH"
+# physics.analyzers.InitStntuple.shCollTag         : "TTmakeSH"
+# physics.analyzers.InitStntuple.chCollTag         : "TTmakePH"
+# physics.analyzers.InitStntuple.comboHitCollTag   : "TTmakePH"
+# physics.analyzers.InitStntuple.strawHitCollTag   : "TTmakeSH"
+# physics.analyzers.InitStntuple.makeClusters      : 0
+# physics.analyzers.StntupleMakerTrigTot.chCollTag : "TTmakePH"
+# physics.analyzers.StntupleMakerTrigTot.TAnaDump.printUtils.strawHitCollTag : "TTmakeSH"
+# physics.analyzers.StntupleMakerTrigTot.TAnaDump.printUtils.mcUtils.comboHitCollTag: "TTmakeSH"
+# physics.analyzers.StntupleMakerTrigTot.tcShCollTag : [ "TTmakeSH" ]
+# physics.analyzers.StntupleMakerTrigTot.tcChCollTag : [ "TTmakePH" ]
+# physics.analyzers.InitStntuple.TAnaDump.printUtils.strawHitCollTag : "TTmakeSH"
+# physics.analyzers.InitStntuple.TAnaDump.printUtils.mcTruth : 0
+# physics.analyzers.InitStntuple.TAnaDump.printUtils.mcUtils.comboHitCollTag: "TTmakeSH"
+# physics.analyzers.FillStntuple.TAnaDump.printUtils.mcUtils.comboHitCollTag: "TTmakeSH"
+# physics.analyzers.FillStntuple.TAnaDump.printUtils.strawHitCollTag        : "TTmakeSH"
+# physics.producers.TTTZClusterFinder.diagPlugin.mcUtils.comboHitCollTag : "TTmakeSH"
+# physics.trigger_paths : [apr_highP]
+# physics.apr_highP: [aprHighPPS, CaloHitMakerFast, CaloClusterFast,
+#  		    TTmakeSH, TTmakePH, TTDeltaFinder, TTTZClusterFinder, aprHighPTCFilter, TTAprHelixFinder, TTAprHelixMerger,
+# 		    aprHighPHSFilter, TTAprKSF, aprHighPKSFilter, aprHighPTriggerInfoMerger
+# 		   ]
+
+# physics.e1 : [InitStntuple, StntupleMakerTrigTot, FillStntuple]
+# physics.analyzers.InitStntuple.SelectEvents : []
+
+#----------------------------------------------------------------------------------------------------
+# Test switching trigger makeSH and makePH with Offline
+
+# physics.producers.TTmakeSH : @local::physics.producers.makeSH
+# physics.producers.TTmakePH : @local::physics.producers.makePH
+# physics.producers.TTmakePH.ComboHitCollection : "TTmakeSH"

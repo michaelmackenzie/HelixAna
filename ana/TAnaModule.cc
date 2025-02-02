@@ -127,9 +127,15 @@ void TAnaModule::BookTrackHistograms(TrackHist_t* Hist, const char* Folder) {
   HBook1F(Hist->fClusterE,"clusterE",Form("%s: track's cluster energy",Folder), 600,0.,300. , Folder);
   HBook1F(Hist->fDt,"dt",Form("%s: track - cluster time",Folder), 200,-10.,10. , Folder);
   HBook1F(Hist->fEp,"ep",Form("%s: cluster E / track P",Folder), 200,0.,2. , Folder);
+  HBook1F(Hist->fBestAlg,"bestAlg",Form("%s: Best fit algorithm",Folder), 10,0.,10., Folder);
+  HBook1F(Hist->fAlgMask,"algMask",Form("%s: Algorithm mask",Folder), 10,0.,10., Folder);
 
-  HBook1F(Hist->fMCPFront,"mcPFront",Form("%s: MC track P(tracker front)",Folder), 600,-300.,300. , Folder);
-  HBook1F(Hist->fMCPStOut,"mcPSTOut",Form("%s: MC track P(ST exit)",Folder), 600,-300.,300. , Folder);
+  HBook1F(Hist->fMCPFront,"MC_PFront",Form("%s: MC track P(tracker front)",Folder), 600,-300.,300. , Folder);
+  HBook1F(Hist->fMCPStOut,"MC_PSTOut",Form("%s: MC track P(ST exit)",Folder), 600,-300.,300. , Folder);
+  HBook1F(Hist->fMCPdg[0],"MC_PDG_0",Form("%s: MC Particle PDG code",Folder), 40,-20.,20. , Folder);
+  HBook1F(Hist->fMCPdg[1],"MC_PDG_1",Form("%s: MC Particle |PDG code|",Folder), 220,0.,2200. , Folder);
+  HBook1F(Hist->fMCStrawHits,"MC_strawhits",Form("%s: MC Particle N(straw hits)",Folder), 100,0.,100., Folder);
+  HBook1F(Hist->fMCGoodHits,"MC_goodhits",Form("%s: MC Particle N(good hits)",Folder), 100,0.,100., Folder);
 
 }
 
@@ -222,6 +228,15 @@ void TAnaModule::FillSimpHistograms(SimpHist_t* Hist, TSimParticle* Simp) {
 //-----------------------------------------------------------------------------
 void TAnaModule::FillTrackHistograms(TrackHist_t* Hist, TrackPar_t* TrkPar) {
 
+  if(!Hist) {
+    throw std::runtime_error(Form("TAnaModule::%s: Uninitialized Histogram set\n", __func__));
+  }
+  if(!TrkPar) {
+    throw std::runtime_error(Form("TAnaModule::%s: Uninitialized TrkPar\n", __func__));
+  }
+  if(!TrkPar->fTrack) {
+    throw std::runtime_error(Form("TAnaModule::%s: Uninitialized Track\n", __func__));
+  }
   Hist->fP[0]->Fill((TrkPar->fTrack->fP)*(TrkPar->fTrack->fCharge));
   Hist->fP[1]->Fill(TrkPar->fTrack->fP);
   Hist->fPt->Fill((TrkPar->fTrack->fPt)*(TrkPar->fTrack->fCharge));
@@ -241,9 +256,15 @@ void TAnaModule::FillTrackHistograms(TrackHist_t* Hist, TrackPar_t* TrkPar) {
   Hist->fClusterE->Fill(TrkPar->fTrack->fClusterE);
   Hist->fDt->Fill(TrkPar->fTrack->fDt);
   Hist->fEp->Fill(TrkPar->fTrack->fEp);
+  Hist->fBestAlg->Fill(TrkPar->fTrack->BestAlg());
+  Hist->fAlgMask->Fill(TrkPar->fTrack->AlgMask());
 
   Hist->fMCPFront->Fill(TrkPar->fTrack->fPFront);
   Hist->fMCPStOut->Fill(TrkPar->fTrack->fPStOut);
+  Hist->fMCPdg[0]->Fill(TrkPar->fTrack->fPdgCode);
+  Hist->fMCPdg[1]->Fill(std::abs(TrkPar->fTrack->fPdgCode));
+  Hist->fMCStrawHits->Fill(TrkPar->fTrack->NMcStrawHits());
+  Hist->fMCGoodHits->Fill(TrkPar->fTrack->NGoodMcHits());
 }
 
 //-----------------------------------------------------------------------------

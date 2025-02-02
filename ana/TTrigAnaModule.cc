@@ -81,11 +81,13 @@ void TTrigAnaModule::BookHistograms() {
   track_selection[ 0] = new TString("apr tracks");
   track_selection[ 1] = new TString("cpr tracks");
   track_selection[ 2] = new TString("Offline tracks");
-  track_selection[ 3] = new TString("Best Offline track if track is good");
-  track_selection[ 4] = new TString("Best Offline track if track is good and apr or cpr triggered");
-  track_selection[ 5] = new TString("Best Offline track if track is good and neither apr or cpr trigger");
-  track_selection[ 6] = new TString("Best Offline track if track is good and apr triggered");
-  track_selection[ 7] = new TString("Best Offline track if track is good and cpr triggered");
+  track_selection[ 3] = new TString("Offline ID");
+  track_selection[ 4] = new TString("Offline ID, APR or CPR");
+  track_selection[ 5] = new TString("Offline ID, neither APR nor CPR");
+  track_selection[ 6] = new TString("Offline ID, APR");
+  track_selection[ 7] = new TString("Offline ID, CPR");
+  track_selection[ 8] = new TString("Offline ID, APR, not CPR");
+  track_selection[ 9] = new TString("Offline ID, CPR, not APR");
   track_selection[10] = new TString("apr tracks, Offline track ID found");
   track_selection[11] = new TString("cpr tracks, Offline track ID found");
   track_selection[20] = new TString("Offline tracks that fail ID");
@@ -163,6 +165,10 @@ void TTrigAnaModule::FillHistograms() {
       if(fEvtPar.fPassedAprPath) FillTrackHistograms(fHist.fTrack[6],&fTrkPar);
       // passes CPR
       if(fEvtPar.fPassedCprPath) FillTrackHistograms(fHist.fTrack[7],&fTrkPar);
+      // only passes APR
+      if(fEvtPar.fPassedAprPath && !fEvtPar.fPassedCprPath) FillTrackHistograms(fHist.fTrack[8],&fTrkPar);
+      // only passes CPR
+      if(!fEvtPar.fPassedAprPath && fEvtPar.fPassedCprPath) FillTrackHistograms(fHist.fTrack[9],&fTrkPar);
     } else { // tracks that fail the Offline ID
       FillTrackHistograms(fHist.fTrack[20],&fTrkPar);
     }

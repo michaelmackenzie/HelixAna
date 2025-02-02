@@ -24,10 +24,15 @@ namespace HelixAna {
     TH1F*    fClusterE;
     TH1F*    fDt;
     TH1F*    fEp;
+    TH1F*    fBestAlg;
+    TH1F*    fAlgMask;
 
     //MC truth information
     TH1F*    fMCPFront; //P(front of tracker)
     TH1F*    fMCPStOut; //P(ST exit)
+    TH1F*    fMCPdg[2];
+    TH1F*    fMCStrawHits;
+    TH1F*    fMCGoodHits;
 
   };
 

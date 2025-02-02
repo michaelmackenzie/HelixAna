@@ -13,7 +13,7 @@ source       : { module_type : RootInput
 }
 
 # Add the paths of interest, Triggerable + single hypothesis reco paths
-# physics.trigger_paths[100] : "1:p1"
+physics.trigger_paths[100] : "1:p1"
 physics.trigger_paths[101] : "2:RecoDe"
 physics.trigger_paths[102] : "3:RecoUe"
 physics.trigger_paths[103] : "4:RecoDmu"
@@ -22,3 +22,6 @@ physics.trigger_paths[104] : "5:RecoUmu"
 services.TFileService.fileName              : "nts.user.dddddb1s5r0000.helixana.001210_00000000.root"
 physics.analyzers.InitStntuple.histFileName : "nts.user.dddddb1s5r0000.helixana.001210_00000000.stn"
 outputs.defaultOutput.fileName              : "sim.user.dddddb1s5r0000.helixana.001210_00000000.art"
+
+# Update to the full b-field map, which could resolve some reco issues
+services.GeometryService.bFieldFile: "Offline/Mu2eG4/geom/bfgeom_v01.txt"

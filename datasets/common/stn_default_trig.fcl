@@ -73,22 +73,30 @@ physics : {
     RecoDe : [  @sequence::Reconstruction.CaloReco,
 		@sequence::Reconstruction.TrkReco,
 		@sequence::Reconstruction.CrvReco,
-		@sequence::Reconstruction.DeReco ]
+		@sequence::Reconstruction.DeReco,
+		MergeKKDe, TrkQualDe # Add track quality
+	       ]
 
     RecoUe : [  @sequence::Reconstruction.CaloReco,
 		@sequence::Reconstruction.TrkReco,
 		@sequence::Reconstruction.CrvReco,
-		@sequence::Reconstruction.UeReco ]
+		@sequence::Reconstruction.UeReco,
+		MergeKKUe, TrkQualUe # Add track quality
+	       ]
 
     RecoDmu : [  @sequence::Reconstruction.CaloReco,
 		 @sequence::Reconstruction.TrkReco,
 		 @sequence::Reconstruction.CrvReco,
-		 @sequence::Reconstruction.DmuReco ]
+		 @sequence::Reconstruction.DmuReco,
+		 MergeKKDmu, TrkQualDmu # Add track quality
+		]
 
     RecoUmu : [  @sequence::Reconstruction.CaloReco,
 		 @sequence::Reconstruction.TrkReco,
 		 @sequence::Reconstruction.CrvReco,
-		 @sequence::Reconstruction.UmuReco ]
+		 @sequence::Reconstruction.UmuReco,
+		 MergeKKUmu, TrkQualUmu # Add track quality
+		]
 
     out           : [ ]                                  # [defaultOutput]/[]
     e1            : [ @sequence::stntuple.paths.p4 ]
@@ -98,7 +106,7 @@ physics : {
 
 #------------------------------------------------------------------------------
 # Reco filtering
-Reconstruction.RecoFilter : {
+RecoFilter : {
     module_type: "KalSeedFilter"
     kalSeedCollection: "KKDe" # default
     minNTrks: 1
@@ -125,25 +133,25 @@ Reconstruction.RecoFilter : {
 }
 
 # RecoDe filtering
-physics.filters.RecoFilterDe : @local::Reconstruction.RecoFilter
+physics.filters.RecoFilterDe : @local::RecoFilter
 physics.filters.RecoFilterDe.kalSeedCollection: "KKDe"
 physics.filters.RecoFilterDe.KalSeedCuts[0].fitdirection: 0
 physics.filters.RecoFilterDe.KalSeedCuts[0].fitparticle: 11
 
 # RecoUe filtering
-physics.filters.RecoFilterUe : @local::Reconstruction.RecoFilter
+physics.filters.RecoFilterUe : @local::RecoFilter
 physics.filters.RecoFilterUe.kalSeedCollection: "KKUe"
 physics.filters.RecoFilterUe.KalSeedCuts[0].fitdirection: 1
 physics.filters.RecoFilterUe.KalSeedCuts[0].fitparticle: 11
 
 # RecoDmu filtering
-physics.filters.RecoFilterDmu : @local::Reconstruction.RecoFilter
+physics.filters.RecoFilterDmu : @local::RecoFilter
 physics.filters.RecoFilterDmu.kalSeedCollection: "KKDmu"
 physics.filters.RecoFilterDmu.KalSeedCuts[0].fitdirection: 0
 physics.filters.RecoFilterDmu.KalSeedCuts[0].fitparticle: 13
 
 # RecoUmu filtering
-physics.filters.RecoFilterUmu : @local::Reconstruction.RecoFilter
+physics.filters.RecoFilterUmu : @local::RecoFilter
 physics.filters.RecoFilterUmu.kalSeedCollection: "KKUmu"
 physics.filters.RecoFilterUmu.KalSeedCuts[0].fitdirection: 1
 physics.filters.RecoFilterUmu.KalSeedCuts[0].fitparticle: 13
@@ -244,7 +252,7 @@ OfflineNames_tcmCollTag             : [ ""                  ,  ""               
 OfflineNames_trackSHBlockName       : [ ""                  ,  ""                  , ""                   ,  ""                    ]
 OfflineNames_pidBlockName           : [ ""                  ,  ""                  , ""                   ,  ""                    ]
 OfflineNames_pidCollTag             : [ ""                  ,  ""                  , ""                   ,  ""                    ]
-OfflineNames_trkQualCollTag         : [ ""                  ,  ""                  , ""                   ,  ""                    ]
+OfflineNames_trkQualCollTag         : [ "TrkQualDe"         ,  "TrkQualUe"         , "TrkQualDmu"         ,  "TrkQualUmu"          ]
 
 physics.analyzers.StntupleMakerTrigTot.timeClusterBlockName : [@sequence::OfflineNames_timeClusterBlockName, @sequence::TrigNames_timeClusterBlockName]
 physics.analyzers.StntupleMakerTrigTot.timeClusterCollTag   : [@sequence::OfflineNames_timeClusterCollTag  , @sequence::TrigNames_timeClusterCollTag  ]
@@ -293,6 +301,34 @@ physics.producers.TTAprKSF.ModuleSettings.SampleSurfaces  : [@sequence::TrackSur
 physics.producers.TTCalSeedFitDe.Extrapolation : @local::physics.producers.KKDe.Extrapolation
 physics.producers.TTCalSeedFitDe.ModuleSettings.SampleSurfaces  : [@sequence::TrackSurfaces]
 
+#------------------------------------------------------------------------------
+# Define track quality modules (use CE- weights for all cases for now)
+
+# Have to merge the KalSeeds for use with TrkQual
+physics.producers.MergeKKDe : {
+    module_type        : MergeKalSeeds
+    KalSeedCollections : [ "KKDe" ]
+}
+physics.producers.TrkQualDe : {
+    module_type          : TrackQuality
+    datFilename          : "Offline/TrkDiag/data/TrkQual_ANN1_v1.dat"
+    KalSeedPtrCollection : "MergeKKDe"
+}
+
+physics.producers.MergeKKUe : @local::physics.producers.MergeKKDe
+physics.producers.MergeKKUe.KalSeedCollections : ["KKUe"]
+physics.producers.TrkQualUe : @local::physics.producers.TrkQualDe
+physics.producers.TrkQualUe.KalSeedPtrCollection : "MergeKKUe"
+
+physics.producers.MergeKKDmu : @local::physics.producers.MergeKKDe
+physics.producers.MergeKKDmu.KalSeedCollections : ["KKDmu"]
+physics.producers.TrkQualDmu : @local::physics.producers.TrkQualDe
+physics.producers.TrkQualDmu.KalSeedPtrCollection : "MergeKKDmu"
+
+physics.producers.MergeKKUmu : @local::physics.producers.MergeKKDe
+physics.producers.MergeKKUmu.KalSeedCollections : ["KKUmu"]
+physics.producers.TrkQualUmu : @local::physics.producers.TrkQualDe
+physics.producers.TrkQualUmu.KalSeedPtrCollection : "MergeKKUmu"
 
 #------------------------------------------------------------------------------
 physics.producers.EWMProducer.SpillType : 1

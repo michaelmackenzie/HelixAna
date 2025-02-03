@@ -158,6 +158,141 @@ int plot_param_and_ratio(const char* name, const char* param, PlotData_t plot_da
 }
 
 //----------------------------------------------------------------------------------------------------------
+void rejection_plot(const char* name = "mnbs0b1") {
+
+   // create canvas
+  TCanvas* c0 = new TCanvas("c0","",900,700);
+  gStyle->SetOptStat(0);
+  // read in signal dataset plots
+  TH1* instLumi       = (TH1*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/evt_0/inst_lumi"        )->Clone("lumi_tot");
+  TH1* instLumiApr    = (TH1*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/evt_0/inst_lumi_apr"    )->Clone("lumi_apr");
+  TH1* instLumiCpr    = (TH1*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/evt_0/inst_lumi_cpr"    )->Clone("lumi_cpr");
+  TH1* instLumiAprCpr = (TH1*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/evt_0/inst_lumi_apr_cpr")->Clone("lumi_both");
+  TH1* lumi_nom = (TH1*) instLumi->Clone("lumi_nom"); //version with high binning
+
+  const int group_factor = 15;
+  instLumi      ->Rebin(group_factor);
+  instLumiApr   ->Rebin(group_factor);
+  instLumiCpr   ->Rebin(group_factor);
+  instLumiAprCpr->Rebin(group_factor);
+
+  // normalization info
+  const int nsim  = instLumi      ->GetEntries(); //N(simulated events)
+  const int napr  = instLumiApr   ->GetEntries(); //N(APR events);
+  const int ncpr  = instLumiCpr   ->GetEntries(); //N(CPR events);
+  const int nboth = instLumiAprCpr->GetEntries(); //N(APR || CPR events);
+  const double nevents_per_second = 0.4/1.4/1.695e-6;  //events per second
+  const double norm = nevents_per_second/nsim; //normalization factor for N(sim) --> N(per second)
+  const double napr_per_second = norm*napr;
+  const double ncpr_per_second = norm*ncpr;
+  const double nboth_per_second = norm*nboth;
+  printf("N(events / second) = %6.0f (%7i sim events)\n", nevents_per_second, nsim );
+  printf("N(APR    / second) = %6.0f (%7i sim events)\n", napr_per_second   , napr );
+  printf("N(CPR    / second) = %6.0f (%7i sim events)\n", ncpr_per_second   , ncpr );
+  printf("N(Either / second) = %6.0f (%7i sim events)\n", nboth_per_second  , nboth);
+
+  // Scale the luminosity plots to rates per second
+  lumi_nom      ->Scale(norm);
+  instLumi      ->Scale(norm);
+  instLumiApr   ->Scale(norm);
+  instLumiCpr   ->Scale(norm);
+  instLumiAprCpr->Scale(norm);
+
+  // Create the background rejection factor plots
+  TH1* hRejApr  = (TH1*) instLumi->Clone("RejAPR" ); hRejApr ->Divide(instLumiApr);
+  TH1* hRejCpr  = (TH1*) instLumi->Clone("RejCPR" ); hRejCpr ->Divide(instLumiCpr);
+  TH1* hRejBoth = (TH1*) instLumi->Clone("RejBoth"); hRejBoth->Divide(instLumiAprCpr);
+
+  // Create the trigger rate normalized by POT bin
+  TH1* hRateApr  = (TH1*) instLumiApr   ->Clone("RateAPR" ); hRateApr ->Divide(instLumi); hRateApr ->Scale(nevents_per_second);
+  TH1* hRateCpr  = (TH1*) instLumiCpr   ->Clone("RateCPR" ); hRateCpr ->Divide(instLumi); hRateCpr ->Scale(nevents_per_second);
+  TH1* hRateBoth = (TH1*) instLumiAprCpr->Clone("RateBoth"); hRateBoth->Divide(instLumi); hRateBoth->Scale(nevents_per_second);
+
+  // Set the figure styles
+  set_style(instLumiAprCpr, kViolet);
+  set_style(instLumiApr   , kRed   );
+  set_style(instLumiCpr   , kCyan  );
+  set_style(hRejBoth      , kViolet);
+  set_style(hRejApr       , kRed   );
+  set_style(hRejCpr       , kCyan  );
+  set_style(hRateBoth     , kViolet);
+  set_style(hRateApr      , kRed   );
+  set_style(hRateCpr      , kCyan  );
+  set_style(lumi_nom      , kBlue  );
+
+  // draw the input lumi distribution
+  lumi_nom->Draw("hist");
+  lumi_nom->SetTitle("Luminosity profile;N(POT);Rate [Hz]");
+  lumi_nom->GetXaxis()->SetRangeUser(0., 100.e6);
+  c0->SaveAs(Form("%s%s_lumi.png", _figDir.Data(), name));
+
+  // draw trigger rate plots
+  instLumiAprCpr->Draw("E1");
+  instLumiApr   ->Draw("E1 same");
+  instLumiCpr   ->Draw("E1 same");
+  instLumiAprCpr->SetTitle("Background trigger rate;N(POT);Rate [Hz]");
+  instLumiAprCpr->GetXaxis()->SetRangeUser(0., 100.e6);
+
+  c0->Modified(); c0->Update();
+
+  TLegend *leg1 = new TLegend(0.65, 0.76, 0.90, 0.90);
+  leg1->SetFillStyle(1001);
+  leg1->SetFillColor(kWhite);
+  leg1->SetBorderSize(1);
+  leg1->SetShadowColor(0);
+
+  leg1->AddEntry(instLumiApr   , "APR", "lpe");
+  leg1->AddEntry(instLumiCpr   , "CPR", "lpe");
+  leg1->AddEntry(instLumiAprCpr, "APR+CPR", "lpe");
+  leg1->Draw();
+
+  c0->SaveAs(Form("%s%s_trigger_rate.png", _figDir.Data(), name));
+
+  // draw the rejection factors
+  hRejBoth->Draw("E1");
+  hRejApr ->Draw("E1 same");
+  hRejCpr ->Draw("E1 same");
+  hRejBoth->SetTitle("Background rejection factor;N(POT);rejection factor");
+  hRejBoth->GetYaxis()->SetRangeUser(500., 5.*max(hRejApr->GetMaximum(), hRejCpr->GetMaximum()));
+  hRejBoth->GetXaxis()->SetRangeUser(0., 100.e6);
+  c0->SetLogy();
+
+  leg1 = new TLegend(0.65, 0.76, 0.90, 0.90);
+  leg1->SetFillStyle(1001);
+  leg1->SetFillColor(kWhite);
+  leg1->SetBorderSize(1);
+  leg1->SetShadowColor(0);
+
+  leg1->AddEntry(hRejApr , "APR", "lpe");
+  leg1->AddEntry(hRejCpr , "CPR", "lpe");
+  leg1->AddEntry(hRejBoth, "APR+CPR", "lpe");
+  leg1->Draw();
+
+  c0->SaveAs(Form("%s%s_rejection.png", _figDir.Data(), name));
+
+  // draw the trigger rate per bin factors
+  hRateBoth->Draw("E1");
+  hRateApr ->Draw("E1 same");
+  hRateCpr ->Draw("E1 same");
+  hRateBoth->SetTitle("Inst. trigger rate;N(POT);Rate [Hz]");
+  hRateBoth->GetXaxis()->SetRangeUser(0., 100.e6);
+  c0->SetLogy(false);
+
+  leg1 = new TLegend(0.65, 0.76, 0.90, 0.90);
+  leg1->SetFillStyle(1001);
+  leg1->SetFillColor(kWhite);
+  leg1->SetBorderSize(1);
+  leg1->SetShadowColor(0);
+
+  leg1->AddEntry(hRateApr , "APR", "lpe");
+  leg1->AddEntry(hRateCpr , "CPR", "lpe");
+  leg1->AddEntry(hRateBoth, "APR+CPR", "lpe");
+  leg1->Draw();
+
+  c0->SaveAs(Form("%s%s_inst_trig_rate.png", _figDir.Data(), name));
+}
+
+//----------------------------------------------------------------------------------------------------------
 void efficiency_vs_pot(const char* name = "eff_vs_pot", const bool normalized = false) {
 
    // create canvas
@@ -339,6 +474,22 @@ int trigEfficiencyPlotting(int Dataset = -1) {
     efficiency_vs_track_params("cpos");
 
     _inputFile->Close();
+  }
+
+  // No primary plots (1BB)
+  if(Dataset < 0 || Dataset == 2) {
+    load_input_file(_histDir + "HelixAna.trg_ana.mnbs0b1s5r0000.hist");
+    if(!_inputFile) return 1;
+
+    rejection_plot("mnbs0b1");
+  }
+
+  // No primary plots (2BB)
+  if(Dataset < 0 || Dataset == 3) {
+    load_input_file(_histDir + "HelixAna.trg_ana.mnbs0b2s5r0000.hist");
+    if(!_inputFile) return 1;
+
+    rejection_plot("mnbs0b2");
   }
 
   return 0;

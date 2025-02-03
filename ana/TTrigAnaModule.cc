@@ -229,13 +229,29 @@ int TTrigAnaModule::Event(int ientry) {
   fEvtPar.fNAprTracks = fAprTrackBlock->NTracks();
   fEvtPar.fNCprTracks = fCprTrackBlock->NTracks();
   fEvtPar.fNTracks = fOfflineTrackBlock->NTracks();
-  fEvtPar.fPassedCprPath = fTriggerBlock->PathPassed(150);
-  fEvtPar.fPassedAprPath = fTriggerBlock->PathPassed(180);
+  fEvtPar.fPassedCprPath = fTriggerBlock->PathPassed(151);
+  fEvtPar.fPassedAprPath = fTriggerBlock->PathPassed(181);
 
   // count the number of good tracks
   fNGoodOfflineTracks = 0;
   for(int itrk = 0; itrk < fOfflineTrackBlock->NTracks(); ++itrk)
     if(GoodOfflineTrack(fOfflineTrackBlock->Track(itrk))) ++fNGoodOfflineTracks;
+
+  // Check that the event info makes sense
+
+  if(!fEvtPar.fPassedAprPath && fEvtPar.fNAprTracks) {
+    auto event = GetEvent();
+    printf(">>> TTrigAnaModule::%s: Event %5i:%5i:%6i: Failed APR path but found %i APR tracks\n",
+           __func__, event->fRunNumber, event->fSectionNumber, event->fEventNumber,
+           fEvtPar.fNAprTracks);
+  }
+
+  if(!fEvtPar.fPassedCprPath && fEvtPar.fNCprTracks) {
+    auto event = GetEvent();
+    printf(">>> TTrigAnaModule::%s: Event %5i:%5i:%6i: Failed CPR path but found %i CPR tracks\n",
+           __func__, event->fRunNumber, event->fSectionNumber, event->fEventNumber,
+           fEvtPar.fNCprTracks);
+  }
 
   Debug();
 

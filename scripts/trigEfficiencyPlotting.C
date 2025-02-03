@@ -96,6 +96,7 @@ int plot_param_and_ratio(const char* name, const char* param, PlotData_t plot_da
   leg->AddEntry(cpr    , "CPR"    , "lpe");
   leg->AddEntry(den_tot, "Offline", "lpe");
   leg->Draw();
+  gPad->RedrawAxis();
 
   // Draw the ratios
   pad = c->cd(2);
@@ -122,11 +123,22 @@ int plot_param_and_ratio(const char* name, const char* param, PlotData_t plot_da
   apr_eff->Draw("E1 SAME");
   cpr_eff->Draw("E1 SAME");
 
+  const double xmin((plot_data._xmin < plot_data._xmax) ? plot_data._xmin : haxis->GetXaxis()->GetXmin());
+  const double xmax((plot_data._xmin < plot_data._xmax) ? plot_data._xmax : haxis->GetXaxis()->GetXmax());
+  const double ymin((plot_data._ymin < plot_data._ymax) ? plot_data._ymin : 0.65);
+  const double ymax((plot_data._ymin < plot_data._ymax) ? plot_data._ymax : 1.10);
+
   pad->Update();
-  if(plot_data._xmin < plot_data._xmax) haxis->GetXaxis()->SetRangeUser(plot_data._xmin, plot_data._xmax);
-  if(plot_data._ymin < plot_data._ymax) haxis->GetYaxis()->SetRangeUser(plot_data._ymin, plot_data._ymax);
-  else                                  haxis->GetYaxis()->SetRangeUser(0.65, 1.10);
+  haxis->GetXaxis()->SetRangeUser(xmin, xmax);
+  haxis->GetYaxis()->SetRangeUser(ymin, ymax);
   if(plot_data._title != "") haxis->SetTitle(Form("Online track reconstruction efficiency;%s;#epsilon;", plot_data._title.Data()));
+
+  // add a reference line
+  TLine line(xmin, 1., xmax, 1.);
+  line.SetLineWidth(2);
+  line.SetLineStyle(kDashed);
+  line.SetLineColor(kBlack);
+  line.Draw("SAME");
 
   leg = new TLegend(0.10, 0.80, 0.97, 0.90);
   leg->SetFillStyle(1001);
@@ -223,7 +235,7 @@ void rejection_plot(const char* name = "mnbs0b1") {
   // draw the input lumi distribution
   lumi_nom->Draw("hist");
   lumi_nom->SetTitle("Luminosity profile;N(POT);Rate [Hz]");
-  lumi_nom->GetXaxis()->SetRangeUser(0., 100.e6);
+  lumi_nom->GetXaxis()->SetRangeUser(0., 99.e6);
   c0->SaveAs(Form("%s%s_lumi.png", _figDir.Data(), name));
 
   // draw trigger rate plots
@@ -231,7 +243,7 @@ void rejection_plot(const char* name = "mnbs0b1") {
   instLumiApr   ->Draw("E1 same");
   instLumiCpr   ->Draw("E1 same");
   instLumiAprCpr->SetTitle("Background trigger rate;N(POT);Rate [Hz]");
-  instLumiAprCpr->GetXaxis()->SetRangeUser(0., 100.e6);
+  instLumiAprCpr->GetXaxis()->SetRangeUser(0., 99.e6);
 
   c0->Modified(); c0->Update();
 
@@ -254,7 +266,7 @@ void rejection_plot(const char* name = "mnbs0b1") {
   hRejCpr ->Draw("E1 same");
   hRejBoth->SetTitle("Background rejection factor;N(POT);rejection factor");
   hRejBoth->GetYaxis()->SetRangeUser(500., 5.*max(hRejApr->GetMaximum(), hRejCpr->GetMaximum()));
-  hRejBoth->GetXaxis()->SetRangeUser(0., 100.e6);
+  hRejBoth->GetXaxis()->SetRangeUser(0., 99.e6);
   c0->SetLogy();
 
   leg1 = new TLegend(0.65, 0.76, 0.90, 0.90);
@@ -274,8 +286,8 @@ void rejection_plot(const char* name = "mnbs0b1") {
   hRateBoth->Draw("E1");
   hRateApr ->Draw("E1 same");
   hRateCpr ->Draw("E1 same");
-  hRateBoth->SetTitle("Inst. trigger rate;N(POT);Rate [Hz]");
-  hRateBoth->GetXaxis()->SetRangeUser(0., 100.e6);
+  hRateBoth->SetTitle("Instantaneous trigger rate;N(POT);Rate [Hz]");
+  hRateBoth->GetXaxis()->SetRangeUser(0., 99.e6);
   c0->SetLogy(false);
 
   leg1 = new TLegend(0.65, 0.76, 0.90, 0.90);
@@ -311,8 +323,12 @@ void efficiency_vs_pot(const char* name = "eff_vs_pot", const bool normalized = 
   std::cout << "number of bins after rebin = " << instLumi->GetNbinsX() << std::endl;
   // print out total efficiencies
   const double totalEvents = instLumi->Integral();
+  const double APREventsPassed = instLumiApr->Integral();
+  const double CPREventsPassed = instLumiCpr->Integral();
   const double totalEventsPassed = instLumiAprCpr->Integral();
   const double totalEfficiency = totalEventsPassed/totalEvents;
+  printf("APR eff = %.3f, CPR eff = %.3f, Trigger eff = %.3f\n",
+         APREventsPassed/totalEvents, CPREventsPassed/totalEvents, totalEfficiency);
   std::cout << "reco efficiency = " << totalEfficiency << std::endl;
   // make efficiency plots
   TEfficiency* apr_effVsPOT = new TEfficiency(*instLumiApr, *instLumi);
@@ -334,6 +350,7 @@ void efficiency_vs_pot(const char* name = "eff_vs_pot", const bool normalized = 
   c0->Modified(); c0->Update();
 
   aprcpr_effVsPOT->GetPaintedGraph()->GetYaxis()->SetRangeUser(0.65, 1.05);
+  aprcpr_effVsPOT->GetPaintedGraph()->GetXaxis()->SetRangeUser(0., 100.e6);
 
   TLegend *leg1 = new TLegend(0.65, 0.76, 0.90, 0.90);
   leg1->SetFillStyle(1001);
@@ -443,13 +460,18 @@ int trigEfficiencyPlotting(int Dataset = -1) {
     load_input_file(_histDir + "HelixAna.trg_ana.cele0b1s5r0000.hist");
     if(!_inputFile) return 1;
 
-    plot_param_and_ratio      ("cele", "d0"     , PlotData_t("d_{0}"    , -100.,  150.));
-    plot_param_and_ratio      ("cele", "p_2"    , PlotData_t("p"        ,  100.,  105.));
-    plot_param_and_ratio      ("cele", "pt"     , PlotData_t("p_{T}"    ,  -95.,  -75.));
-    plot_param_and_ratio      ("cele", "nActive", PlotData_t("N(active)",   20.,   80.));
-    plot_param_and_ratio      ("cele", "rMax"   , PlotData_t("R(max)"   ,  450.,  800.));
-    plot_param_and_ratio      ("cele", "radius" , PlotData_t("Radius"   ,  200.,  300.));
-    plot_param_and_ratio      ("cele", "dP"     , PlotData_t("p - p(MC)",   -5.,    5.));
+    plot_param_and_ratio      ("cele", "d0"      , PlotData_t("d_{0}"          , -100.,  150.));
+    plot_param_and_ratio      ("cele", "p_2"     , PlotData_t("p"              ,  100.,  105.));
+    plot_param_and_ratio      ("cele", "pCenter" , PlotData_t("p(Center)"      , -110., -100.));
+    plot_param_and_ratio      ("cele", "pt"      , PlotData_t("p_{T}"          ,  -95.,  -75.));
+    plot_param_and_ratio      ("cele", "dP"      , PlotData_t("p - p(MC)"      ,   -5.,    5.));
+    plot_param_and_ratio      ("cele", "clusterE", PlotData_t("Cluster energy" ,    0.,  110.));
+    plot_param_and_ratio      ("cele", "ep"      , PlotData_t("E / P"          ,    0.,   1.2));
+    plot_param_and_ratio      ("cele", "nActive" , PlotData_t("N(active)"      ,   20.,   80.));
+    plot_param_and_ratio      ("cele", "rMax"    , PlotData_t("R(max)"         ,  450.,  800.));
+    plot_param_and_ratio      ("cele", "radius"  , PlotData_t("Radius"         ,  200.,  300.));
+    plot_param_and_ratio      ("cele", "tanDip"  , PlotData_t("tan(dip)"       ,   0.5,   1.5));
+    plot_param_and_ratio      ("cele", "chi2NDof", PlotData_t("#chi^{2}/N(DOF)",    0.,    5.));
     efficiency_vs_pot         ("cele_eff_vs_pot");
     efficiency_vs_pot         ("cele_norm_eff_vs_pot", 1);
     efficiency_vs_track_params("cele");
@@ -462,13 +484,18 @@ int trigEfficiencyPlotting(int Dataset = -1) {
     load_input_file(_histDir + "HelixAna.trg_ana.cpos0b1s5r0000.hist");
     if(!_inputFile) return 1;
 
-    plot_param_and_ratio      ("cpos", "d0"     , PlotData_t("d_{0}"    , -150.,  100.));
-    plot_param_and_ratio      ("cpos", "p_2"    , PlotData_t("p"        ,   85.,   93.));
-    plot_param_and_ratio      ("cpos", "pt"     , PlotData_t("p_{T}"    ,   60.,   80.));
-    plot_param_and_ratio      ("cpos", "nActive", PlotData_t("N(active)",   20.,   80.));
-    plot_param_and_ratio      ("cpos", "rMax"   , PlotData_t("R(max)"   ,  450.,  800.));
-    plot_param_and_ratio      ("cpos", "radius" , PlotData_t("Radius"   ,  180.,  270.));
-    plot_param_and_ratio      ("cpos", "dP"     , PlotData_t("p - p(MC)",   -5.,    5.));
+    plot_param_and_ratio      ("cpos", "d0"      , PlotData_t("d_{0}"          , -150.,  100.));
+    plot_param_and_ratio      ("cpos", "p_2"     , PlotData_t("p"              ,   85.,   93.));
+    plot_param_and_ratio      ("cpos", "pCenter" , PlotData_t("p(Center)"      ,   85.,   95.));
+    plot_param_and_ratio      ("cpos", "pt"      , PlotData_t("p_{T}"          ,   60.,   80.));
+    plot_param_and_ratio      ("cpos", "dP"      , PlotData_t("p - p(MC)"      ,   -5.,    5.));
+    plot_param_and_ratio      ("cpos", "clusterE", PlotData_t("Cluster energy" ,    0.,  100.));
+    plot_param_and_ratio      ("cpos", "ep"      , PlotData_t("E / P"          ,    0.,   1.2));
+    plot_param_and_ratio      ("cpos", "nActive" , PlotData_t("N(active)"      ,   20.,   80.));
+    plot_param_and_ratio      ("cpos", "rMax"    , PlotData_t("R(max)"         ,  450.,  600.));
+    plot_param_and_ratio      ("cpos", "radius"  , PlotData_t("Radius"         ,  180.,  270.));
+    plot_param_and_ratio      ("cpos", "tanDip"  , PlotData_t("tan(dip)"       ,   0.5,   1.5));
+    plot_param_and_ratio      ("cpos", "chi2NDof", PlotData_t("#chi^{2}/N(DOF)",    0.,    5.));
     efficiency_vs_pot         ("cpos_eff_vs_pot");
     efficiency_vs_pot         ("cpos_norm_eff_vs_pot", 1);
     efficiency_vs_track_params("cpos");

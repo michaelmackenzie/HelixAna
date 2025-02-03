@@ -193,15 +193,18 @@ void rejection_plot(const char* name = "mnbs0b1") {
   const int napr  = instLumiApr   ->GetEntries(); //N(APR events);
   const int ncpr  = instLumiCpr   ->GetEntries(); //N(CPR events);
   const int nboth = instLumiAprCpr->GetEntries(); //N(APR || CPR events);
-  const double nevents_per_second = 0.4/1.4/1.695e-6;  //events per second
+  const double event_time = 1.695e-6; //micro-bunch period
+  const double nevents_per_second = 0.4/1.4/event_time;  //events per second
   const double norm = nevents_per_second/nsim; //normalization factor for N(sim) --> N(per second)
   const double napr_per_second = norm*napr;
   const double ncpr_per_second = norm*ncpr;
   const double nboth_per_second = norm*nboth;
-  printf("N(events / second) = %6.0f (%7i sim events)\n", nevents_per_second, nsim );
-  printf("N(APR    / second) = %6.0f (%7i sim events)\n", napr_per_second   , napr );
-  printf("N(CPR    / second) = %6.0f (%7i sim events)\n", ncpr_per_second   , ncpr );
-  printf("N(Either / second) = %6.0f (%7i sim events)\n", nboth_per_second  , nboth);
+  const double lumi_avg = lumi_nom->GetMean(); //average beam intensity
+
+  printf("N(events / second) = %6.0f +- %5.1f (%7i sim events)\n", nevents_per_second, norm*sqrt(nsim ), nsim ); //error doesn't make sense here
+  printf("N(APR    / second) = %6.0f +- %5.1f (%7i sim events)\n", napr_per_second   , norm*sqrt(napr ), napr );
+  printf("N(CPR    / second) = %6.0f +- %5.1f (%7i sim events)\n", ncpr_per_second   , norm*sqrt(ncpr ), ncpr );
+  printf("N(Either / second) = %6.0f +- %5.1f (%7i sim events)\n", nboth_per_second  , norm*sqrt(nboth), nboth);
 
   // Scale the luminosity plots to rates per second
   lumi_nom      ->Scale(norm);
@@ -215,10 +218,15 @@ void rejection_plot(const char* name = "mnbs0b1") {
   TH1* hRejCpr  = (TH1*) instLumi->Clone("RejCPR" ); hRejCpr ->Divide(instLumiCpr);
   TH1* hRejBoth = (TH1*) instLumi->Clone("RejBoth"); hRejBoth->Divide(instLumiAprCpr);
 
-  // Create the trigger rate normalized by POT bin
-  TH1* hRateApr  = (TH1*) instLumiApr   ->Clone("RateAPR" ); hRateApr ->Divide(instLumi); hRateApr ->Scale(nevents_per_second);
-  TH1* hRateCpr  = (TH1*) instLumiCpr   ->Clone("RateCPR" ); hRateCpr ->Divide(instLumi); hRateCpr ->Scale(nevents_per_second);
-  TH1* hRateBoth = (TH1*) instLumiAprCpr->Clone("RateBoth"); hRateBoth->Divide(instLumi); hRateBoth->Scale(nevents_per_second);
+  // Create the instantaneous trigger rate normalized by POT bin
+  TH1* hRateApr  = (TH1*) instLumiApr   ->Clone("RateAPR" ); hRateApr ->Divide(instLumi); hRateApr ->Scale(nevents_per_second); // 1./event_time);
+  TH1* hRateCpr  = (TH1*) instLumiCpr   ->Clone("RateCPR" ); hRateCpr ->Divide(instLumi); hRateCpr ->Scale(nevents_per_second); // 1./event_time);
+  TH1* hRateBoth = (TH1*) instLumiAprCpr->Clone("RateBoth"); hRateBoth->Divide(instLumi); hRateBoth->Scale(nevents_per_second); // 1./event_time);
+
+  printf("Average beam intensity = %.2e, Inst. trigger rates: APR = %.1f, CPR = %.1f, Both = %.1f\n", lumi_avg,
+         hRateApr ->GetBinContent(hRateApr ->FindBin(lumi_avg)),
+         hRateCpr ->GetBinContent(hRateCpr ->FindBin(lumi_avg)),
+         hRateBoth->GetBinContent(hRateBoth->FindBin(lumi_avg)));
 
   // Set the figure styles
   set_style(instLumiAprCpr, kViolet);
@@ -467,8 +475,8 @@ int trigEfficiencyPlotting(int Dataset = -1) {
     plot_param_and_ratio      ("cele", "dP"      , PlotData_t("p - p(MC)"      ,   -5.,    5.));
     plot_param_and_ratio      ("cele", "clusterE", PlotData_t("Cluster energy" ,    0.,  110.));
     plot_param_and_ratio      ("cele", "ep"      , PlotData_t("E / P"          ,    0.,   1.2));
-    plot_param_and_ratio      ("cele", "nActive" , PlotData_t("N(active)"      ,   20.,   80.));
-    plot_param_and_ratio      ("cele", "rMax"    , PlotData_t("R(max)"         ,  450.,  800.));
+    plot_param_and_ratio      ("cele", "nActive" , PlotData_t("N(active)"      ,   10.,   80.));
+    plot_param_and_ratio      ("cele", "rMax"    , PlotData_t("R(max)"         ,  430.,  800.));
     plot_param_and_ratio      ("cele", "radius"  , PlotData_t("Radius"         ,  200.,  300.));
     plot_param_and_ratio      ("cele", "tanDip"  , PlotData_t("tan(dip)"       ,   0.5,   1.5));
     plot_param_and_ratio      ("cele", "chi2NDof", PlotData_t("#chi^{2}/N(DOF)",    0.,    5.));
@@ -491,8 +499,8 @@ int trigEfficiencyPlotting(int Dataset = -1) {
     plot_param_and_ratio      ("cpos", "dP"      , PlotData_t("p - p(MC)"      ,   -5.,    5.));
     plot_param_and_ratio      ("cpos", "clusterE", PlotData_t("Cluster energy" ,    0.,  100.));
     plot_param_and_ratio      ("cpos", "ep"      , PlotData_t("E / P"          ,    0.,   1.2));
-    plot_param_and_ratio      ("cpos", "nActive" , PlotData_t("N(active)"      ,   20.,   80.));
-    plot_param_and_ratio      ("cpos", "rMax"    , PlotData_t("R(max)"         ,  450.,  600.));
+    plot_param_and_ratio      ("cpos", "nActive" , PlotData_t("N(active)"      ,   10.,   80.));
+    plot_param_and_ratio      ("cpos", "rMax"    , PlotData_t("R(max)"         ,  430.,  600.));
     plot_param_and_ratio      ("cpos", "radius"  , PlotData_t("Radius"         ,  180.,  270.));
     plot_param_and_ratio      ("cpos", "tanDip"  , PlotData_t("tan(dip)"       ,   0.5,   1.5));
     plot_param_and_ratio      ("cpos", "chi2NDof", PlotData_t("#chi^{2}/N(DOF)",    0.,    5.));

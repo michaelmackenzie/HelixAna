@@ -183,12 +183,12 @@ bool TTrigAnaModule::GoodOfflineTrack(TStnTrack* track) {
   InitTrackPar(track, &TrkPar);
 
   // specify the track selection
-  int   charge   =   0 ;
+  int         charge   =   0 ;
   const float minP     =  80.; //flat samples as default
   const float maxP     = 110.;
   const float chi2     =   5.; //quality selection
-  const int nActiveMin =  10 ;
-  const float rmax_min = 450.; //fiducial volume
+  const int nActiveMin =  15 ;
+  const float rmax_min = 430.; //fiducial volume
   const float rmax_max = 780.;
 
   // Check if this is a primary sample to check for a charge requirement and apply MC cuts to reject pileup
@@ -197,7 +197,7 @@ bool TTrigAnaModule::GoodOfflineTrack(TStnTrack* track) {
     auto simp = fSimpBlock->Particle(0);
     if     (simp->fPdgCode == -11) charge =  1;
     else if(simp->fPdgCode ==  11) charge = -1;
-    if(track->SimID() == int(simp->GetUniqueID())) mc_cut = true;
+    if(track->SimID() == int(simp->GetUniqueID())) mc_cut = true; //check the track sim is the simulated sim
   }
   if(!mc_cut) return false;
 
@@ -229,13 +229,29 @@ int TTrigAnaModule::Event(int ientry) {
   fEvtPar.fNAprTracks = fAprTrackBlock->NTracks();
   fEvtPar.fNCprTracks = fCprTrackBlock->NTracks();
   fEvtPar.fNTracks = fOfflineTrackBlock->NTracks();
-  fEvtPar.fPassedCprPath = fTriggerBlock->PathPassed(150);
-  fEvtPar.fPassedAprPath = fTriggerBlock->PathPassed(180);
+  fEvtPar.fPassedCprPath = fTriggerBlock->PathPassed(151);
+  fEvtPar.fPassedAprPath = fTriggerBlock->PathPassed(181);
 
   // count the number of good tracks
   fNGoodOfflineTracks = 0;
   for(int itrk = 0; itrk < fOfflineTrackBlock->NTracks(); ++itrk)
     if(GoodOfflineTrack(fOfflineTrackBlock->Track(itrk))) ++fNGoodOfflineTracks;
+
+  // Check that the event info makes sense
+
+  if(!fEvtPar.fPassedAprPath && fEvtPar.fNAprTracks) {
+    auto event = GetEvent();
+    printf(">>> TTrigAnaModule::%s: Event %5i:%5i:%6i: Failed APR path but found %i APR tracks\n",
+           __func__, event->fRunNumber, event->fSectionNumber, event->fEventNumber,
+           fEvtPar.fNAprTracks);
+  }
+
+  if(!fEvtPar.fPassedCprPath && fEvtPar.fNCprTracks) {
+    auto event = GetEvent();
+    printf(">>> TTrigAnaModule::%s: Event %5i:%5i:%6i: Failed CPR path but found %i CPR tracks\n",
+           __func__, event->fRunNumber, event->fSectionNumber, event->fEventNumber,
+           fEvtPar.fNCprTracks);
+  }
 
   Debug();
 

@@ -96,6 +96,7 @@ int plot_param_and_ratio(const char* name, const char* param, PlotData_t plot_da
   leg->AddEntry(cpr    , "CPR"    , "lpe");
   leg->AddEntry(den_tot, "Offline", "lpe");
   leg->Draw();
+  gPad->RedrawAxis();
 
   // Draw the ratios
   pad = c->cd(2);
@@ -122,11 +123,22 @@ int plot_param_and_ratio(const char* name, const char* param, PlotData_t plot_da
   apr_eff->Draw("E1 SAME");
   cpr_eff->Draw("E1 SAME");
 
+  const double xmin((plot_data._xmin < plot_data._xmax) ? plot_data._xmin : haxis->GetXaxis()->GetXmin());
+  const double xmax((plot_data._xmin < plot_data._xmax) ? plot_data._xmax : haxis->GetXaxis()->GetXmax());
+  const double ymin((plot_data._ymin < plot_data._ymax) ? plot_data._ymin : 0.65);
+  const double ymax((plot_data._ymin < plot_data._ymax) ? plot_data._ymax : 1.10);
+
   pad->Update();
-  if(plot_data._xmin < plot_data._xmax) haxis->GetXaxis()->SetRangeUser(plot_data._xmin, plot_data._xmax);
-  if(plot_data._ymin < plot_data._ymax) haxis->GetYaxis()->SetRangeUser(plot_data._ymin, plot_data._ymax);
-  else                                  haxis->GetYaxis()->SetRangeUser(0.65, 1.10);
+  haxis->GetXaxis()->SetRangeUser(xmin, xmax);
+  haxis->GetYaxis()->SetRangeUser(ymin, ymax);
   if(plot_data._title != "") haxis->SetTitle(Form("Online track reconstruction efficiency;%s;#epsilon;", plot_data._title.Data()));
+
+  // add a reference line
+  TLine line(xmin, 1., xmax, 1.);
+  line.SetLineWidth(2);
+  line.SetLineStyle(kDashed);
+  line.SetLineColor(kBlack);
+  line.Draw("SAME");
 
   leg = new TLegend(0.10, 0.80, 0.97, 0.90);
   leg->SetFillStyle(1001);
@@ -158,6 +170,149 @@ int plot_param_and_ratio(const char* name, const char* param, PlotData_t plot_da
 }
 
 //----------------------------------------------------------------------------------------------------------
+void rejection_plot(const char* name = "mnbs0b1") {
+
+   // create canvas
+  TCanvas* c0 = new TCanvas("c0","",900,700);
+  gStyle->SetOptStat(0);
+  // read in signal dataset plots
+  TH1* instLumi       = (TH1*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/evt_0/inst_lumi"        )->Clone("lumi_tot");
+  TH1* instLumiApr    = (TH1*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/evt_0/inst_lumi_apr"    )->Clone("lumi_apr");
+  TH1* instLumiCpr    = (TH1*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/evt_0/inst_lumi_cpr"    )->Clone("lumi_cpr");
+  TH1* instLumiAprCpr = (TH1*)_inputFile->Get("Ana/HelixAna_TrigAna/Hist/evt_0/inst_lumi_apr_cpr")->Clone("lumi_both");
+  TH1* lumi_nom = (TH1*) instLumi->Clone("lumi_nom"); //version with high binning
+
+  const int group_factor = 15;
+  instLumi      ->Rebin(group_factor);
+  instLumiApr   ->Rebin(group_factor);
+  instLumiCpr   ->Rebin(group_factor);
+  instLumiAprCpr->Rebin(group_factor);
+
+  // normalization info
+  const int nsim  = instLumi      ->GetEntries(); //N(simulated events)
+  const int napr  = instLumiApr   ->GetEntries(); //N(APR events);
+  const int ncpr  = instLumiCpr   ->GetEntries(); //N(CPR events);
+  const int nboth = instLumiAprCpr->GetEntries(); //N(APR || CPR events);
+  const double event_time = 1.695e-6; //micro-bunch period
+  const double nevents_per_second = 0.4/1.4/event_time;  //events per second
+  const double norm = nevents_per_second/nsim; //normalization factor for N(sim) --> N(per second)
+  const double napr_per_second = norm*napr;
+  const double ncpr_per_second = norm*ncpr;
+  const double nboth_per_second = norm*nboth;
+  const double lumi_avg = lumi_nom->GetMean(); //average beam intensity
+
+  printf("N(events / second) = %6.0f +- %5.1f (%7i sim events)\n", nevents_per_second, norm*sqrt(nsim ), nsim ); //error doesn't make sense here
+  printf("N(APR    / second) = %6.0f +- %5.1f (%7i sim events)\n", napr_per_second   , norm*sqrt(napr ), napr );
+  printf("N(CPR    / second) = %6.0f +- %5.1f (%7i sim events)\n", ncpr_per_second   , norm*sqrt(ncpr ), ncpr );
+  printf("N(Either / second) = %6.0f +- %5.1f (%7i sim events)\n", nboth_per_second  , norm*sqrt(nboth), nboth);
+
+  // Scale the luminosity plots to rates per second
+  lumi_nom      ->Scale(norm);
+  instLumi      ->Scale(norm);
+  instLumiApr   ->Scale(norm);
+  instLumiCpr   ->Scale(norm);
+  instLumiAprCpr->Scale(norm);
+
+  // Create the background rejection factor plots
+  TH1* hRejApr  = (TH1*) instLumi->Clone("RejAPR" ); hRejApr ->Divide(instLumiApr);
+  TH1* hRejCpr  = (TH1*) instLumi->Clone("RejCPR" ); hRejCpr ->Divide(instLumiCpr);
+  TH1* hRejBoth = (TH1*) instLumi->Clone("RejBoth"); hRejBoth->Divide(instLumiAprCpr);
+
+  // Create the instantaneous trigger rate normalized by POT bin
+  TH1* hRateApr  = (TH1*) instLumiApr   ->Clone("RateAPR" ); hRateApr ->Divide(instLumi); hRateApr ->Scale(nevents_per_second); // 1./event_time);
+  TH1* hRateCpr  = (TH1*) instLumiCpr   ->Clone("RateCPR" ); hRateCpr ->Divide(instLumi); hRateCpr ->Scale(nevents_per_second); // 1./event_time);
+  TH1* hRateBoth = (TH1*) instLumiAprCpr->Clone("RateBoth"); hRateBoth->Divide(instLumi); hRateBoth->Scale(nevents_per_second); // 1./event_time);
+
+  printf("Average beam intensity = %.2e, Inst. trigger rates: APR = %.1f, CPR = %.1f, Both = %.1f\n", lumi_avg,
+         hRateApr ->GetBinContent(hRateApr ->FindBin(lumi_avg)),
+         hRateCpr ->GetBinContent(hRateCpr ->FindBin(lumi_avg)),
+         hRateBoth->GetBinContent(hRateBoth->FindBin(lumi_avg)));
+
+  // Set the figure styles
+  set_style(instLumiAprCpr, kViolet);
+  set_style(instLumiApr   , kRed   );
+  set_style(instLumiCpr   , kCyan  );
+  set_style(hRejBoth      , kViolet);
+  set_style(hRejApr       , kRed   );
+  set_style(hRejCpr       , kCyan  );
+  set_style(hRateBoth     , kViolet);
+  set_style(hRateApr      , kRed   );
+  set_style(hRateCpr      , kCyan  );
+  set_style(lumi_nom      , kBlue  );
+
+  // draw the input lumi distribution
+  lumi_nom->Draw("hist");
+  lumi_nom->SetTitle("Luminosity profile;N(POT);Rate [Hz]");
+  lumi_nom->GetXaxis()->SetRangeUser(0., 99.e6);
+  c0->SaveAs(Form("%s%s_lumi.png", _figDir.Data(), name));
+
+  // draw trigger rate plots
+  instLumiAprCpr->Draw("E1");
+  instLumiApr   ->Draw("E1 same");
+  instLumiCpr   ->Draw("E1 same");
+  instLumiAprCpr->SetTitle("Background trigger rate;N(POT);Rate [Hz]");
+  instLumiAprCpr->GetXaxis()->SetRangeUser(0., 99.e6);
+
+  c0->Modified(); c0->Update();
+
+  TLegend *leg1 = new TLegend(0.65, 0.76, 0.90, 0.90);
+  leg1->SetFillStyle(1001);
+  leg1->SetFillColor(kWhite);
+  leg1->SetBorderSize(1);
+  leg1->SetShadowColor(0);
+
+  leg1->AddEntry(instLumiApr   , "APR", "lpe");
+  leg1->AddEntry(instLumiCpr   , "CPR", "lpe");
+  leg1->AddEntry(instLumiAprCpr, "APR+CPR", "lpe");
+  leg1->Draw();
+
+  c0->SaveAs(Form("%s%s_trigger_rate.png", _figDir.Data(), name));
+
+  // draw the rejection factors
+  hRejBoth->Draw("E1");
+  hRejApr ->Draw("E1 same");
+  hRejCpr ->Draw("E1 same");
+  hRejBoth->SetTitle("Background rejection factor;N(POT);rejection factor");
+  hRejBoth->GetYaxis()->SetRangeUser(500., 5.*max(hRejApr->GetMaximum(), hRejCpr->GetMaximum()));
+  hRejBoth->GetXaxis()->SetRangeUser(0., 99.e6);
+  c0->SetLogy();
+
+  leg1 = new TLegend(0.65, 0.76, 0.90, 0.90);
+  leg1->SetFillStyle(1001);
+  leg1->SetFillColor(kWhite);
+  leg1->SetBorderSize(1);
+  leg1->SetShadowColor(0);
+
+  leg1->AddEntry(hRejApr , "APR", "lpe");
+  leg1->AddEntry(hRejCpr , "CPR", "lpe");
+  leg1->AddEntry(hRejBoth, "APR+CPR", "lpe");
+  leg1->Draw();
+
+  c0->SaveAs(Form("%s%s_rejection.png", _figDir.Data(), name));
+
+  // draw the trigger rate per bin factors
+  hRateBoth->Draw("E1");
+  hRateApr ->Draw("E1 same");
+  hRateCpr ->Draw("E1 same");
+  hRateBoth->SetTitle("Instantaneous trigger rate;N(POT);Rate [Hz]");
+  hRateBoth->GetXaxis()->SetRangeUser(0., 99.e6);
+  c0->SetLogy(false);
+
+  leg1 = new TLegend(0.65, 0.76, 0.90, 0.90);
+  leg1->SetFillStyle(1001);
+  leg1->SetFillColor(kWhite);
+  leg1->SetBorderSize(1);
+  leg1->SetShadowColor(0);
+
+  leg1->AddEntry(hRateApr , "APR", "lpe");
+  leg1->AddEntry(hRateCpr , "CPR", "lpe");
+  leg1->AddEntry(hRateBoth, "APR+CPR", "lpe");
+  leg1->Draw();
+
+  c0->SaveAs(Form("%s%s_inst_trig_rate.png", _figDir.Data(), name));
+}
+
+//----------------------------------------------------------------------------------------------------------
 void efficiency_vs_pot(const char* name = "eff_vs_pot", const bool normalized = false) {
 
    // create canvas
@@ -176,8 +331,12 @@ void efficiency_vs_pot(const char* name = "eff_vs_pot", const bool normalized = 
   std::cout << "number of bins after rebin = " << instLumi->GetNbinsX() << std::endl;
   // print out total efficiencies
   const double totalEvents = instLumi->Integral();
+  const double APREventsPassed = instLumiApr->Integral();
+  const double CPREventsPassed = instLumiCpr->Integral();
   const double totalEventsPassed = instLumiAprCpr->Integral();
   const double totalEfficiency = totalEventsPassed/totalEvents;
+  printf("APR eff = %.3f, CPR eff = %.3f, Trigger eff = %.3f\n",
+         APREventsPassed/totalEvents, CPREventsPassed/totalEvents, totalEfficiency);
   std::cout << "reco efficiency = " << totalEfficiency << std::endl;
   // make efficiency plots
   TEfficiency* apr_effVsPOT = new TEfficiency(*instLumiApr, *instLumi);
@@ -199,6 +358,7 @@ void efficiency_vs_pot(const char* name = "eff_vs_pot", const bool normalized = 
   c0->Modified(); c0->Update();
 
   aprcpr_effVsPOT->GetPaintedGraph()->GetYaxis()->SetRangeUser(0.65, 1.05);
+  aprcpr_effVsPOT->GetPaintedGraph()->GetXaxis()->SetRangeUser(0., 100.e6);
 
   TLegend *leg1 = new TLegend(0.65, 0.76, 0.90, 0.90);
   leg1->SetFillStyle(1001);
@@ -308,13 +468,18 @@ int trigEfficiencyPlotting(int Dataset = -1) {
     load_input_file(_histDir + "HelixAna.trg_ana.cele0b1s5r0000.hist");
     if(!_inputFile) return 1;
 
-    plot_param_and_ratio      ("cele", "d0"     , PlotData_t("d_{0}"    , -100.,  150.));
-    plot_param_and_ratio      ("cele", "p_2"    , PlotData_t("p"        ,  100.,  105.));
-    plot_param_and_ratio      ("cele", "pt"     , PlotData_t("p_{T}"    ,  -95.,  -75.));
-    plot_param_and_ratio      ("cele", "nActive", PlotData_t("N(active)",   20.,   80.));
-    plot_param_and_ratio      ("cele", "rMax"   , PlotData_t("R(max)"   ,  450.,  800.));
-    plot_param_and_ratio      ("cele", "radius" , PlotData_t("Radius"   ,  200.,  300.));
-    plot_param_and_ratio      ("cele", "dP"     , PlotData_t("p - p(MC)",   -5.,    5.));
+    plot_param_and_ratio      ("cele", "d0"      , PlotData_t("d_{0}"          , -100.,  150.));
+    plot_param_and_ratio      ("cele", "p_2"     , PlotData_t("p"              ,  100.,  105.));
+    plot_param_and_ratio      ("cele", "pCenter" , PlotData_t("p(Center)"      , -110., -100.));
+    plot_param_and_ratio      ("cele", "pt"      , PlotData_t("p_{T}"          ,  -95.,  -75.));
+    plot_param_and_ratio      ("cele", "dP"      , PlotData_t("p - p(MC)"      ,   -5.,    5.));
+    plot_param_and_ratio      ("cele", "clusterE", PlotData_t("Cluster energy" ,    0.,  110.));
+    plot_param_and_ratio      ("cele", "ep"      , PlotData_t("E / P"          ,    0.,   1.2));
+    plot_param_and_ratio      ("cele", "nActive" , PlotData_t("N(active)"      ,   10.,   80.));
+    plot_param_and_ratio      ("cele", "rMax"    , PlotData_t("R(max)"         ,  430.,  800.));
+    plot_param_and_ratio      ("cele", "radius"  , PlotData_t("Radius"         ,  200.,  300.));
+    plot_param_and_ratio      ("cele", "tanDip"  , PlotData_t("tan(dip)"       ,   0.5,   1.5));
+    plot_param_and_ratio      ("cele", "chi2NDof", PlotData_t("#chi^{2}/N(DOF)",    0.,    5.));
     efficiency_vs_pot         ("cele_eff_vs_pot");
     efficiency_vs_pot         ("cele_norm_eff_vs_pot", 1);
     efficiency_vs_track_params("cele");
@@ -327,18 +492,39 @@ int trigEfficiencyPlotting(int Dataset = -1) {
     load_input_file(_histDir + "HelixAna.trg_ana.cpos0b1s5r0000.hist");
     if(!_inputFile) return 1;
 
-    plot_param_and_ratio      ("cpos", "d0"     , PlotData_t("d_{0}"    , -150.,  100.));
-    plot_param_and_ratio      ("cpos", "p_2"    , PlotData_t("p"        ,   85.,   93.));
-    plot_param_and_ratio      ("cpos", "pt"     , PlotData_t("p_{T}"    ,   60.,   80.));
-    plot_param_and_ratio      ("cpos", "nActive", PlotData_t("N(active)",   20.,   80.));
-    plot_param_and_ratio      ("cpos", "rMax"   , PlotData_t("R(max)"   ,  450.,  800.));
-    plot_param_and_ratio      ("cpos", "radius" , PlotData_t("Radius"   ,  180.,  270.));
-    plot_param_and_ratio      ("cpos", "dP"     , PlotData_t("p - p(MC)",   -5.,    5.));
+    plot_param_and_ratio      ("cpos", "d0"      , PlotData_t("d_{0}"          , -150.,  100.));
+    plot_param_and_ratio      ("cpos", "p_2"     , PlotData_t("p"              ,   85.,   93.));
+    plot_param_and_ratio      ("cpos", "pCenter" , PlotData_t("p(Center)"      ,   85.,   95.));
+    plot_param_and_ratio      ("cpos", "pt"      , PlotData_t("p_{T}"          ,   60.,   80.));
+    plot_param_and_ratio      ("cpos", "dP"      , PlotData_t("p - p(MC)"      ,   -5.,    5.));
+    plot_param_and_ratio      ("cpos", "clusterE", PlotData_t("Cluster energy" ,    0.,  100.));
+    plot_param_and_ratio      ("cpos", "ep"      , PlotData_t("E / P"          ,    0.,   1.2));
+    plot_param_and_ratio      ("cpos", "nActive" , PlotData_t("N(active)"      ,   10.,   80.));
+    plot_param_and_ratio      ("cpos", "rMax"    , PlotData_t("R(max)"         ,  430.,  600.));
+    plot_param_and_ratio      ("cpos", "radius"  , PlotData_t("Radius"         ,  180.,  270.));
+    plot_param_and_ratio      ("cpos", "tanDip"  , PlotData_t("tan(dip)"       ,   0.5,   1.5));
+    plot_param_and_ratio      ("cpos", "chi2NDof", PlotData_t("#chi^{2}/N(DOF)",    0.,    5.));
     efficiency_vs_pot         ("cpos_eff_vs_pot");
     efficiency_vs_pot         ("cpos_norm_eff_vs_pot", 1);
     efficiency_vs_track_params("cpos");
 
     _inputFile->Close();
+  }
+
+  // No primary plots (1BB)
+  if(Dataset < 0 || Dataset == 2) {
+    load_input_file(_histDir + "HelixAna.trg_ana.mnbs0b1s5r0000.hist");
+    if(!_inputFile) return 1;
+
+    rejection_plot("mnbs0b1");
+  }
+
+  // No primary plots (2BB)
+  if(Dataset < 0 || Dataset == 3) {
+    load_input_file(_histDir + "HelixAna.trg_ana.mnbs0b2s5r0000.hist");
+    if(!_inputFile) return 1;
+
+    rejection_plot("mnbs0b2");
   }
 
   return 0;

@@ -54,6 +54,12 @@ namespace HelixAna {
   }
 
   //-----------------------------------------------------------------------------
+  void THelixAnaModule::BookEventHistograms(EventHist_t* Hist, const char* Folder) {
+    TAnaModule::BookEventHistograms(Hist, Folder);
+    HBook1F(Hist->fNMatchedHelices,"nHelicesMatched",Form("%s: nHelicesMatched",Folder), 50, 0.0, 50.0, Folder);
+  }
+
+  //-----------------------------------------------------------------------------
   void THelixAnaModule::BookHelixCompHistograms(HelixAna::HelixCompHist_t* Hist, const char* Folder) {
 
     HBook1F(Hist->fAprHelixDeltaP,"AprHelixDeltaP",Form("%s: AprHelixDeltaP",Folder), 200,  -10, 10, Folder);
@@ -71,6 +77,12 @@ namespace HelixAna {
             Hist->fTZSlopeSig->GetNbinsX(), Hist->fTZSlopeSig->GetXaxis()->GetXmin(), Hist->fTZSlopeSig->GetXaxis()->GetXmax(), Folder);
     HBook1F(Hist->fTZSlopeSigCDF[1], "tzslopesig_cdf_1", Form("%s: dZ/dT significance CDF", Folder),
             Hist->fTZSlopeSig->GetNbinsX(), Hist->fTZSlopeSig->GetXaxis()->GetXmin(), Hist->fTZSlopeSig->GetXaxis()->GetXmax(), Folder);
+  }
+
+  //-----------------------------------------------------------------------------
+  void THelixAnaModule::FillEventHistograms(EventHist_t* Hist, EventPar_t* EvtPar) {
+    TAnaModule::FillEventHistograms(Hist, EvtPar);
+    Hist->fNMatchedHelices->Fill(EvtPar->fNMatchedHelices);
   }
 
   //-----------------------------------------------------------------------------

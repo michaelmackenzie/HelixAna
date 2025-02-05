@@ -1,10 +1,10 @@
 #include "Production/JobConfig/primary/RMCWireFlatGammaResampling.fcl"
 
 services.TFileService.fileName            : "nts.user.rmcg0b0s42r0000.HelixAna.001210_00000000.root"
-outputs.defaultOutput.fileName            : "sim.user.rmcg0b0s42r0000.HelixAna.001210_00000000.art"
+outputs.PrimaryOutput.fileName            : "sim.user.rmcg0b0s42r0000.HelixAna.001210_00000000.art"
 physics.producers.generate.makeHistograms : true
 
-# Keep low energy conversions out
+# Keep low energy conversions
 physics.filters.GenFilter.filterEnergy : false
 physics.filters.GenFilter.emin : 0.
 physics.filters.GenFilter.emax : 1000.
@@ -13,4 +13,7 @@ physics.filters.PrimaryFilter.MinimumPartMom : 30. #less than half the minimum p
 source.firstRun: 1210
 physics.filters.GammaConversionResampler.fileNames : [
 "/pnfs/mu2e/resilient/users/mmackenz/gammastops/sim.owner.RMCFlatWireGammaStops.100M.sequencer.art"]
-physics.filters.GammaConversionResampler.mu2e.MaxEventsToSkip: 0
+physics.filters.GammaConversionResampler.mu2e.MaxEventsToSkip: 5894
+
+#FIXME: Remove this after updates to Production
+physics.producers.compressDetStepMCs.stepPointMCTags : [ "g4run:virtualdetector", "g4run:protonabsorber", "g4run:stoppingtarget"]

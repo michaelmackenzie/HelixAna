@@ -9,6 +9,7 @@ namespace HelixAna {
     int           fNAprHelices;
     int           fNCprHelices;
     int           fNMergedHelices;
+    int           fNOfflineHelices;
     int           fNAprTracks;  // for trigger analysis
     int           fNCprTracks;  // for trigger analysis
     int           fNTracks;

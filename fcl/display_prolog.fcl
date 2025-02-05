@@ -1,0 +1,86 @@
+#include "Stntuple/fcl/stntuple_prologs.fcl"
+
+BEGIN_PROLOG
+Display.MuHitDisplay: { module_type:MuHitDisplay                 # class name;
+    interactiveMode     : 0
+    maxFileSize         : 4000   # in MBytes
+#------------------------------------------------------------------------------
+# if rootMacro is non-empty, it defines the name of a ROOT macro to be executed 
+# in interpreted mode in the art event loop
+# see https://github.com/Mu2e/Stntuple/blob/muse/doc/event_display.org#plugins
+#------------------------------------------------------------------------------
+    rootMacro           : ""
+#------------------------------------------------------------------------------
+# unlike everywhere else, TAnaDump sets mcTruth to 1 by default
+#------------------------------------------------------------------------------
+    TAnaDump : {
+	printUtils      : { @table::TrkReco.PrintUtils 
+	    mcTruth     : 1
+	}
+    }
+    debugBits       : { 
+	# bit0:1  
+	# bit1:1 
+	# bit51:1
+    }
+
+    interactiveMode              : 1                                # 1:stop  after each event 2: stop at end-of-job
+    
+    crvRecoPulsesCollTag         : "CrvRecoPulses"
+    showCRVOnly 		 : false
+    showTracks                   : true
+    
+    genpCollTag                  : "generate"
+    comboHitCollTag              : "makePH"                          ## "FlagBkgHits" ## (was "makePH") flagged comboHits
+    helixSeedCollTag             : "MHDe"                            # helices
+    strawHitCollTag              : "makeSH"
+    sdCollTag                    : "compressDigiMCs"                 # standard MC choice
+    swCollTag                    : "compressDigiMCs"                 # standard MC choice
+    sdmcCollTag                  : "compressDigiMCs"                 #  was "makeSD"
+    spmcCollTag                  : "compressDigiMCs:virtualdetector" # was g4run
+    simpCollTag                  : "compressDigiMCs"                 # was g4run
+
+    caloHitCollTag               : "CaloHitMaker"
+    caloClusterCollTag           : "CaloClusterMaker"
+
+    phiClusterCollTag            : "TZClusterFinder"                 ## "PhiClusterFinder"
+    timeClusterCollTag           : "TZClusterFinder"
+    trackCollTag                 : "KKDe"                           ## need to recover : "KFFDeMHDar"
+    kffCollTag                   : "KKDe"                       ## "KSFDeMHDar"
+    ksfCollTag                   : "KKDe"
+
+    trkExtrapol                  : "TrackCaloIntersection"
+    trkCalMatch                  : "TrackCaloMatching"
+
+    pidCollTag                   : "ParticleID"
+    primaryParticleTag           : "compressDigiMCs"                 # this is new, to be passed to InitSimpBlock
+    vdHitsCollTag                : "compressDigiMCs:virtualdetector" # this is new, to be passed to InitSimpBlock
+    
+    #      goodHitMask                 : ["EnergySelection","RadiusSelection","TimeSelection"]
+    goodHitMask                  : ["EnergySelection", "RadiusSelection"]
+    badHitMask                   : ["Background"] 
+    
+    minHits                      : 5
+    minSimpMomentum              : 30.      ## MeV
+    maxSimpMomentum              : 1.e12    ## MeV
+    timeWindow                   : 100000.
+#------------------------------------------------------------------------------
+# kalDiag and Doublet Resolver
+#------------------------------------------------------------------------------
+#    KalDiag                 : { @table::KalDiagDirect    }
+    DoubletAmbigResolver    : { @table::TrkReco.DoubletAmbigResolver }
+#------------------------------------------------------------------------------
+# configuration of the underlying visualization manager 
+#------------------------------------------------------------------------------
+    visManager: {
+	defaultView        : "xy"     # view open by default
+	displayStrawDigiMC : 1
+	displayStrawHitsXY : 1
+	debugLevel         : 0
+	bField             : 1.0      # in Tesla
+	tMin               : 0.
+	tMax               : 2000.    # override for extracted position
+    }
+    rootMacro              : ""
+}
+END_PROLOG

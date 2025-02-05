@@ -1,15 +1,17 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Module to study helices from APR and CPR
+// Module to study RMC pair conversions
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef HelixAna_ana_THelixAnaModule_hh
-#define HelixAna_ana_THelixAnaModule_hh
+#ifndef HelixAna_ana_TRMCConvAnaModule_hh
+#define HelixAna_ana_TRMCConvAnaModule_hh
 
 // local includes
 #include "HelixAna/ana/EventPar_t.hh"
 #include "HelixAna/ana/TrackPar_t.hh"
+#include "HelixAna/ana/HelixPar_t.hh"
+#include "HelixAna/ana/RMCPar_t.hh"
 #include "HelixAna/ana/EventHist_t.hh"
 #include "HelixAna/ana/TrackHist_t.hh"
-#include "HelixAna/ana/HelixCompHist_t.hh"
+#include "HelixAna/ana/RMCHist_t.hh"
 #include "HelixAna/ana/TAnaModule.hh"
 
 // Stntuple includes
@@ -26,7 +28,7 @@
 #include "Stntuple/obj/TSimpBlock.hh"
 
 namespace HelixAna {
-class THelixAnaModule: public TAnaModule {
+class TRMCConvAnaModule: public TAnaModule {
 public:
 
   enum { kNEventHistSets          = 100};
@@ -34,9 +36,7 @@ public:
   enum { kNSimpHistSets           =  10};
   enum { kNTrackHistSets          = 100};
   enum { kNHelixHistSets          = 100};
-  enum { kNHelixCompHistSets      = 100};
-  enum { kMaxHelices              =  10}; //maximum helices matched in an event
-  enum { kHelixID_P, kHelixID_T, kHelixID_R, kHelixID_MCP, kHelixID_MCMatch}; //Helix ID selections
+  enum { kNRMCHistSets            = 100};
 
   struct Hist_t {
     HelixAna::EventHist_t*     fEvent[kNEventHistSets];
@@ -44,20 +44,8 @@ public:
     HelixAna::SimpHist_t*      fSimp [kNSimpHistSets ];
     HelixAna::TrackHist_t*     fTrack[kNTrackHistSets];
     HelixAna::HelixHist_t*     fHelix[kNHelixHistSets];
-    HelixAna::HelixCompHist_t* fHelixComp[kNHelixCompHistSets];
+    HelixAna::RMCHist_t*       fRMC  [kNRMCHistSets  ];
   };
-
-  // structure for mapping corresponding helices and tracks
-  struct HelixPair_t {
-    TStnHelix* fAprHelix = nullptr;
-    TStnHelix* fCprHelix = nullptr;
-    TStnHelix* fMergedHelix = nullptr;
-    TStnTrack* fAprTrack = nullptr;
-    TStnTrack* fCprTrack = nullptr;
-    TStnTrack* fMergedTrack = nullptr;
-  };
-
-  HelixPair_t fMatchedHelices[kMaxHelices];
 
 //-----------------------------------------------------------------------------
 //  data members
@@ -72,35 +60,37 @@ public:
   TString                  fSimpBlockName;
 
   TStnHelixBlock*          fAprHelixBlock;
-  TStnHelixBlock*          fCprDeHelixBlock;
-  TStnHelixBlock*          fCprUeHelixBlock;
-  TStnHelixBlock*          fMergedHelixBlock;
+  TStnHelixBlock*          fCprHelixBlock;
+  TStnHelixBlock*          fOfflineHelixBlock;
   TStnTrackBlock*          fAprTrackBlock;
   TStnTrackBlock*          fCprTrackBlock;
-  TStnTrackBlock*          fMergedTrackBlock;
+  TStnTrackBlock*          fOfflineTrackBlock;
   TString                  fAprHelixBlockName;
-  TString                  fCprDeHelixBlockName;
-  TString                  fCprUeHelixBlockName;
-  TString                  fMergedHelixBlockName;
+  TString                  fCprHelixBlockName;
+  TString                  fOfflineHelixBlockName;
   TString                  fAprTrackBlockName;
   TString                  fCprTrackBlockName;
-  TString                  fMergedTrackBlockName;
+  TString                  fOfflineTrackBlockName;
 
   TStnTrack*               fTrack;
   TStnHelix*               fHelix;
   TGenParticle*            fGen;
+  TSimParticle*            fPhoton;
+  TSimParticle*            fPositron;
+  TSimParticle*            fElectron;
 
-  HelixAna::EventPar_t    fEvtPar;
-  HelixAna::TrackPar_t    fTrkPar;
-  HelixAna::HelixPar_t    fHlxPar;
+  HelixAna::EventPar_t     fEvtPar;
+  HelixAna::TrackPar_t     fTrkPar;
+  HelixAna::HelixPar_t     fHlxPar;
+  HelixAna::RMCPar_t       fRMCPar;
   Hist_t                   fHist;
 
 //-----------------------------------------------------------------------------
 //  functions
 //-----------------------------------------------------------------------------
 public:
-  THelixAnaModule(const char* name="HelixAna_HelixAna", const char* title="HelixAna");
-  ~THelixAnaModule();
+  TRMCConvAnaModule(const char* name="HelixAna_RMCConvAna", const char* title="RMCConvAna");
+  ~TRMCConvAnaModule();
 
 //-----------------------------------------------------------------------------
 // accessors
@@ -117,22 +107,18 @@ public:
 //-----------------------------------------------------------------------------
 // other methods
 //-----------------------------------------------------------------------------
-  void    BookEventHistograms(HelixAna::EventHist_t* Hist, const char* Folder);
-  void    BookHelixCompHistograms(HelixAna::HelixCompHist_t* Hist, const char* Folder);
+  void    BookRMCHistograms(HelixAna::RMCHist_t* Hist, const char* Folder);
   void    BookHelixHistograms(HelixAna::HelixHist_t* Hist, const char* Folder);
   void    BookHistograms();
-  void    FillEventHistograms(HelixAna::EventHist_t* Hist, HelixAna::EventPar_t* EvtPar);
-  void    FillHelixCompHistograms(HelixAna::HelixCompHist_t* Hist, HelixPair_t& Match);
+  void    FillRMCHistograms(HelixAna::RMCHist_t* Hist);
   void    FillHelixHistograms(HelixAna::HelixHist_t* Hist, HelixAna::HelixPar_t*  HlxPar);
   void    FillHistograms();
+  void    InitRMCPar();
 
 //-----------------------------------------------------------------------------
 // custom functions
 //-----------------------------------------------------------------------------
 
-  void MatchHelices();
-  bool CompareHelices(TStnHelix* h1, TStnHelix* h2);
-  TStnTrack* GetMatchingTrack(TStnHelix* h, int h_index, TStnTrackBlock* block);
   int HelixID(TStnHelix* h, HelixPar_t* hpar);
   int TrackID(TStnTrack* t, TrackPar_t* tpar);
 

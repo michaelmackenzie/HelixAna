@@ -63,3 +63,6 @@ physics.analyzers.StntupleMakerTrigTot.tciCollTag           : [@sequence::Offlin
 physics.analyzers.StntupleMakerTrigTot.tcmCollTag           : [@sequence::OfflineNames_tcmCollTag          , @sequence::TrigNames_tcmCollTag          , @sequence::StudyNames_tcmCollTag          ]
 physics.analyzers.StntupleMakerTrigTot.pidCollTag           : [@sequence::OfflineNames_pidCollTag          , @sequence::TrigNames_pidCollTag          , @sequence::StudyNames_pidCollTag          ]
 physics.analyzers.StntupleMakerTrigTot.trkQualCollTag       : [@sequence::OfflineNames_trkQualCollTag      , @sequence::TrigNames_trkQualCollTag      , @sequence::StudyNames_trkQualCollTag      ]
+
+# Ensure the photon, electron, and positron are always stored
+physics.analyzers.StntupleMakerTrigTot.minSimpMomentum      : -1.

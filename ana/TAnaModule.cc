@@ -74,7 +74,7 @@ void TAnaModule::BookEventHistograms(EventHist_t* Hist, const char* Folder) {
   HBook1F(Hist->fNTracks,"nTracks",Form("%s: nTracks",Folder), 50, 0.0, 50.0, Folder);
   HBook1F(Hist->fNAprHelices,"nHelicesApr",Form("%s: nHelicesApr",Folder), 50, 0.0, 50.0, Folder);
   HBook1F(Hist->fNCprHelices,"nHelicesCpr",Form("%s: nHelicesCpr",Folder), 50, 0.0, 50.0, Folder);
-  HBook1F(Hist->fNMatchedHelices,"nHelicesMatched",Form("%s: nHelicesMatched",Folder), 50, 0.0, 50.0, Folder);
+  HBook1F(Hist->fNHelices,"nHelices",Form("%s: nHelices",Folder), 50, 0.0, 50.0, Folder);
 
 }
 
@@ -101,8 +101,9 @@ void TAnaModule::BookSimpHistograms(SimpHist_t* Hist, const char* Folder) {
   HBook1F(Hist->fPdgCode         ,"pdg"         ,Form("%s: PDG code"                     ,Folder),200,-100,100,Folder);
   HBook1F(Hist->fCreationCode    ,"code"        ,Form("%s: Creation code"                ,Folder),200,   0,200,Folder);
   HBook1F(Hist->fNStrawHits      ,"nsth"        ,Form("%s: n straw hits"                 ,Folder),200,   0,200,Folder);
-  HBook1F(Hist->fMomTargetEnd    ,"ptarg"       ,Form("%s: CE mom after Stopping Target" ,Folder),400,  70,110,Folder);
-  HBook1F(Hist->fMomTrackerFront ,"pfront"      ,Form("%s: CE mom at the Tracker Front"  ,Folder),400,  70,110,Folder);
+  HBook1F(Hist->fMomTargetEnd    ,"ptarg"       ,Form("%s: mom after Stopping Target"    ,Folder),400,  70,110,Folder);
+  HBook1F(Hist->fMomTrackerFront ,"pfront"      ,Form("%s: mom at the Tracker Front"     ,Folder),400,  70,110,Folder);
+  HBook1F(Hist->fMomStart        ,"pstart"      ,Form("%s: mom at creation"              ,Folder),400,   0,150,Folder);
 }
 
 //-----------------------------------------------------------------------------
@@ -180,7 +181,7 @@ void TAnaModule::FillEventHistograms(EventHist_t* Hist, EventPar_t* EvtPar) {
   Hist->fNTracks->Fill(EvtPar->fNTracks);
   Hist->fNAprHelices->Fill(EvtPar->fNAprHelices);
   Hist->fNCprHelices->Fill(EvtPar->fNCprHelices);
-  Hist->fNMatchedHelices->Fill(EvtPar->fNMatchedHelices);
+  Hist->fNHelices->Fill(EvtPar->fNOfflineHelices);
 
 }
 
@@ -223,6 +224,7 @@ void TAnaModule::FillSimpHistograms(SimpHist_t* Hist, TSimParticle* Simp) {
   Hist->fMomTargetEnd->Fill(Simp->fMomTargetEnd);
   Hist->fMomTrackerFront->Fill(Simp->fMomTrackerFront);
   Hist->fNStrawHits->Fill(Simp->fNStrawHits);
+  Hist->fMomStart->Fill(Simp->fStartMom.P());
 }
 
 //-----------------------------------------------------------------------------

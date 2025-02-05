@@ -1,0 +1,22 @@
+# Process a failing cosmic event
+
+#include "HelixAna/fcl/display_prolog.fcl"
+#include "HelixAna/datasets/common/reco_stn.fcl"
+process_name : Display
+
+physics.analyzers.MuHitDisplay : @local::Display.MuHitDisplay
+
+physics.e1 : [ MuHitDisplay ]
+
+physics.trigger_paths : [RecoDe]
+physics.end_paths : [e1]
+
+services.DbService.purpose: MDC2020_best
+services.DbService.version: v1_3
+services.DbService.verbose : 2
+services.SeedService : {
+    baseSeed: 8
+    maxUniqueEngines: 100
+    policy: "autoIncrement"
+    service_type: "SeedService"
+}

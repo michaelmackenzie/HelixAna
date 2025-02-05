@@ -10,6 +10,7 @@ namespace HelixAna {
     TH1F*    fCreationCode;
     TH1F*    fMomTargetEnd;
     TH1F*    fMomTrackerFront;
+    TH1F*    fMomStart;
     TH1F*    fNStrawHits;
   };
 }

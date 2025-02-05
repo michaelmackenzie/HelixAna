@@ -1,7 +1,7 @@
 #include "Production/JobConfig/primary/RMCIPAFlatGammaResampling.fcl"
 
+
 services.TFileService.fileName            : "nts.user.rmcg0b0s43r0000.HelixAna.001210_00000000.root"
-outputs.defaultOutput.fileName            : "sim.user.rmcg0b0s43r0000.HelixAna.001210_00000000.art"
 physics.producers.generate.makeHistograms : true
 
 # Keep low energy conversions out

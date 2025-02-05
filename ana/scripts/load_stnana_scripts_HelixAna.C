@@ -13,6 +13,7 @@ int load_stnana_scripts_HelixAna() {
     "tst.C"        , "PWD",
     "trg.C"        , "PWD",
     "hlx.C"        , "PWD",
+    "rmc.C"        , "PWD",
     0
   };
 

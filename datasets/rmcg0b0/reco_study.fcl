@@ -1,0 +1,113 @@
+# Test fcl for studying the reconstruction algorithms with RMC conversions
+#include "HelixAna/datasets/rmcg0b0/s6_reco_stn_wire_rmcg0b0.fcl"
+
+#-------------------------------------------------------
+# Create modules not already defined
+
+# Add the track-based helix finder algorithm (from before APR)
+physics.producers.RobustHelixFinder : @local::TrigTprProducers.TThelixFinder
+physics.producers.RobustHelixFinder.ComboHitCollection : flagPH
+# Add the multi-helix finder algorithm (extremely loose selections, finds many)
+physics.producers.RobustMultiHelixFinder : @local::TrigMprProducers.TTRobustMultiHelixFinder
+physics.producers.RobustMultiHelixFinder.ComboHitCollection : flagPH
+
+
+#-------------------------------------------------------
+# Time clustering
+
+# Adjust the time clustering
+physics.producers.TZClusterFinder.minCaloEnergy : 20.
+
+# Set the time clustering algorithm
+# physics.producers.TimeClusterFinder : @local::TrkPatRec.TimeAndPhiClusterFinder
+physics.producers.TimeClusterFinder : @local::physics.producers.TZClusterFinder
+
+physics.producers.RobustHelixFinder.TimeClusterCollection      : "TimeClusterFinder"
+physics.producers.RobustMultiHelixFinder.TimeClusterCollection : "TimeClusterFinder"
+physics.producers.AgnosticHelixFinder.tcCollLabel              : "TimeClusterFinder"
+physics.producers.CalHelixFinder.TimeClusterCollectionLabel    : "TimeClusterFinder"
+
+#-------------------------------------------------------
+# Helix fitter
+
+# Adjust the helix fitters
+physics.producers.AgnosticHelixFinder.useStoppingTarget    : true # true nominally
+physics.producers.AgnosticHelixFinder.minTripletArea       : 1.e4 # 1e4 nominally
+physics.producers.AgnosticHelixFinder.minHelixPerpMomentum :  15. # 40 nominally
+physics.producers.AgnosticHelixFinder.maxHelixPerpMomentum :  60. # 140 nominally
+physics.producers.AgnosticHelixFinder.minHelixMomentum     :  20. # 40 nominally
+physics.producers.AgnosticHelixFinder.maxHelixMomentum     : 100. # 400 nominally
+# physics.producers.AgnosticHelixFinder.max2PiAmbigResidual  : 1.0 # 2.0 nominally
+# physics.producers.AgnosticHelixFinder.maxSegmentChi2       : 1.0 # 2.0 nominally, chi^2 when combining phi amb. lines
+# physics.producers.AgnosticHelixFinder.chi2LineSaveThresh    : 3.0 # 5.0 nominally chi^2 / dof in phi z
+# physics.producers.AgnosticHelixFinder.maxCircleRecoverSigma : 1.5 # 3.0 nominally when adding hits to the circle to recover <-- likely useful
+# physics.producers.AgnosticHelixFinder.maxSeedCircleResidual : 2.0 # 2.0 nominally distrance in sigma that hits are added to triplet seed circle
+# physics.producers.AgnosticHelixFinder.minTripletSeedZ       : -1500. # 0. nominally reduce to partial tracker
+# physics.producers.AgnosticHelixFinder.minTripletDz          : 0.0 # 50 nominally
+# physics.producers.AgnosticHelixFinder.maxTripletDz          : 3000.0 # 500 nominally
+
+# Select the helix fitter to use
+physics.producers.HelixFinder : @local::physics.producers.AgnosticHelixFinder
+# physics.producers.HelixFinder : @local::physics.producers.RobustMultiHelixFinder
+# physics.producers.HelixFinder : @local::physics.producers.RobustHelixFinder
+# physics.producers.HelixFinder : @local::physics.producers.CalHelixFinderDe
+
+#-------------------------------------------------------
+# Track fitter from the helix fitter
+
+physics.producers.TrackFitter : @local::physics.producers.KKDe
+
+# Adjust the track fitting
+physics.producers.TrackFitter.ExtensionSettings: @local::Mu2eKinKalTrigger.SEEDEXT # Use the seed fit, not adding hits or resolving left/right hit ambiguities
+
+#-------------------------------------------------------
+# Add a trigger path specific to our use case
+
+# Adjust the reco path to a single track finding algorithms
+physics.RMCReco : [@sequence::Reconstruction.CaloReco,
+		   @sequence::Reconstruction.TrkReco,
+		   @sequence::Reconstruction.CrvReco,
+		   TimeClusterFinder,
+		   HelixFinder, # helix finding
+		   MergeHelix,  # helix merging
+		   TrackFitter  # Track fits
+		  ]
+physics.producers.MergeHelix : @local::physics.producers.MHDe
+physics.producers.MergeHelix.HelixFinders : ["HelixFinder"]
+physics.producers.TrackFitter.ModuleSettings.HelixSeedCollections : [ "MergeHelix" ]
+
+# Only run this trigger path
+physics.trigger_paths : [ RMCReco ]
+
+#-------------------------------------------------------
+# Initialize Stntuple output
+
+
+# Add data blocks for the APR helices
+StudyNames_timeClusterBlockName: [ "TimeClusterBlock"  ]
+StudyNames_timeClusterCollTag  : [ "TimeClusterFinder" ]
+StudyNames_helixBlockName      : [ "HelixBlock"        ]
+StudyNames_helixCollTag        : [ "HelixFinder"       ]
+StudyNames_helixKsCollTag      : [ "TrackFitter"       ]
+StudyNames_trackBlockName      : [ "TrackBlock"        ]
+StudyNames_trackCollTag        : [ "TrackFitter"       ]
+StudyNames_trackHsBlockName    : [ "HelixBlock"        ]
+StudyNames_tciCollTag          : [ ""                  ]
+StudyNames_tcmCollTag          : [ ""                  ]
+StudyNames_trackSHBlockName    : [ ""                  ]
+StudyNames_pidBlockName        : [ ""                  ]
+StudyNames_pidCollTag          : [ ""                  ]
+StudyNames_trkQualCollTag      : [ ""                  ]
+
+physics.analyzers.StntupleMakerTrigTot.timeClusterBlockName : [@sequence::StudyNames_timeClusterBlockName]
+physics.analyzers.StntupleMakerTrigTot.timeClusterCollTag   : [@sequence::StudyNames_timeClusterCollTag  ]
+physics.analyzers.StntupleMakerTrigTot.helixBlockName       : [@sequence::StudyNames_helixBlockName      ]
+physics.analyzers.StntupleMakerTrigTot.helixCollTag         : [@sequence::StudyNames_helixCollTag        ]
+physics.analyzers.StntupleMakerTrigTot.helixCollKsTag       : [@sequence::StudyNames_helixKsCollTag      ]
+physics.analyzers.StntupleMakerTrigTot.trackBlockName       : [@sequence::StudyNames_trackBlockName      ]
+physics.analyzers.StntupleMakerTrigTot.trackCollTag         : [@sequence::StudyNames_trackCollTag        ]
+physics.analyzers.StntupleMakerTrigTot.trackHsBlockName     : [@sequence::StudyNames_trackHsBlockName    ]
+physics.analyzers.StntupleMakerTrigTot.tciCollTag           : [@sequence::StudyNames_tciCollTag          ]
+physics.analyzers.StntupleMakerTrigTot.tcmCollTag           : [@sequence::StudyNames_tcmCollTag          ]
+physics.analyzers.StntupleMakerTrigTot.pidCollTag           : [@sequence::StudyNames_pidCollTag          ]
+physics.analyzers.StntupleMakerTrigTot.trkQualCollTag       : [@sequence::StudyNames_trkQualCollTag      ]

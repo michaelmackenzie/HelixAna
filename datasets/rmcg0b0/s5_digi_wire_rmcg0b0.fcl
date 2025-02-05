@@ -1,15 +1,23 @@
 #include "HelixAna/datasets/common/digi.fcl"
 
+# One track and two track triggerable output
+outputs.TriggerableOutput.SelectEvents : [ TriggerablePath, TriggerableTwoTrackPath ]
 
-outputs.TriggeredOutput.fileName   : "dig.user.rmcg0b0s52r0000-Triggered.version.sequencer.art"
-outputs.TriggerableOutput.fileName : "dig.user.rmcg0b0s52r0000-Triggerable.version.sequencer.art"
-services.TFileService.fileName     : "nts.user.rmcg0b0s52r0000.HelixAna.001210_00000000.root"
+# Two track-specific triggerable output
+outputs.TriggerableTwoTrackOutput : @local::outputs.TriggerableOutput
+outputs.TriggerableTwoTrackOutput.SelectEvents : [ TriggerableTwoTrackPath ]
+
+outputs.TriggeredOutput.fileName           : "dig.user.rmcg0b0s52r0000-Triggered.version.sequencer.art"
+outputs.TriggerableOutput.fileName         : "dig.user.rmcg0b0s52r0000-Triggerable.version.sequencer.art"
+outputs.TriggerableTwoTrackOutput.fileName : "dig.user.rmcg0b0s52r0000-TriggerableTwoTrack.version.sequencer.art"
+services.TFileService.fileName             : "nts.user.rmcg0b0s52r0000.HelixAna.001210_00000000.root"
 
 
 physics.filters.TriggerableTwoTrack : @local::physics.filters.Triggerable
 physics.filters.TriggerableTwoTrack.MinParticleMom : 30.
 physics.filters.TriggerableTwoTrack.MinNParticles  : 2
+
 physics.TriggerableTwoTrackPath : [ @sequence::Digitize.DigitizeSequence, TriggerableTwoTrack ]
 physics.trigger_paths : [@sequence::physics.trigger_paths, "3:TriggerableTwoTrackPath"]
-# outputs.TriggerableOutput.SelectEvents : [ @sequence::outputs.TriggerableOutput.SelectEvents, TriggerableTwoTrackPath ]
-outputs.TriggerableOutput.SelectEvents : [ TriggerableTwoTrackPath ]
+
+physics.EndPath : [ @sequence::physics.EndPath, TriggerableTwoTrackOutput ]

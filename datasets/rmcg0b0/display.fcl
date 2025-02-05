@@ -1,0 +1,12 @@
+#include "HelixAna/fcl/display_prolog.fcl"
+#include "HelixAna/datasets/rmcg0b0/reco_study.fcl"
+
+physics.mu_display : [ MuHitDisplay ]
+physics.end_paths : [@sequence::physics.end_paths, mu_display]
+
+physics.analyzers.MuHitDisplay.timeClusterCollTag : "TimeClusterFinder"
+physics.analyzers.MuHitDisplay.phiClusterCollTag  : "TimeClusterFinder"
+physics.analyzers.MuHitDisplay.trackCollTag       : "TrackFitter"
+physics.analyzers.MuHitDisplay.kffCollTag         : "TrackFitter"
+physics.analyzers.MuHitDisplay.ksfCollTag         : "TrackFitter"
+physics.analyzers.MuHitDisplay.helixSeedCollTag   : "HelixFitter"

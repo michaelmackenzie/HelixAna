@@ -65,27 +65,31 @@ int plot_param_and_ratio(const char* name, const char* param, PlotData_t plot_da
 
   // Create the canvas
   TCanvas* c = new TCanvas(param, param, 1200, 600);
-  c->Divide(2,1);
+  TPad* pad1 = new TPad("pad1", "pad1", 0.0, 0., 0.5, 1.); pad1->Draw();
+  TPad* pad2 = new TPad("pad2", "pad2", 0.5, 0., 1.0, 1.); pad2->Draw();
+  pad1->SetRightMargin(0.03);
+  pad2->SetRightMargin(0.03);
+  pad1->SetLeftMargin (0.15);
+  pad2->SetLeftMargin (0.15);
 
   // Draw the distributions
-  auto pad = c->cd(1);
-  pad->SetRightMargin(0.03);
+  pad1->cd();
   set_style(num_tot, kViolet);
-  set_style(den_tot, kViolet);
+  set_style(den_tot, kBlue  );
   set_style(apr    , kRed   );
   set_style(cpr    , kCyan  );
 
   den_tot->Draw("E1");
   apr->Draw("E1 SAME");
   cpr->Draw("E1 SAME");
-  c->Update();
   if(plot_data._xmin < plot_data._xmax) den_tot->GetXaxis()->SetRangeUser(plot_data._xmin, plot_data._xmax);
   if(plot_data._ymin < plot_data._ymax) den_tot->GetYaxis()->SetRangeUser(plot_data._ymin, plot_data._ymax);
   else                                  den_tot->GetYaxis()->SetRangeUser(0.1, 1.2*max(max(den_tot->GetMaximum(), apr->GetMaximum()), cpr->GetMaximum()));
   if(plot_data._title != "") den_tot->SetTitle(Form("Track %s distributions;%s;Entries", plot_data._title.Data(), plot_data._title.Data()));
+  gStyle->SetTitleAlign(23);
 
   // Add a legend
-  TLegend *leg = new TLegend(0.10, 0.80, 0.97, 0.90);
+  TLegend *leg = new TLegend(pad1->GetLeftMargin(), 0.80, 1.-pad1->GetRightMargin(), 0.90);
   leg->SetFillStyle(1001);
   leg->SetFillColor(kWhite);
   leg->SetBorderSize(1);
@@ -99,8 +103,7 @@ int plot_param_and_ratio(const char* name, const char* param, PlotData_t plot_da
   gPad->RedrawAxis();
 
   // Draw the ratios
-  pad = c->cd(2);
-  pad->SetRightMargin(0.03);
+  pad2->cd();
   TEfficiency* apr_eff = new TEfficiency(*num_apr, *den_tot);
   apr_eff->SetLineColor(apr->GetLineColor());
   apr_eff->SetLineWidth(apr->GetLineWidth());
@@ -128,7 +131,6 @@ int plot_param_and_ratio(const char* name, const char* param, PlotData_t plot_da
   const double ymin((plot_data._ymin < plot_data._ymax) ? plot_data._ymin : 0.65);
   const double ymax((plot_data._ymin < plot_data._ymax) ? plot_data._ymax : 1.10);
 
-  pad->Update();
   haxis->GetXaxis()->SetRangeUser(xmin, xmax);
   haxis->GetYaxis()->SetRangeUser(ymin, ymax);
   if(plot_data._title != "") haxis->SetTitle(Form("Online track reconstruction efficiency;%s;#epsilon;", plot_data._title.Data()));
@@ -140,7 +142,7 @@ int plot_param_and_ratio(const char* name, const char* param, PlotData_t plot_da
   line.SetLineColor(kBlack);
   line.Draw("SAME");
 
-  leg = new TLegend(0.10, 0.80, 0.97, 0.90);
+  leg = new TLegend(pad2->GetLeftMargin(), 0.80, 1.-pad2->GetRightMargin(), 0.90);
   leg->SetFillStyle(1001);
   leg->SetFillColor(kWhite);
   leg->SetBorderSize(1);
@@ -469,7 +471,7 @@ int trigEfficiencyPlotting(int Dataset = -1) {
     if(!_inputFile) return 1;
 
     plot_param_and_ratio      ("cele", "d0"      , PlotData_t("d_{0}"          , -100.,  150.));
-    plot_param_and_ratio      ("cele", "p_2"     , PlotData_t("p"              ,  100.,  105.));
+    plot_param_and_ratio      ("cele", "p_2"     , PlotData_t("p"              ,  100.,  106.));
     plot_param_and_ratio      ("cele", "pCenter" , PlotData_t("p(Center)"      , -110., -100.));
     plot_param_and_ratio      ("cele", "pt"      , PlotData_t("p_{T}"          ,  -95.,  -75.));
     plot_param_and_ratio      ("cele", "dP"      , PlotData_t("p - p(MC)"      ,   -5.,    5.));

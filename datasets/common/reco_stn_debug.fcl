@@ -2,6 +2,9 @@
 
 #include "HelixAna/datasets/common/reco_stn.fcl"
 
+physics.analyzers.StntupleMakerTrigTot.trackVerbose : 3
+physics.analyzers.StntupleMakerTrigTot.helixVerbose : 3
+
 #----------------------------------------------------------------------------------------------------
 # To only run one helix/track block for debugging: Offline De reco
 

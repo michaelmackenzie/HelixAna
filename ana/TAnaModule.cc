@@ -112,7 +112,8 @@ void TAnaModule::BookTrackHistograms(TrackHist_t* Hist, const char* Folder) {
   HBook1F(Hist->fP[0],"p",Form("%s: track momentum",Folder), 600,  -300.0, 300.0, Folder);
   HBook1F(Hist->fP[1],"p_2",Form("%s: track momentum",Folder), 600,  80., 110., Folder);
   HBook1F(Hist->fPt,"pt",Form("%s: track transverse momentum",Folder), 600,  -300.0, 300.0, Folder);
-  HBook1F(Hist->fPCenter,"pCenter",Form("%s: track momentum at tracker center",Folder), 600,  -300.0, 300.0, Folder);
+  HBook1F(Hist->fPCenter[0],"pCenter",Form("%s: track momentum at tracker center",Folder), 600,  -300.0, 300.0, Folder);
+  HBook1F(Hist->fPCenter[1],"pCenter_2",Form("%s: track momentum at tracker center",Folder), 600,  80., 110., Folder);
   HBook1F(Hist->fPExit,"pExit",Form("%s: track momentum at tracker exit",Folder), 600,  -300.0, 300.0, Folder);
   HBook1F(Hist->fPST,"pST",Form("%s: track momentum at ST exit",Folder), 600,  -300.0, 300.0, Folder);
   HBook1F(Hist->fD0,"d0",Form("%s: track d0",Folder), 200, -200.0, 200.0, Folder);
@@ -242,7 +243,8 @@ void TAnaModule::FillTrackHistograms(TrackHist_t* Hist, TrackPar_t* TrkPar) {
   Hist->fP[0]->Fill((TrkPar->fTrack->fP)*(TrkPar->fTrack->fCharge));
   Hist->fP[1]->Fill(TrkPar->fTrack->fP);
   Hist->fPt->Fill((TrkPar->fTrack->fPt)*(TrkPar->fTrack->fCharge));
-  Hist->fPCenter->Fill((TrkPar->fTrack->fPTrackerMiddle)*(TrkPar->fTrack->fCharge));
+  Hist->fPCenter[0]->Fill((TrkPar->fTrack->fPTrackerMiddle)*(TrkPar->fTrack->fCharge));
+  Hist->fPCenter[1]->Fill(TrkPar->fTrack->fPTrackerMiddle);
   Hist->fPExit->Fill((TrkPar->fTrack->fPTrackerExit)*(TrkPar->fTrack->fCharge));
   Hist->fPST->Fill((TrkPar->fTrack->fPSTBack)*(TrkPar->fTrack->fCharge));
   Hist->fD0->Fill(TrkPar->fTrack->fD0);

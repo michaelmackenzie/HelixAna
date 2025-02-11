@@ -5,4 +5,7 @@ services.DbService.purpose: MDC2020_best
 services.DbService.version: v1_3
 services.DbService.verbose : 2
 
-outputs.Output.fileName   : "mcs.user.dddddb0s4r0000.version.sequencer.art"
+outputs.Output.fileName   : "mcs.user.dddddb0s41r0000.version.sequencer.art"
+
+#FIXME: Temporary fix
+physics.producers.compressRecoMCs.surfaceStepTags : []

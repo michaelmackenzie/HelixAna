@@ -295,7 +295,7 @@ physics.producers.KKUmu.Extrapolation.ToOPA           : false
 physics.producers.KKUmu.Extrapolation.Upstream        : true
 physics.producers.KKUmu.ModuleSettings.SampleSurfaces : [@sequence::TrackSurfaces]
 
-# Add extrapolation to Online tracks
+# Add extrapolation to Online tracks: Turned off as the KalSegment could have issues
 physics.producers.TTAprKSF.Extrapolation : @local::physics.producers.KKDe.Extrapolation
 physics.producers.TTAprKSF.ModuleSettings.SampleSurfaces  : [@sequence::TrackSurfaces]
 physics.producers.TTCalSeedFitDe.Extrapolation : @local::physics.producers.KKDe.Extrapolation

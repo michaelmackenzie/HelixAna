@@ -268,12 +268,16 @@ void TTrigAnaModule::Debug() {
   debug |= GetDebugBit(2) && (fEvtPar.fPassedCprPath);
   debug |= GetDebugBit(3) && (fEvtPar.fPassedAprPath && !fEvtPar.fNAprTracks);
   debug |= GetDebugBit(3) && (fEvtPar.fPassedCprPath && !fEvtPar.fNCprTracks);
+  debug |= GetDebugBit(4) && (fEvtPar.fNAprTracks && fEvtPar.fNTracks);
   if(debug) {
     auto event = GetEvent();
     printf(">>> TTrigAnaModule::%s: Event %5i:%5i:%6i:\n", __func__, event->fRunNumber, event->fSectionNumber, event->fEventNumber);
     printf(" Passed APR = %o, Passed CPR = %o\n", fEvtPar.fPassedAprPath, fEvtPar.fPassedCprPath);
     printf(" N(APR tracks) = %2i, N(CPR tracks) = %2i, N(Offline tracks) = %i\n",
            fEvtPar.fNAprTracks, fEvtPar.fNCprTracks, fEvtPar.fNTracks);
+    printf("  APR tracks:\n"); fAprTrackBlock->Print();
+    printf("  CPR tracks:\n"); fCprTrackBlock->Print();
+    printf("  Offline tracks:\n"); fOfflineTrackBlock->Print();
   }
 }
 

@@ -1,0 +1,76 @@
+# Process on-spill reco and re-run the trigger
+#include "Production/JobConfig/reco/prolog.fcl"
+
+
+# Trigger info, replacing the changes made in includes above
+#include "mu2e_trig_config/core/trigProducers.fcl"
+#include "mu2e_trig_config/core/trigFilters.fcl"
+#include "mu2e_trig_config/core/trigRecoSequences.fcl"
+
+BEGIN_PROLOG
+# override the trigger digitization sequence (must be before trigSequences)
+TrigRecoSequences.artFragmentsGen : []
+END_PROLOG
+
+#include "mu2e_trig_config/core/trigSequences.fcl"
+
+#include "mu2e_trig_config/gen/trig_physMenuPSConfig_OnSpill.fcl"
+#include "mu2e_trig_config/gen/trig_physMenu_OnSpill.fcl"
+
+
+
+# name all processes the same, to mask any provenance in ensemble creation
+process_name: Reconstruct
+source : { module_type : RootInput }
+services : @local::Services.Reco
+physics :
+{
+    producers : {
+	@table::TrigProducers.producers
+	@table::Reconstruction.producers
+    }
+    filters : {
+	@table::TrigFilters.filters
+	@table::Trig_physMenuPSConfig
+	@table::Reconstruction.filters
+    }
+    analyzers: @local::Reconstruction.analyzers
+    RecoPath : [ @sequence::Reconstruction.RecoMCPath ]
+    EndPath : @local::Reconstruction.EndPath
+    @table::TrigSequences
+}
+outputs : {
+    Output : {
+	@table::Reconstruction.Output
+	SelectEvents : [ "RecoPath" ]
+    }
+}
+# final config
+#include "Production/JobConfig/common/epilog.fcl"
+#include "Production/JobConfig/reco/epilog.fcl"
+#include "mu2e_trig_config/core/trigDigiInputsEpilog.fcl"
+#include "Production/JobConfig/reco/drop_trigger.fcl"
+physics.end_paths : [ EndPath ]
+physics.trigger_paths : [ RecoPath, @sequence::Trig_physMenu.trigger_paths ]
+
+
+services.DbService.purpose: MDC2020_best
+services.DbService.version: v1_3
+services.DbService.verbose : 2
+
+outputs.Output.fileName   : "mcs.user.dddddb0s41r0000.reco_trig.sequencer.art"
+outputs.Output.outputCommands : [ @sequence::outputs.Output.outputCommands,
+				  "keep mu2e::KalSeeds_*_*_*",
+				  "keep mu2e::HelixSeeds_*_*_*"
+				 ]
+# outputs.Output.outputCommands : [ "drop *_*_*_*",
+# 				  "keep mu2e::KalSeeds_*_*_*" ]
+
+physics : {
+    @table::physics
+}
+physics.trigger_paths : [RecoPath, @sequence::Trig_physMenu.trigger_paths]
+
+#FIXME: Temporary fix
+physics.producers.compressRecoMCs.surfaceStepTags : []
+

@@ -28,7 +28,7 @@ class Project(ProjectBase):
         job.fResample                = 'no'                      # yes/no
         job.fMaxMemory               = '30000MB'
         job.fRequestedTime           = '12h'
-        job.fIfdh                    = 'ifdh'                    # ifdh/xrootd
+        job.fIfdh                    = 'xrootd'                  # ifdh/xrootd
         job.fOutputPath              = [ 'out' ]
 
         job.fOutputStream            = [ 'defaultOutput'                ]

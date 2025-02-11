@@ -8,11 +8,12 @@ namespace HelixAna {
   struct TrackHist_t {
     TH1F*    fP[2];
     TH1F*    fPt;
-    TH1F*    fPCenter;
+    TH1F*    fPCenter[2];
     TH1F*    fPExit;
     TH1F*    fPST;
     TH1F*    fD0;
     TH1F*    fDP;
+    TH1F*    fDPCenter;
     TH1F*    fChi2NDof;
     TH1F*    fFitCons;
     TH1F*    fFitMomErr; //estimated uncertainty

@@ -1,0 +1,9 @@
+# debug hit flagging by printing all hits
+#include "mu2e_trig_config/test/triggerTest.fcl"
+
+physics.analyzers.printHits : {
+    module_type : PrintHits
+    hitCollTag : "TTflagPH"
+}
+physics.PrintHits : [ printHits ]
+physics.end_paths : [ PrintHits ]
